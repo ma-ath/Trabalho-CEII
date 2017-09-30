@@ -1,5 +1,5 @@
 #define versao "1.0j - 26/11/2015"
-#include <stdio.h>
+
 #include <conio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -39,7 +39,7 @@ FILE *arquivo;
 
 double
   g,
-  Yn[MAX_NOS+1][MAX_NOS+2];
+  Yn[MAX_NOS+1][MAX_NOS+2];   /*Matriz a ser resolvida*/
 
 /* Resolucao de sistema de equacoes lineares.
    Metodo de Gauss-Jordan com condensacao pivotal */
