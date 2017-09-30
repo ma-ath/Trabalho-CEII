@@ -33,13 +33,15 @@ private:
     int a,b,c,d,x,y;
 };
 
+
+
+/*IMPLEMENTACAO DOS METODOS - Por enquanto nao esta muito elaborado*/
 elemento::elemento(string nome,double valor)
 {
   this->nome = nome;
   this->valor = valor;
-}
-
-string elemento::getNome(){return this->nome;};
+};
+string elemento::getNome(){return this->nome;};   /*metodos set e get so setam/retornam o valor das variaveis*/
 double elemento::getValor(){return this->valor;};
 int elemento::getA(){return this->a;};
 int elemento::getB(){return this->b;};
