@@ -1,0 +1,1341 @@
+//---------------------------------------------------------------------------
+
+#include <vcl.h>
+#pragma hdrstop
+
+#include "mna1.h"
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+TForm1 *Form1;
+//---------------------------------------------------------------------------
+__fastcall TForm1::TForm1(TComponent* Owner)
+        : TForm(Owner)
+{
+}
+//---------------------------------------------------------------------------
+
+
+#include <stdio.h>
+#include <conio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <time.h>
+#include <ctype.h>
+#include <math.h>
+#include <complex.h>
+#define MAX_LINHA 80
+#define MAX_NOME 11
+#define MAX_ELEM 50
+#define MAX_NOS 50
+#define TOLG 1e-12
+//#define DEBUG
+
+#define MAX_ITERACOES 50
+#define MAX_INIT 20
+#define ERRO_MAX 1e-6
+#define X_ERRO 1
+
+typedef enum TipoModoOperacao
+{
+	corte, triodo, saturacao
+} TipoModoOperacao;
+
+typedef struct elemento // Elemento do netlist
+{
+	char nome[MAX_NOME], nome1[MAX_NOME], nome2[MAX_NOME];
+	double valor, modulo, fase;
+	double L, W, K, Vt0, lambda, gama, phi, Ld, gm, gds, gmb, i0;
+	int a,b,c,d,x,y,g,s, invertido;
+	TipoModoOperacao modoOperacao;
+} elemento;
+
+
+elemento netlist[MAX_ELEM]; /* Netlist */
+
+
+int
+numeroElementos, /* Numero de elementos */
+numeroVariaveis, /* Numero de variaveis */
+numeroNos, /* Numero de nos */
+i,j,k,x,y,
+ponto,
+numeroPontos,
+sistemaLinear,
+analiseFreq,
+iteracao, init;
+
+
+char
+/* Foram colocados limites nos formatos de leitura para alguma protecao
+   contra excesso de caracteres nestas variaveis */
+nomeArquivo[MAX_LINHA+1],
+*nomeArquivoTab,
+tipo,
+na[MAX_NOME],nb[MAX_NOME],nc[MAX_NOME],nd[MAX_NOME],
+lista[MAX_NOS+1][MAX_NOME+2], /*Tem que caber jx antes do nome (motivo do +2), imagino*/
+txt[MAX_LINHA+1],
+*p,
+tipoAC[4]; //3+1
+
+FILE *arquivo, *arquivoTab;
+
+double
+g,
+Yn[MAX_NOS+1][MAX_NOS+2],
+YnAnterior[MAX_NOS+1][MAX_NOS+2],
+erros[MAX_NOS+1],
+freqInicial,
+freqFinal,
+deltaOmega,
+omega,
+A, B;
+
+double complex
+gComplex,
+YnComplex[MAX_NOS+1][MAX_NOS+2],
+YnAnteriorComplex[MAX_NOS+1][MAX_NOS+2];
+
+/* Resolucao de sistema de equacoes lineares.
+   Metodo de Gauss-Jordan com condensacao pivotal */
+
+elemento ProcurarIndutor (char* nome)
+{
+	int i;
+
+	for (i=1; i<numeroElementos; i++) //netlist[0] nao e usado
+	{
+		if (strcmp (nome, netlist[i].nome) == 0)
+			return netlist[i];
+	}
+
+	printf ("Indutor %s do acoplamento nao declarado\n", nome);
+	exit (1);
+}
+
+int MontarCapacitanciasMOSPontoOp(elemento mos)
+{
+	g = 1/1e9;
+
+	//Capacitancia G-S
+	Yn[mos.s][mos.s] += g;
+	Yn[mos.g][mos.g] += g;
+	Yn[mos.s][mos.g] -= g;
+	Yn[mos.g][mos.s] -= g;
+
+	//Capacitancia G-D
+	Yn[mos.d][mos.d] += g;
+	Yn[mos.g][mos.g] += g;
+	Yn[mos.d][mos.g] -= g;
+	Yn[mos.g][mos.d] -= g;
+
+	//Capacitancia G-B
+	Yn[mos.b][mos.b] += g;
+	Yn[mos.g][mos.g] += g;
+	Yn[mos.b][mos.g] -= g;
+	Yn[mos.g][mos.b] -= g;
+
+	return 0;
+}
+
+int MontarCapacitanciasMOSAnaliseFreq(elemento mos, double w)
+{
+	double complex g;
+	double Cox, mi;
+	double Cgs, Cgd, Cgb;
+
+	if (strcmp(mos.nome1, "NMOS") == 0)
+		mi = 0.05;
+	else
+		mi = 0.02;
+
+	Cox = 2*mos.K/mi;
+
+	if (mos.modoOperacao == corte)
+	{
+		Cgs = Cox*mos.W*mos.Ld;
+		Cgd = Cgs;
+		Cgb = Cox*mos.W*mos.L;
+	}
+	else if (mos.modoOperacao == triodo)
+	{
+		Cgs = Cox*mos.W*mos.Ld + Cox*mos.W*mos.L/2.0;
+		Cgd = Cgs;
+		Cgb = 0;
+	}
+	else
+	{
+		Cgs = Cox*mos.W*mos.Ld + 2*Cox*mos.W*mos.L/3.0;
+		Cgd = Cox*mos.W*mos.Ld;
+		Cgb = 0;
+	}
+
+
+/*	printf ("D = %i | G = %i | S = %i\n", mos.d, mos.g, mos.s);
+	if (fabs(Cgs) != 0)
+	{
+		printf ("Cgs = %f | ", Cgs);
+	}
+	else
+		printf ("... | ");
+	if (fabs(Cgd) != 0)
+		printf ("Cgd = %f | ", Cgd);
+	else
+		printf ("... | ");
+	if (fabs(Cgb) != 0)
+		printf ("Cgb = %f | ", Cgb);
+	else
+		printf ("... | ");*/
+
+
+	//Capacitancia G-S
+	g = I*w*Cgs;
+	YnComplex[mos.s][mos.s] += g;
+	YnComplex[mos.g][mos.g] += g;
+	YnComplex[mos.s][mos.g] -= g;
+	YnComplex[mos.g][mos.s] -= g;
+
+	//Capacitancia G-D
+	g = I*w*Cgd;
+	YnComplex[mos.d][mos.d] += g;
+	YnComplex[mos.g][mos.g] += g;
+	YnComplex[mos.d][mos.g] -= g;
+	YnComplex[mos.g][mos.d] -= g;
+
+	//Capacitancia G-B
+	g = I*w*Cgb;
+	YnComplex[mos.b][mos.b] += g;
+	YnComplex[mos.g][mos.g] += g;
+	YnComplex[mos.b][mos.g] -= g;
+	YnComplex[mos.g][mos.b] -= g;
+
+	return 0;
+}
+
+int MontarEstampaMOSPontoOp (elemento* mos)
+{
+	double vgs,vds,vbs,Vt;
+	int d,s,auxiliar;
+
+	if (mos->nome[0] != 'M')
+		return 1;
+
+
+	// Garante que D é o nó de maior tensão no NMOS
+	if (strcmp (mos->nome1, "NMOS") == 0)
+	{
+		if (YnAnterior[mos->d][numeroVariaveis+1] > YnAnterior[mos->s][numeroVariaveis+1])
+		{
+			d = mos->d;
+			s = mos->s;
+			mos->invertido = 0;
+		}
+		else
+		{
+			d = mos->s;
+			s = mos->d;
+			mos->invertido = 1;
+		}
+	}
+	// Garante que S é o nó de maior tensão no PMOS
+	else
+	{
+		if (YnAnterior[mos->d][numeroVariaveis+1] < YnAnterior[mos->s][numeroVariaveis+1])
+		{
+			d = mos->d;
+			s = mos->s;
+			mos->invertido = 0;
+		}
+		else
+		{
+			d = mos->s;
+			s = mos->d;
+			mos->invertido = 1;
+		}
+	}
+
+
+	vgs = YnAnterior[mos->g][numeroVariaveis+1] - YnAnterior[s][numeroVariaveis+1];
+	vds = YnAnterior[d][numeroVariaveis+1] - YnAnterior[s][numeroVariaveis+1];
+	vbs = YnAnterior[mos->b][numeroVariaveis+1] - YnAnterior[s][numeroVariaveis+1];
+
+	if (fabs(vbs) > fabs(mos->phi))
+		vbs = mos->phi/2.0;
+
+
+
+
+
+	Vt = mos->Vt0 + mos->gama*(sqrt(mos->phi - vbs) - sqrt(mos->phi));
+
+	if (iteracao == 1 && init == 1)
+	{
+		//printf ("Primeira iteracao\n");
+		//printf ("Vgs = %f | Vt = %f\n", vgs, Vt);
+		vgs = 1.5*Vt;
+	}
+
+	if (strcmp (mos->nome1, "PMOS") == 0)
+	{
+		//		Vt *= -1;
+		//mos->K*=-1;
+		vgs *= -1;
+		vds *= -1;
+		vbs *= -1;
+	}
+
+
+
+
+	if (fabs(vgs) < fabs(Vt)) //Corte
+	{
+		mos->modoOperacao = corte;
+		mos->i0 = 0;
+		mos->gm = 0;
+		mos->gds = 0;
+		mos->gmb = 0;
+	}
+
+	else if (fabs(vds) <= fabs(vgs - Vt)) //Triodo
+	{
+		mos->modoOperacao = triodo;
+
+		mos->gm = mos->K * (mos->W/mos->L) * (2*vds) * (1 + mos->lambda*vds);
+		mos->gds = mos->K * (mos->W/mos->L) * (2*(vgs-Vt) - 2*vds + 4*mos->lambda*(vgs-Vt)*vds - 3*mos->lambda*pow(vds,2));
+		mos->gmb = (mos->gm*mos->gama)/(2*sqrt(mos->phi-vbs));
+
+		mos->i0 = mos->K * (mos->W/mos->L) * (2*(vgs-Vt)*vds - pow(vds,2)) * (1+mos->lambda*vds) - mos->gm*vgs - mos->gds*vds - mos->gmb*vbs;
+	}
+
+	else //Saturacao
+	{
+		mos->modoOperacao = saturacao;
+
+		//printf ("K = %f | W = %f | L = %f | Vgs = %f | Vt = %f | Lambda = %f | Vds = %f\n", mos->K,mos->W,mos->L,vgs,Vt,mos->lambda,vds);
+		mos->gm = mos->K * (mos->W/mos->L) * 2 * (vgs-Vt) * (1+mos->lambda*vds);
+		mos->gds = mos->K * (mos->W/mos->L) * mos->lambda * pow (vgs-Vt,2);
+		mos->gmb = (mos->gm*mos->gama)/(2*sqrt(mos->phi-vbs));
+
+		mos->i0 = mos->K * (mos->W/mos->L) * pow(vgs-Vt, 2) * (1+mos->lambda*vds) - mos->gm*vgs - mos->gds*vds - mos->gmb*vbs;
+	}
+
+	if (strcmp (mos->nome1, "PMOS") == 0)
+	{
+		mos->i0 *= -1;
+	}
+
+//	if (strcmp (mos->nome1, "NMOS") == 0)
+//	{
+		Yn[d][d] += mos->gds;
+		Yn[d][s] -= mos->gds + mos->gm + mos->gmb;
+		Yn[d][mos->g] += mos->gm;
+		Yn[d][mos->b] += mos->gmb;
+		Yn[s][d] -= mos->gds;
+		Yn[s][s] += mos->gds + mos->gm + mos->gmb;
+		Yn[s][mos->g] -= mos->gm;
+		Yn[s][mos->b] -= mos->gmb;
+
+		Yn[d][numeroVariaveis+1] -= mos->i0;
+		Yn[s][numeroVariaveis+1] += mos->i0;
+//	}
+//	else
+//	{
+//		Yn[mos->s][mos->d] += mos->gds;
+//		Yn[mos->s][mos->s] -= mos->gds + mos->gm + mos->gmb;
+//		Yn[mos->s][mos->g] += mos->gm;
+//		Yn[mos->s][mos->b] += mos->gmb;
+//		Yn[mos->d][mos->d] -= mos->gds;
+//		Yn[mos->d][mos->s] += mos->gds + mos->gm + mos->gmb;
+//		Yn[mos->d][mos->g] -= mos->gm;
+//		Yn[mos->d][mos->b] -= mos->gmb;
+//
+//		Yn[mos->s][numeroVariaveis+1] -= mos->i0;
+//		Yn[mos->d][numeroVariaveis+1] += mos->i0;
+//	}
+
+//	printf ("\n");
+//	switch (mos->modoOperacao)
+//	{
+//	case corte:
+//		printf ("Modo = Corte\n");
+//		break;
+//	case triodo:
+//		printf ("Modo = Triodo\n");
+//		break;
+//	case saturacao:
+//		printf ("Modo = Saturacao\n");
+//		break;
+//	}
+//
+//	printf ("\n");
+//	//printf ("d = %i | g = %i | s = %i | b = %i\n", mos->d, mos->g, mos->s, mos->b);
+//
+//	printf ("Vds = %f | Vgs = %f | Vbs = %f \n", vds, vgs, vbs);
+//
+//	printf ("I0 = %f | Gm = %f | Gds = %f | Gmb = %f | Vt = %f\n", mos->i0, mos->gm, mos->gds, mos->gmb, Vt);
+
+	return 0;
+}
+
+void PrintarSistema(double sistema[MAX_NOS+1][MAX_NOS+2])
+{
+	for (i=1; i<=numeroVariaveis; i++)
+	{
+		for (j=1; j<=numeroVariaveis+1; j++)
+			if (sistema[i][j]!=0) printf("%f ",sistema[i][j]);
+			else printf(" ... ");
+		printf("\n");
+	}
+}
+
+void PrintarSistemaComplexo()
+{
+	for (k=1; k<=numeroVariaveis; k++)
+	{
+		for (j=1; j<=numeroVariaveis+1; j++)
+			if (cabs(YnComplex[k][j]) != 0)
+				printf("%+3.2f+%+3.2fj ", creal(YnComplex[k][j]), cimag(YnComplex[k][j]));
+			else printf(" ........... ");
+		printf("\n");
+	}
+}
+
+int ResolverSistema(void)
+{
+	int i,j,l, a;
+	double t, p;
+
+	for (i=1; i<=numeroVariaveis; i++) {
+		t=0.0;
+		a=i;
+		for (l=i; l<=numeroVariaveis; l++) {
+			if (fabs(Yn[l][i])>fabs(t)) {
+				a=l;
+				t=Yn[l][i];
+			}
+		}
+		if (i!=a) {
+			for (l=1; l<=numeroVariaveis+1; l++) {
+				p=Yn[i][l];
+				Yn[i][l]=Yn[a][l];
+				Yn[a][l]=p;
+			}
+		}
+		if (fabs(t)<TOLG)
+		{
+			printf("Sistema singular\n");
+			PrintarSistema(Yn);
+			return 1;
+		}
+		for (j=numeroVariaveis+1; j>0; j--) {  /* Basta j>i em vez de j>0 */
+			Yn[i][j]/= t;
+			p=Yn[i][j];
+			if (p!=0)  /* Evita operacoes com zero */
+				for (l=1; l<=numeroVariaveis; l++) {
+					if (l!=i)
+						Yn[l][j]-=Yn[l][i]*p;
+				}
+		}
+	}
+	return 0;
+}
+
+int ResolverSistemaComplexo(void)
+{
+	int i,j,l, a;
+	double complex t, p;
+
+	for (i=1; i<=numeroVariaveis; i++) {
+		t=0.0;
+		a=i;
+		for (l=i; l<=numeroVariaveis; l++) {
+			if (cabs(YnComplex[l][i])>cabs(t)) {
+				a=l;
+				t=YnComplex[l][i];
+			}
+		}
+		if (i!=a) {
+			for (l=1; l<=numeroVariaveis+1; l++) {
+				p=YnComplex[i][l];
+				YnComplex[i][l]=YnComplex[a][l];
+				YnComplex[a][l]=p;
+			}
+		}
+		if (cabs(t)<TOLG)
+		{
+			printf("Sistema singular\n");
+			PrintarSistemaComplexo();
+			return 1;
+		}
+		for (j=numeroVariaveis+1; j>0; j--) {  /* Basta j>i em vez de j>0 */
+			YnComplex[i][j]/= t;
+			p=YnComplex[i][j];
+			if (p!=0)  /* Evita operacoes com zero */
+				for (l=1; l<=numeroVariaveis; l++)
+				{
+					if (l!=i)
+						YnComplex[l][j]-=YnComplex[l][i]*p;
+				}
+		}
+	}
+	return 0;
+}
+
+void SalvarUltimaIteracao()
+{
+	for (i=1; i<=numeroVariaveis; i++)
+	{
+		for (j=1; j<=numeroVariaveis+1; j++)
+			YnAnterior[i][j] = Yn[i][j];
+	}
+}
+
+/* Rotina que conta os nos e atribui numeros a eles */
+int NumerarNo(char *nome)
+{
+	int i,achou;
+
+	i=0; achou=0;
+	while (!achou && i<=numeroVariaveis)  // Procura pra ver se o nó "nome" já existe. Enquanto não acha, vai contando quantos existem
+		if (!(achou=!strcmp(nome,lista[i])))
+			i++;
+
+	if (!achou)
+	{
+		if (numeroVariaveis==MAX_NOS)
+		{
+			printf("O programa so aceita ate %d nos\n",numeroVariaveis);
+			exit(1);
+		}
+		numeroVariaveis++;
+		strcpy(lista[numeroVariaveis],nome);     // Adiciona o novo nó ao array de nós
+		return numeroVariaveis; /* novo no */
+	}
+	else
+	{
+		return i; /* no ja conhecido */
+	}
+}
+
+void ZerarSistema()
+{
+	for (i=0; i<=numeroVariaveis; i++)
+	{
+		for (j=0; j<=numeroVariaveis+1; j++)
+			Yn[i][j]=0;
+	}
+}
+
+void ZerarSistemaComplexo()
+{
+	for (i=0; i<=numeroVariaveis; i++)
+	{
+		for (j=0; j<=numeroVariaveis+1; j++)
+			YnComplex[i][j]=0;
+	}
+}
+
+void MontarEstampasPontoOp()
+{
+	for (i=1; i<=numeroElementos; i++)
+	{
+		tipo=netlist[i].nome[0];
+		if (tipo=='R')
+		{
+			g = 1/netlist[i].valor;
+			Yn[netlist[i].a][netlist[i].a] += g;
+			Yn[netlist[i].b][netlist[i].b] += g;
+			Yn[netlist[i].a][netlist[i].b] -= g;
+			Yn[netlist[i].b][netlist[i].a] -= g;
+		}
+		else if (tipo=='L')
+		{
+			// Vira um R de 1nOhms
+			g = 1/1e-9;
+			Yn[netlist[i].a][netlist[i].x] += 1;
+			Yn[netlist[i].b][netlist[i].x] -= 1;
+			Yn[netlist[i].x][netlist[i].a] -= 1;
+			Yn[netlist[i].x][netlist[i].b] += 1;
+			Yn[netlist[i].x][netlist[i].x] += 1/g;
+		}
+		else if (tipo=='C')
+		{
+			// Vira um R de 1GOhms
+			g = 1/1e9;
+			Yn[netlist[i].a][netlist[i].a] += g;
+			Yn[netlist[i].b][netlist[i].b] += g;
+			Yn[netlist[i].a][netlist[i].b] -= g;
+			Yn[netlist[i].b][netlist[i].a] -= g;
+		}
+		else if (tipo=='G')
+		{
+			g = netlist[i].valor;
+			Yn[netlist[i].a][netlist[i].c] += g;
+			Yn[netlist[i].b][netlist[i].d] += g;
+			Yn[netlist[i].a][netlist[i].d] -= g;
+			Yn[netlist[i].b][netlist[i].c] -= g;
+		}
+		else if (tipo=='I')  // I e V só o valor contínuo
+		{
+			g = netlist[i].valor;
+			Yn[netlist[i].a][numeroVariaveis+1] -= g;
+			Yn[netlist[i].b][numeroVariaveis+1] += g;
+		}
+		else if (tipo=='V')
+		{
+			Yn[netlist[i].a][netlist[i].x] += 1;
+			Yn[netlist[i].b][netlist[i].x] -= 1;
+			Yn[netlist[i].x][netlist[i].a] += 1;
+			Yn[netlist[i].x][netlist[i].b] -= 1;
+			Yn[netlist[i].x][numeroVariaveis+1] += netlist[i].valor;
+		}
+		else if (tipo=='E')
+		{
+			g = netlist[i].valor;
+			Yn[netlist[i].a][netlist[i].x] += 1;
+			Yn[netlist[i].b][netlist[i].x] -= 1;
+			Yn[netlist[i].x][netlist[i].a] -= 1;
+			Yn[netlist[i].x][netlist[i].b] += 1;
+			Yn[netlist[i].x][netlist[i].c] += g;
+			Yn[netlist[i].x][netlist[i].d] -= g;
+		}
+		else if (tipo=='F')
+		{
+			g = netlist[i].valor;
+			Yn[netlist[i].a][netlist[i].x] += g;
+			Yn[netlist[i].b][netlist[i].x] -= g;
+			Yn[netlist[i].c][netlist[i].x] += 1;
+			Yn[netlist[i].d][netlist[i].x] -= 1;
+			Yn[netlist[i].x][netlist[i].c] -= 1;
+			Yn[netlist[i].x][netlist[i].d] += 1;
+		}
+		else if (tipo=='H')
+		{
+			g = netlist[i].valor;
+			Yn[netlist[i].a][netlist[i].y] += 1;
+			Yn[netlist[i].b][netlist[i].y] -= 1;
+			Yn[netlist[i].c][netlist[i].x] += 1;
+			Yn[netlist[i].d][netlist[i].x] -= 1;
+			Yn[netlist[i].y][netlist[i].a] -= 1;
+			Yn[netlist[i].y][netlist[i].b] += 1;
+			Yn[netlist[i].x][netlist[i].c] -= 1;
+			Yn[netlist[i].x][netlist[i].d] += 1;
+			Yn[netlist[i].y][netlist[i].x] += g;
+		}
+		else if (tipo=='O')
+		{
+			Yn[netlist[i].a][netlist[i].x] += 1;
+			Yn[netlist[i].b][netlist[i].x] -= 1;
+			Yn[netlist[i].x][netlist[i].c] += 1;
+			Yn[netlist[i].x][netlist[i].d] -= 1;
+		}
+		else if (tipo=='M')
+		{
+			MontarEstampaMOSPontoOp(&netlist[i]);
+			MontarCapacitanciasMOSPontoOp(netlist[i]);
+		}
+#ifdef DEBUG
+		/* Opcional: Mostra o sistema apos a montagem da estampa */
+		printf("Sistema apos a estampa de %s\n",netlist[i].nome);
+		for (k=1; k<=numeroVariaveis; k++)
+		{
+			for (j=1; j<=numeroVariaveis+1; j++)
+				if (Yn[k][j]!=0)
+					printf("%+4.3f ",Yn[k][j]);
+				else printf(" ..... ");
+			printf("\n");
+		}
+		getch();
+#endif
+	}
+}
+
+// Ainda não coloquei o MOS
+void MontarEstampasAnaliseFrequencia(double w)
+{
+	for (i=1; i<=numeroElementos; i++)
+	{
+		tipo=netlist[i].nome[0];
+
+		if (tipo=='M')
+		{
+			YnComplex[netlist[i].d][netlist[i].d] += netlist[i].gds;
+			YnComplex[netlist[i].d][netlist[i].s] -= netlist[i].gds + netlist[i].gm + netlist[i].gmb;
+			YnComplex[netlist[i].d][netlist[i].g] += netlist[i].gm;
+			YnComplex[netlist[i].d][netlist[i].b] += netlist[i].gmb;
+			YnComplex[netlist[i].s][netlist[i].d] -= netlist[i].gds;
+			YnComplex[netlist[i].s][netlist[i].s] += netlist[i].gds + netlist[i].gm + netlist[i].gmb;
+			YnComplex[netlist[i].s][netlist[i].g] -= netlist[i].gm;
+			YnComplex[netlist[i].s][netlist[i].b] -= netlist[i].gmb;
+
+			//YnComplex[netlist[i].d][numeroVariaveis+1] -= netlist[i].i0;
+			//YnComplex[netlist[i].s][numeroVariaveis+1] += netlist[i].i0;
+
+			MontarCapacitanciasMOSAnaliseFreq (netlist[i], w);
+		}
+		else if (tipo=='R')
+		{
+			gComplex = 1/netlist[i].valor;
+			YnComplex[netlist[i].a][netlist[i].a] += gComplex;
+			YnComplex[netlist[i].b][netlist[i].b] += gComplex;
+			YnComplex[netlist[i].a][netlist[i].b] -= gComplex;
+			YnComplex[netlist[i].b][netlist[i].a] -= gComplex;
+		}
+		else if (tipo=='L')
+		{
+			gComplex = 1/(I*w*netlist[i].valor); // 1/jwL
+			//printf ("Modulo gL = %g\n", cabs (gComplex));
+			YnComplex[netlist[i].a][netlist[i].x] += 1;
+			YnComplex[netlist[i].b][netlist[i].x] -= 1;
+			YnComplex[netlist[i].x][netlist[i].a] -= 1;
+			YnComplex[netlist[i].x][netlist[i].b] += 1;
+			YnComplex[netlist[i].x][netlist[i].x] += 1/gComplex;
+		}
+		else if (tipo=='K')
+		{
+			// Ainda nao testei
+			// Acrescenta a parte relativa ao acoplamento j*w*M
+			gComplex = I*w*netlist[i].valor;
+			x = ProcurarIndutor (netlist[i].nome1).x;
+			y = ProcurarIndutor (netlist[i].nome2).x;
+			YnComplex[x][y] += gComplex;
+			YnComplex[y][x] += gComplex;
+		}
+		else if (tipo=='C')
+		{
+			gComplex = I*w*netlist[i].valor;  // jwC
+			//printf ("Capacitor: %g + %gi\n", creal(gComplex), cimag(gComplex));
+			YnComplex[netlist[i].a][netlist[i].a] += gComplex;
+			YnComplex[netlist[i].b][netlist[i].b] += gComplex;
+			YnComplex[netlist[i].a][netlist[i].b] -= gComplex;
+			YnComplex[netlist[i].b][netlist[i].a] -= gComplex;
+		}
+		else if (tipo=='G')
+		{
+			gComplex = netlist[i].valor;
+			YnComplex[netlist[i].a][netlist[i].c] += gComplex;
+			YnComplex[netlist[i].b][netlist[i].d] += gComplex;
+			YnComplex[netlist[i].a][netlist[i].d] -= gComplex;
+			YnComplex[netlist[i].b][netlist[i].c] -= gComplex;
+		}
+		else if (tipo=='I')
+		{
+			A = cos(netlist[i].fase*M_PI/180.0) * netlist[i].modulo;
+			B = sin(netlist[i].fase*M_PI/180.0) * netlist[i].modulo;
+			gComplex = A+B*I;
+
+			YnComplex[netlist[i].a][numeroVariaveis+1] -= gComplex;
+			YnComplex[netlist[i].b][numeroVariaveis+1] += gComplex;
+		}
+		else if (tipo=='V')
+		{
+			A = cos(netlist[i].fase*M_PI/180.0) * netlist[i].modulo;
+			B = sin(netlist[i].fase*M_PI/180.0) * netlist[i].modulo;
+			gComplex = A+B*I;
+
+			YnComplex[netlist[i].a][netlist[i].x] += 1;
+			YnComplex[netlist[i].b][netlist[i].x] -= 1;
+			YnComplex[netlist[i].x][netlist[i].a] -= 1;
+			YnComplex[netlist[i].x][netlist[i].b] += 1;
+			YnComplex[netlist[i].x][numeroVariaveis+1] -= gComplex;
+		}
+		else if (tipo=='E')
+		{
+			gComplex = netlist[i].valor;
+			YnComplex[netlist[i].a][netlist[i].x] += 1;
+			YnComplex[netlist[i].b][netlist[i].x] -= 1;
+			YnComplex[netlist[i].x][netlist[i].a] -= 1;
+			YnComplex[netlist[i].x][netlist[i].b] += 1;
+			YnComplex[netlist[i].x][netlist[i].c] += gComplex;
+			YnComplex[netlist[i].x][netlist[i].d] -= gComplex;
+		}
+		else if (tipo=='F')
+		{
+			gComplex = netlist[i].valor;
+			YnComplex[netlist[i].a][netlist[i].x] += gComplex;
+			YnComplex[netlist[i].b][netlist[i].x] -= gComplex;
+			YnComplex[netlist[i].c][netlist[i].x] += 1;
+			YnComplex[netlist[i].d][netlist[i].x] -= 1;
+			YnComplex[netlist[i].x][netlist[i].c] -= 1;
+			YnComplex[netlist[i].x][netlist[i].d] += 1;
+		}
+		else if (tipo=='H')
+		{
+			gComplex = netlist[i].valor;
+			YnComplex[netlist[i].a][netlist[i].y] += 1;
+			YnComplex[netlist[i].b][netlist[i].y] -= 1;
+			YnComplex[netlist[i].c][netlist[i].x] += 1;
+			YnComplex[netlist[i].d][netlist[i].x] -= 1;
+			YnComplex[netlist[i].y][netlist[i].a] -= 1;
+			YnComplex[netlist[i].y][netlist[i].b] += 1;
+			YnComplex[netlist[i].x][netlist[i].c] -= 1;
+			YnComplex[netlist[i].x][netlist[i].d] += 1;
+			YnComplex[netlist[i].y][netlist[i].x] += gComplex;
+		}
+		else if (tipo=='O')
+		{
+			YnComplex[netlist[i].a][netlist[i].x] += 1;
+			YnComplex[netlist[i].b][netlist[i].x] -= 1;
+			YnComplex[netlist[i].x][netlist[i].c] += 1;
+			YnComplex[netlist[i].x][netlist[i].d] -= 1;
+		}
+#ifdef DEBUG
+		/* Opcional: Mostra o sistema apos a montagem da estampa */
+		printf("Sistema apos a estampa de %s\n",netlist[i].nome);
+		PrintarSistemaComplexo();
+		getch();
+#endif
+	}
+}
+
+int TestarConvergencia()
+{
+	int i;
+
+	for (i=1; i<=numeroVariaveis;i++)
+	{
+		if (fabs(Yn[i][numeroVariaveis+1]) > X_ERRO)
+		{
+			erros[i] = X_ERRO*fabs((Yn[i][numeroVariaveis+1]-YnAnterior[i][numeroVariaveis+1])/Yn[i][numeroVariaveis+1]);
+		}
+		else
+		{
+			erros[i] = fabs(Yn[i][numeroVariaveis+1]-YnAnterior[i][numeroVariaveis+1]);
+		}
+
+		if (erros[i] > ERRO_MAX)
+			return 0;
+	}
+
+	return 1;
+}
+
+void InicializacaoRandomica()
+{
+	double valor;
+
+	srand ((unsigned)time(NULL));
+
+	printf ("Inicializacao Randomica\n");
+	for (i=1; i<=numeroVariaveis;i++)
+	{
+		if (erros[i] > ERRO_MAX)
+		{
+			printf ("Erro maior\n");
+			if (i <= numeroNos)
+			{
+				valor = rand() % 20001;
+				valor -= 10000;
+				valor /= 1000.0;
+				printf ("i = %f\n", valor);
+			}
+			else
+			{
+				valor = rand() % 2001;
+				valor -= 1000;
+				valor /= 1000.0;
+				printf ("i = %f\n", valor);
+			}
+			YnAnterior[i][numeroVariaveis+1] = valor;
+		}
+		else
+			YnAnterior[i][numeroVariaveis+1] = Yn[i][numeroVariaveis+1];
+	}
+	printf ("\n");
+}
+
+void NewtonRaphsonPontoOp ()
+{
+	int i, convergiu;
+
+	// Zerando Yn e YnAnterior
+	ZerarSistema();
+	SalvarUltimaIteracao(); // Zerar o YnAnterior tambem
+
+	//Inicializacao das variaveis do sistema
+	for (i=1; i<=numeroVariaveis; i++)
+	{
+		YnAnterior[i][numeroVariaveis+1] = 0.1;
+	}
+
+
+	//	MontarEstampasPontoOp();
+	//	return;
+
+	for (init=1; init<=MAX_INIT; init++)
+	{
+		if (init != 1)
+		{
+			InicializacaoRandomica();
+		}
+
+		for (iteracao = 1; iteracao<=MAX_ITERACOES; iteracao++)
+		{
+			ZerarSistema();
+			MontarEstampasPontoOp();
+			//PrintarSistema(Yn);
+			ResolverSistema();
+			//			if (ResolverSistema())
+			//			{
+			//				getch();
+			//				exit(1);
+			//			}
+
+			convergiu = TestarConvergencia();
+			if (convergiu == 1)
+			{
+				printf ("Sistema convergiu com %i iteracoes e %i inicializacoes randomicas\n",iteracao, init-1);
+				return;
+			}
+			//PrintarSistema(Yn);
+			SalvarUltimaIteracao();
+		}
+	}
+
+	printf ("\n");
+	for (i=1; i<=numeroVariaveis;i++)
+	{
+		printf ("Erro %i : %f\n", i, erros[i]);
+	}
+	printf ("Nem fodendo que essa porra converge\n");
+}
+
+
+
+int main(void)
+{
+	//clrscr();
+
+	printf("Programa do trabalho de CE II 2016.1\n");
+	printf("Analise de ponto de operacao e de resposta em frequencia de circuitos lineares contendo transistores MOS\n");
+	printf("Por:\n");
+	printf("   Lucas de Andrade Cerqueira\n");
+	printf("   Bruno Granato\n");
+	printf("   Joao Felipe Guedes\n");
+	denovo:
+	/* Leitura do netlist */
+	analiseFreq = 0;
+	sistemaLinear = 1;
+	numeroElementos=0;
+	numeroVariaveis=0;
+	strcpy(lista[0],"0");
+
+	printf("Nome do arquivo com o netlist (ex: mna.net): ");
+	scanf("%50s",nomeArquivo);
+	arquivo=fopen(nomeArquivo,"r");
+	if (arquivo==0) {
+		printf("Arquivo %s inexistente\n",nomeArquivo);
+		goto denovo;
+	}
+	printf("Lendo netlist:\n");
+	fgets(txt,MAX_LINHA,arquivo);
+	printf("Titulo: %s",txt);
+	while (fgets(txt,MAX_LINHA,arquivo))
+	{
+		numeroElementos++; /* Nao usa o netlist[0] */
+		if (numeroElementos>MAX_ELEM)
+		{
+			printf("O programa so aceita ate %d elementos\n",MAX_ELEM);
+			exit(1);
+		}
+		txt[0]=toupper(txt[0]);
+		tipo=txt[0];
+		sscanf(txt,"%10s",netlist[numeroElementos].nome);
+		p=txt+strlen(netlist[numeroElementos].nome); /* Inicio dos parametros */
+		/* O que e lido depende do tipo */
+		if (tipo=='R' || tipo=='L' || tipo=='C')
+		{
+			sscanf(p,"%10s%10s%lg",na,nb,&netlist[numeroElementos].valor);
+			printf("%s %s %s %g\n",netlist[numeroElementos].nome,na,nb,netlist[numeroElementos].valor);
+			netlist[numeroElementos].a=NumerarNo(na);   //Associa na e nb do netlist aos numeros dos nos
+			netlist[numeroElementos].b=NumerarNo(nb);
+		}
+		else if (tipo=='I' || tipo=='V')
+		{
+			sscanf(p,"%10s%10s%lg%lg%lg",na,nb,&netlist[numeroElementos].modulo,&netlist[numeroElementos].fase,&netlist[numeroElementos].valor);
+			printf("%s %s %s %g %g %g\n",netlist[numeroElementos].nome,na,nb,
+					netlist[numeroElementos].modulo, netlist[numeroElementos].fase, netlist[numeroElementos].valor);
+			netlist[numeroElementos].a=NumerarNo(na);
+			netlist[numeroElementos].b=NumerarNo(nb);
+		}
+		else if (tipo=='G' || tipo=='E' || tipo=='F' || tipo=='H')
+		{
+			sscanf(p,"%10s%10s%10s%10s%lg",na,nb,nc,nd,&netlist[numeroElementos].valor);
+			printf("%s %s %s %s %s %g\n",netlist[numeroElementos].nome,na,nb,nc,nd,netlist[numeroElementos].valor);
+			netlist[numeroElementos].a=NumerarNo(na);
+			netlist[numeroElementos].b=NumerarNo(nb);
+			netlist[numeroElementos].c=NumerarNo(nc);
+			netlist[numeroElementos].d=NumerarNo(nd);
+		}
+		else if (tipo=='O')
+		{
+			sscanf(p,"%10s%10s%10s%10s",na,nb,nc,nd);
+			printf("%s %s %s %s %s\n",netlist[numeroElementos].nome,na,nb,nc,nd);
+			netlist[numeroElementos].a=NumerarNo(na);
+			netlist[numeroElementos].b=NumerarNo(nb);
+			netlist[numeroElementos].c=NumerarNo(nc);
+			netlist[numeroElementos].d=NumerarNo(nd);
+		}
+
+		else if (tipo=='K')
+		{
+			//nome1 e nome2 guardam os nomes dos indutores previamente declarados
+			sscanf(p,"%10s%10s%lg",netlist[numeroElementos].nome1,netlist[numeroElementos].nome2,&netlist[numeroElementos].valor);
+
+			double L1 = ProcurarIndutor (netlist[numeroElementos].nome1).valor;
+			double L2 = ProcurarIndutor (netlist[numeroElementos].nome2).valor;
+
+			//M = k*sqrt(L1*L2)
+			netlist[numeroElementos].valor = netlist[numeroElementos].valor * sqrt (L1*L2);
+
+			printf("%s %s %s %g\n",netlist[numeroElementos].nome,
+					netlist[numeroElementos].nome1,
+					netlist[numeroElementos].nome2,
+					netlist[numeroElementos].valor);
+		}
+
+		else if (tipo=='M')
+		{
+			sistemaLinear = 0;
+
+			char L[10], W[10];
+			//*Transistor MOS: M<nome> <nód> <nóg> <nós> <nób> <NMOS ou PMOS> L=<comprimento> W=<largura> <K> <Vt0> <lambda> <gama> <phi> <Ld>
+			sscanf(p,"%10s%10s%10s%10s%10s%10s%10s%lg%lg%lg%lg%lg%lg",na,nb,nc,nd,netlist[numeroElementos].nome1,
+					L, W, &netlist[numeroElementos].K,
+					&netlist[numeroElementos].Vt0, &netlist[numeroElementos].lambda, &netlist[numeroElementos].gama,
+					&netlist[numeroElementos].phi, &netlist[numeroElementos].Ld);
+
+			char *ptr;
+			char *token;
+			token = strtok(L,"=");
+			token= strtok(NULL,"=");
+			netlist[numeroElementos].L = strtod(token, &ptr);
+
+			token = strtok(W,"=");
+			token= strtok(NULL,"=");
+			netlist[numeroElementos].W = strtod(token, &ptr);
+
+
+			printf("%s %s %s %s %s %s %f %f %f %f %f %f %f %f\n",
+					netlist[numeroElementos].nome,na,nb,nc,nd,netlist[numeroElementos].nome1,
+					netlist[numeroElementos].L, netlist[numeroElementos].W, netlist[numeroElementos].K,
+					netlist[numeroElementos].Vt0, netlist[numeroElementos].lambda, netlist[numeroElementos].gama,
+					netlist[numeroElementos].phi, netlist[numeroElementos].Ld);
+
+			netlist[numeroElementos].d=NumerarNo(na);
+			netlist[numeroElementos].g=NumerarNo(nb);
+			netlist[numeroElementos].s=NumerarNo(nc);
+			netlist[numeroElementos].b=NumerarNo(nd);
+		}
+
+		else if (tipo=='*')
+		{ /* Comentario comeca com "*" */
+			printf("Comentario: %s",txt);
+			numeroElementos--;
+		}
+		else if (tipo=='.') //Comando
+		{
+			if (strcmp(netlist[numeroElementos].nome, ".AC") == 0)
+			{
+				analiseFreq = 1;
+
+				sscanf(p,"%3s%d%lg%lg", tipoAC, &numeroPontos,&freqInicial, &freqFinal);
+				printf ("Tipo AC: %s\nNumero de Pontos: %i\nFreq Inicial: %g\nFreq Final: %g\n", tipoAC, numeroPontos, freqInicial, freqFinal);
+
+			}
+			numeroElementos--;
+		}
+		else
+		{
+			printf("Elemento desconhecido: %s\n",txt);
+			getch();
+			exit(1);
+		}
+	}
+	fclose(arquivo);
+
+
+	/* Acrescenta variaveis de corrente acima dos nos, anotando no netlist */
+
+	// Essa variavel numeroVariaveis é modificada nas chamadas de NumerarNo - Soma 1 a cada novo no
+	numeroNos=numeroVariaveis;
+	for (i=1; i<=numeroElementos; i++)
+	{
+		tipo=netlist[i].nome[0];
+		if (tipo=='V' || tipo=='E' || tipo=='F' || tipo=='O' || tipo=='L')
+		{
+			numeroVariaveis++;
+			if (numeroVariaveis>MAX_NOS)
+			{
+				printf("As correntes extra excederam o numero de variaveis permitido (%d)\n",MAX_NOS);
+				exit(1);
+			}
+			strcpy(lista[numeroVariaveis],"j"); /* Tem espaco para mais dois caracteres */
+			strcat(lista[numeroVariaveis],netlist[i].nome);
+			netlist[i].x=numeroVariaveis;
+		}
+		else if (tipo=='H')
+		{
+			numeroVariaveis=numeroVariaveis+2;
+			if (numeroVariaveis>MAX_NOS)
+			{
+				printf("As correntes extra excederam o  numero de variaveis permitido (%d)\n",MAX_NOS);
+				exit(1);
+			}
+			strcpy(lista[numeroVariaveis-1],"jx"); strcat(lista[numeroVariaveis-1],netlist[i].nome);
+			netlist[i].x=numeroVariaveis-1;
+			strcpy(lista[numeroVariaveis],"jy"); strcat(lista[numeroVariaveis],netlist[i].nome);
+			netlist[i].y=numeroVariaveis;
+		}
+	}
+	getch();
+	/* Lista tudo */
+	printf("Variaveis internas: \n");
+	for (i=0; i<=numeroVariaveis; i++)
+		printf("%d -> %s\n",i,lista[i]);
+	getch();
+	printf("Netlist interno final\n");
+	for (i=1; i<=numeroElementos; i++) {
+		tipo=netlist[i].nome[0];
+		if (tipo=='R' || tipo=='L' || tipo=='C')
+		{
+			printf("%s %d %d %g\n",netlist[i].nome,netlist[i].a,netlist[i].b,netlist[i].valor);
+		}
+		else if (tipo=='G' || tipo=='E' || tipo=='F' || tipo=='H')
+		{
+			printf("%s %d %d %d %d %g\n",netlist[i].nome,netlist[i].a,netlist[i].b,netlist[i].c,netlist[i].d,netlist[i].valor);
+		}
+		else if (tipo=='I' || tipo=='V')
+		{
+			printf("%s %d %d %g %g %g\n",netlist[i].nome,netlist[i].a,netlist[i].b,netlist[i].modulo,netlist[i].fase,netlist[i].valor);
+		}
+		else if (tipo=='K')
+		{
+			printf("%s %s %s %g\n",netlist[i].nome,netlist[i].nome1,netlist[i].nome2,netlist[i].valor);
+		}
+		else if (tipo=='O')
+		{
+			printf("%s %d %d %d %d\n",netlist[i].nome,netlist[i].a,netlist[i].b,netlist[i].c,netlist[i].d);
+		}
+		if (tipo=='V' || tipo=='E' || tipo=='F' || tipo=='O')
+			printf("Corrente jx: %d\n",netlist[i].x);
+		else if (tipo=='H')
+			printf("Correntes jx e jy: %d, %d\n",netlist[i].x,netlist[i].y);
+	}
+	getch();
+	/* Monta o sistema nodal modificado */
+	printf("O circuito tem %d nos, %d variaveis e %d elementos\n",numeroNos,numeroVariaveis,numeroElementos);
+
+	getch();
+
+	if (sistemaLinear == 1)
+	{
+		ZerarSistema();
+
+		/* Monta estampas */
+		MontarEstampasPontoOp();
+		printf ("\n");
+		printf ("Printando sistema...\n");
+		PrintarSistema(Yn);
+//		for (i=1; i<=numeroVariaveis; i++)
+//		{
+//			for (j=1; j<=numeroVariaveis+1; j++)
+//				if (YnAnterior[i][j]!=0) printf("%+3.1f ",YnAnterior[i][j]);
+//				else printf(" ... ");
+//			printf("\n");
+//		}
+
+		//return 1;
+
+		/* Resolve o sistema */
+		if (ResolverSistema())
+		{
+			//getch();
+			exit(1);
+		}
+	}
+	else
+	{
+		NewtonRaphsonPontoOp();
+	}
+
+
+	//Mostra solucao
+	printf("Solucao:\n");
+	strcpy(txt,"Tensao");
+	for (i=1; i<=numeroVariaveis; i++)
+	{
+		if (i==numeroNos+1) strcpy(txt,"Corrente");
+		printf("%s %s: %g\n",txt,lista[i],Yn[i][numeroVariaveis+1]);
+	}
+	for (i=1; i<=numeroElementos; i++)
+	{
+		if (netlist[i].nome[0] == 'M')
+		{
+			printf ("%s: %s ", netlist[i].nome, netlist[i].nome1);
+			if (netlist[i].invertido == 0)
+				printf ("normal ");
+			else
+				printf ("invertido ");
+
+			if (netlist[i].modoOperacao == corte)
+				printf ("cortado ");
+			else if (netlist[i].modoOperacao == triodo)
+				printf ("triodo ");
+			else
+				printf ("saturado ");
+
+			double vgs,vds,vbs;
+			vgs = YnAnterior[netlist[i].g][numeroVariaveis+1] - YnAnterior[netlist[i].s][numeroVariaveis+1];
+			vds = YnAnterior[netlist[i].d][numeroVariaveis+1] - YnAnterior[netlist[i].s][numeroVariaveis+1];
+			vbs = YnAnterior[netlist[i].b][numeroVariaveis+1] - YnAnterior[netlist[i].s][numeroVariaveis+1];
+			printf ("Gm=%g Gds=%g Gmb=%g I0=%g Vgs=%g Vds=%g Vbs=%g Id=%g\n", netlist[i].gm, netlist[i].gds, netlist[i].gmb, netlist[i].i0, vgs, vds, vbs,
+											netlist[i].i0 + netlist[i].gm*vgs + netlist[i].gds*vds + netlist[i].gmb*vbs);
+		}
+	}
+	//getch();
+
+	if (analiseFreq == 1)
+	{
+		printf ("\n");
+		printf ("Iniciando Analise em frequencia\n");
+
+		nomeArquivoTab = strtok(nomeArquivo,".");
+		strcat (nomeArquivoTab,".tab");
+		arquivoTab = fopen (nomeArquivoTab, "w");
+		if (arquivoTab==0)
+		{
+			printf("Falha ao criar arquivo %s\n",nomeArquivoTab);
+			exit (1);
+		}
+		fprintf (arquivoTab, "f ");
+		for (i=1; i<=numeroVariaveis; i++)
+		{
+			//if (i==numeroNos+1)
+			fprintf(arquivoTab, "%sm %sf ",lista[i],lista[i]);
+		}
+		fprintf (arquivoTab, "\n");
+
+		if (strcmp(tipoAC, "DEC") == 0)
+		{
+			deltaOmega = pow (10, 1/(double)(numeroPontos-1));
+
+			for (ponto=0; omega < freqFinal*2*M_PI; ponto++)
+			{
+
+
+				// Trocar para radianos!!!
+				omega = freqInicial * pow (deltaOmega,ponto)*2*M_PI;
+
+				//printf ("F = %f\n",omega);
+
+				ZerarSistemaComplexo();
+				MontarEstampasAnaliseFrequencia(omega);
+
+				if (ResolverSistemaComplexo())
+				{
+					getch();
+					exit(1);
+				}
+
+				/*
+		#ifdef DEBUG
+			//Opcional: Mostra o sistema resolvido
+			printf("Sistema resolvido:\n");
+			PrintarSistema();
+			getch();
+		#endif
+				 */
+
+				fprintf (arquivoTab, "%g ", omega/(2*M_PI));
+
+				//Mostra solucao
+				//printf("Solucao:\n");
+				for (i=1; i<=numeroVariaveis; i++)
+				{
+					fprintf (arquivoTab, "%g %g ", cabs(YnComplex[i][numeroVariaveis+1]), carg(YnComplex[i][numeroVariaveis+1])*180/M_PI);
+				}
+				fprintf(arquivoTab, "\n");
+			}
+		}
+		else if (strcmp(tipoAC, "OCT") == 0)
+		{
+			deltaOmega = pow (2, 1/(double)(numeroPontos-1));
+
+			for (ponto=0; omega < freqFinal*2*M_PI; ponto++)
+			{
+
+				// Trocar para radianos!!!
+				omega = freqInicial * pow (deltaOmega,ponto)*2*M_PI;
+				if (omega > freqFinal*2*M_PI)
+					omega = freqFinal*2*M_PI;
+
+				//printf ("F = %f\n",omega/(2*M_PI));
+
+				ZerarSistemaComplexo();
+				//PegarPontoOp
+				MontarEstampasAnaliseFrequencia(omega);
+
+				if (ResolverSistemaComplexo())
+				{
+					getch();
+					exit(1);
+				}
+
+				/*
+		#ifdef DEBUG
+			//Opcional: Mostra o sistema resolvido
+			printf("Sistema resolvido:\n");
+			PrintarSistema();
+			getch();
+		#endif
+				 */
+
+				fprintf (arquivoTab, "%g ", omega/(2*M_PI));
+
+				//Mostra solucao
+				//printf("Solucao:\n");
+				for (i=1; i<=numeroVariaveis; i++)
+				{
+					fprintf (arquivoTab, "%g %g ", cabs(YnComplex[i][numeroVariaveis+1]), carg(YnComplex[i][numeroVariaveis+1])*180/M_PI);
+				}
+				fprintf(arquivoTab, "\n");
+			}
+		}
+		else if (strcmp(tipoAC,"LIN") == 0)
+		{
+			deltaOmega = (freqFinal - freqInicial)/(float)numeroPontos;
+			deltaOmega = deltaOmega * 2*M_PI;
+
+			for (ponto = 0; ponto <= numeroPontos; ponto++)
+			{
+				omega = freqInicial*2*M_PI + ponto*deltaOmega;
+
+				ZerarSistemaComplexo();
+				//PegarPontoOp
+				MontarEstampasAnaliseFrequencia (omega);
+
+				if (ResolverSistemaComplexo())
+				{
+					getch();
+					exit(1);
+				}
+
+				fprintf (arquivoTab, "%g ", omega/(2*M_PI));
+
+				for (i=1; i<=numeroVariaveis; i++)
+				{
+					fprintf (arquivoTab, "%g %g ", cabs(YnComplex[i][numeroVariaveis+1]), carg(YnComplex[i][numeroVariaveis+1])*180/M_PI);
+				}
+				fprintf(arquivoTab, "\n");
+			}
+		}
+
+		fclose (arquivoTab);
+	}
+
+	//getch();
+
+	return 0;
+}
+
