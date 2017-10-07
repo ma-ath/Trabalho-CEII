@@ -38,6 +38,7 @@ Os nos podem ser nomes
 #include <stdlib.h>
 #include <ctype.h>
 #include <math.h>
+#include "tipo.h"
 #define MAX_LINHA 80
 #define MAX_NOME 11
 #define MAX_ELEM 50
@@ -45,12 +46,12 @@ Os nos podem ser nomes
 #define TOLG 1e-9
 #define DEBUG
 
-typedef struct elemento { /* Elemento do netlist */
+/*typedef struct elemento { /* Elemento do netlist
   char nome[MAX_NOME];
   double valor;
   int a,b,c,d,x,y;
 } elemento;
-
+*/
 /*array de elementos*/
 elemento netlist[MAX_ELEM]; /* Netlist */
 
