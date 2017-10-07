@@ -1,0 +1,58 @@
+In file included from C:\Users\matheus\Trabalho-CEII\Nosso Programa\estampas.cpp:3:0:
+C:\Users\matheus\Trabalho-CEII\Nosso Programa\estampas.h:7:5: error: expected unqualified-id before 'this'
+     this* R(int i);
+     ^
+C:\Users\matheus\Trabalho-CEII\Nosso Programa\estampas.h:8:5: error: expected unqualified-id before 'this'
+     this* G(int i);
+     ^
+C:\Users\matheus\Trabalho-CEII\Nosso Programa\estampas.h:9:5: error: expected unqualified-id before 'this'
+     this* I(int i);
+     ^
+C:\Users\matheus\Trabalho-CEII\Nosso Programa\estampas.h:10:5: error: expected unqualified-id before 'this'
+     this* V(int i);
+     ^
+C:\Users\matheus\Trabalho-CEII\Nosso Programa\estampas.h:11:5: error: expected unqualified-id before 'this'
+     this* E(int i);
+     ^
+C:\Users\matheus\Trabalho-CEII\Nosso Programa\estampas.h:12:5: error: expected unqualified-id before 'this'
+     this* F(int i);
+     ^
+C:\Users\matheus\Trabalho-CEII\Nosso Programa\estampas.h:13:5: error: expected unqualified-id before 'this'
+     this* H(int i);
+     ^
+C:\Users\matheus\Trabalho-CEII\Nosso Programa\estampas.h:14:5: error: expected unqualified-id before 'this'
+     this* O(int i);
+     ^
+C:\Users\matheus\Trabalho-CEII\Nosso Programa\estampas.h:16:5: error: expected unqualified-id before 'this'
+     this* MostrarEstampas();
+     ^
+C:\Users\matheus\Trabalho-CEII\Nosso Programa\estampas.h:17:1: error: expected ';' after class definition
+ }
+ ^
+C:\Users\matheus\Trabalho-CEII\Nosso Programa\estampas.cpp:7:1: error: expected unqualified-id before 'this'
+ this* estampas::R(int i)
+ ^
+C:\Users\matheus\Trabalho-CEII\Nosso Programa\estampas.cpp:16:1: error: expected unqualified-id before 'this'
+ this* estampas::G(int i)
+ ^
+C:\Users\matheus\Trabalho-CEII\Nosso Programa\estampas.cpp:25:1: error: expected unqualified-id before 'this'
+ this* estampas::I(int i)
+ ^
+C:\Users\matheus\Trabalho-CEII\Nosso Programa\estampas.cpp:32:1: error: expected unqualified-id before 'this'
+ this* estampas::V(int i)
+ ^
+C:\Users\matheus\Trabalho-CEII\Nosso Programa\estampas.cpp:41:1: error: expected unqualified-id before 'this'
+ this* estampas::E(int i)
+ ^
+C:\Users\matheus\Trabalho-CEII\Nosso Programa\estampas.cpp:52:1: error: expected unqualified-id before 'this'
+ this* estampas::F(int i)
+ ^
+C:\Users\matheus\Trabalho-CEII\Nosso Programa\estampas.cpp:63:1: error: expected unqualified-id before 'this'
+ this* estampas::H(int i)
+ ^
+C:\Users\matheus\Trabalho-CEII\Nosso Programa\estampas.cpp:77:1: error: expected unqualified-id before 'this'
+ this* estampas::O(int i)
+ ^
+C:\Users\matheus\Trabalho-CEII\Nosso Programa\estampas.cpp:86:1: error: expected unqualified-id before 'this'
+ this* estampas::MostrarEstampas()
+ ^
