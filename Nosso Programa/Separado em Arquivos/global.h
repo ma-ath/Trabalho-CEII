@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <math.h>
+#include <vector>
 
 #include "constantes.h"
 #include "tipos.h"

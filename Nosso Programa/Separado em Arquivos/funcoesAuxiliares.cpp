@@ -1,7 +1,8 @@
 /* Monta estampas */
-
 #include "funcoesAuxiliares.h"
 #include "global.h"
+
+using namespace std;
 
 void estampas(char tipo)
 {
@@ -153,4 +154,30 @@ void zeraSistema (void) {
   for (i=0; i<=nv; i++)
     for (j=0; j<=nv+1; j++)
       Yn[i][j]=0;
+}
+
+
+void salvarResultadoEmArquivo(vector < vector<double> > tabela)
+{
+  unsigned aux = 0;
+  unsigned aux2 = 0;
+  ofstream arquivo;
+
+  arquivo.open (srtcat(nomearquivo,".tab"));
+  if (arquivo.isopen())
+  {
+    while(aux <= tabela.size())
+    {
+      aux2 = 0;
+      while(aux2 <= tabela[0].size())
+      {
+        arquivo << static_cast <char*> ( casttabela[aux2].at(aux) );
+        aux2++;
+      }
+      aux++;
+    }
+  }
+  else
+    cout << "Erro ao salvar dados - Nao foi capaz de abrir o arquivo";
+
 }

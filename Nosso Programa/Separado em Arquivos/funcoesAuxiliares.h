@@ -8,7 +8,10 @@ int resolversistema(void);
 /* Rotina que conta os nos e atribui numeros a eles */
 int numero(char *nome);
 
-void zeraSistema (void) ;
+void zeraSistema (void);
+
+void salvarResultadoEmArquivo(vector < vector<double> > tabela)
+
 /* Monta estampas
 using namespace std;
 
