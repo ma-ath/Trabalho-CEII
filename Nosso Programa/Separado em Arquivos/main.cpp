@@ -80,6 +80,14 @@ int main()
       netlist[ne].c=numero(nc);
       netlist[ne].d=numero(nd);
     }
+    else if (tipo=='K') {         /*Transmador Ideal - 07/10/2017*/
+      sscanf(p,"%10s%10s%10s%10s%lg",na,nb,nc,nd,&netlist[ne].valor);
+      printf("%s %s %s %s %s %g\n",netlist[ne].nome,na,nb,nc,nd,netlist[ne].valor);
+      netlist[ne].a=numero(na);
+      netlist[ne].b=numero(nb);
+      netlist[ne].c=numero(nc);
+      netlist[ne].d=numero(nd);
+    }
     else if (tipo=='*') { /* Comentario comeca com "*" */
       printf("Comentario: %s",txt);
       ne--;
@@ -98,7 +106,7 @@ int main()
 
     /*se forem os tipos que precisam de UMA corrente pra montar o mna,
     o numero de variavel vai aumentar em 1, alem dos variaveis de nos*/
-    if (tipo=='V' || tipo=='E' || tipo=='F' || tipo=='O') {
+    if (tipo=='V' || tipo=='E' || tipo=='F' || tipo=='O' || tipo=='K') {
       nv++;
       if (nv>MAX_NOS) {
         printf("As correntes extra excederam o numero de variaveis permitido (%d)\n",MAX_NOS);
@@ -134,7 +142,7 @@ int main()
     if (tipo=='R' || tipo=='I' || tipo=='V') {
       printf("%s %d %d %g\n",netlist[i].nome,netlist[i].a,netlist[i].b,netlist[i].valor);
     }
-    else if (tipo=='G' || tipo=='E' || tipo=='F' || tipo=='H') {
+    else if (tipo=='G' || tipo=='E' || tipo=='F' || tipo=='H' || tipo=='K') {
       printf("%s %d %d %d %d %g\n",netlist[i].nome,netlist[i].a,netlist[i].b,netlist[i].c,netlist[i].d,netlist[i].valor);
     }
     else if (tipo=='O') {
