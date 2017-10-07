@@ -156,7 +156,7 @@ void zeraSistema (void) {
       Yn[i][j]=0;
 }
 
-
+/*
 void salvarResultadoEmArquivo(vector < vector<double> > tabela)
 {
   unsigned aux = 0;
@@ -181,3 +181,51 @@ void salvarResultadoEmArquivo(vector < vector<double> > tabela)
     cout << "Erro ao salvar dados - Nao foi capaz de abrir o arquivo";
 
 }
+
+PROGRAMA DE TESTES QUE EU COMECEI A FAZER MAS NAO FUNCIONA (BOTEI AQUI SO PRA SALVAR)
+#include <vector>
+#include <fstream>
+#include <cstdio>
+char nomearquivo[100] = "teste.net";
+
+using namespace std;
+
+void salvarResultadoEmArquivo(vector < vector<double> > tabela)
+{
+  unsigned aux = 0;
+  unsigned aux2 = 0;
+  ofstream arquivo;
+
+  arquivo.open (strcat(nomearquivo,".tab"));
+  if (arquivo.isopen())
+  {
+    while(aux <= tabela.size())
+    {
+      aux2 = 0;
+      while(aux2 <= tabela[0].size())
+      {
+        arquivo << static_cast <char*> ( tabela[aux2].at(aux) );
+        aux2++;
+      }
+      aux++;
+    }
+  }
+  else
+    cout << "Erro ao salvar dados - Nao foi capaz de abrir o arquivo";
+
+}
+
+int main()
+{
+vector < vector <double> > teste;
+
+teste.push_back(0);
+teste.push_back(1);
+teste.push_back(2);
+
+salvarResultadoEmArquivo(teste);
+
+return 0;
+}
+
+*/

@@ -10,7 +10,7 @@ int numero(char *nome);
 
 void zeraSistema (void);
 
-void salvarResultadoEmArquivo(vector < vector<double> > tabela)
+/*void salvarResultadoEmArquivo(vector < vector<double> > tabela)*/
 
 /* Monta estampas
 using namespace std;
