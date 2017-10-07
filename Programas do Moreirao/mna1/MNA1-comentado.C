@@ -39,13 +39,8 @@ Os nos podem ser nomes
 #include <ctype.h>
 #include <math.h>
 #include "tipo.h"
-#define MAX_LINHA 80
-#define MAX_NOME 11
-#define MAX_ELEM 50
-#define MAX_NOS 50
-#define TOLG 1e-9
-#define DEBUG
-
+#include "globaldaAlyssa.h"
+#include "estampas.h"
 /*typedef struct elemento { /* Elemento do netlist
   char nome[MAX_NOME];
   double valor;
@@ -279,68 +274,7 @@ int main(void)
     "pontilhadinhos"*/
   for (i=1; i<=ne; i++) {
     tipo=netlist[i].nome[0];
-    if (tipo=='R') {
-      g=1/netlist[i].valor;
-      Yn[netlist[i].a][netlist[i].a]+=g;
-      Yn[netlist[i].b][netlist[i].b]+=g;
-      Yn[netlist[i].a][netlist[i].b]-=g;
-      Yn[netlist[i].b][netlist[i].a]-=g;
-    }
-    else if (tipo=='G') {
-      g=netlist[i].valor;
-      Yn[netlist[i].a][netlist[i].c]+=g;
-      Yn[netlist[i].b][netlist[i].d]+=g;
-      Yn[netlist[i].a][netlist[i].d]-=g;
-      Yn[netlist[i].b][netlist[i].c]-=g;
-    }
-    else if (tipo=='I') {
-      g=netlist[i].valor;
-      Yn[netlist[i].a][nv+1]-=g;
-      Yn[netlist[i].b][nv+1]+=g;
-    }
-    else if (tipo=='V') {
-      Yn[netlist[i].a][netlist[i].x]+=1;
-      Yn[netlist[i].b][netlist[i].x]-=1;
-      Yn[netlist[i].x][netlist[i].a]-=1;
-      Yn[netlist[i].x][netlist[i].b]+=1;
-      Yn[netlist[i].x][nv+1]-=netlist[i].valor;
-    }
-    else if (tipo=='E') {
-      g=netlist[i].valor;
-      Yn[netlist[i].a][netlist[i].x]+=1;
-      Yn[netlist[i].b][netlist[i].x]-=1;
-      Yn[netlist[i].x][netlist[i].a]-=1;
-      Yn[netlist[i].x][netlist[i].b]+=1;
-      Yn[netlist[i].x][netlist[i].c]+=g;
-      Yn[netlist[i].x][netlist[i].d]-=g;
-    }
-    else if (tipo=='F') {
-      g=netlist[i].valor;
-      Yn[netlist[i].a][netlist[i].x]+=g;
-      Yn[netlist[i].b][netlist[i].x]-=g;
-      Yn[netlist[i].c][netlist[i].x]+=1;
-      Yn[netlist[i].d][netlist[i].x]-=1;
-      Yn[netlist[i].x][netlist[i].c]-=1;
-      Yn[netlist[i].x][netlist[i].d]+=1;
-    }
-    else if (tipo=='H') {
-      g=netlist[i].valor;
-      Yn[netlist[i].a][netlist[i].y]+=1;
-      Yn[netlist[i].b][netlist[i].y]-=1;
-      Yn[netlist[i].c][netlist[i].x]+=1;
-      Yn[netlist[i].d][netlist[i].x]-=1;
-      Yn[netlist[i].y][netlist[i].a]-=1;
-      Yn[netlist[i].y][netlist[i].b]+=1;
-      Yn[netlist[i].x][netlist[i].c]-=1;
-      Yn[netlist[i].x][netlist[i].d]+=1;
-      Yn[netlist[i].y][netlist[i].x]+=g;
-    }
-    else if (tipo=='O') {
-      Yn[netlist[i].a][netlist[i].x]+=1;
-      Yn[netlist[i].b][netlist[i].x]-=1;
-      Yn[netlist[i].x][netlist[i].c]+=1;
-      Yn[netlist[i].x][netlist[i].d]-=1;
-    }
+    estampas(tipo);
 #ifdef DEBUG
     /* Opcional: Mostra o sistema apos a montagem da estampa */
     printf("Sistema apos a estampa de %s\n",netlist[i].nome);
