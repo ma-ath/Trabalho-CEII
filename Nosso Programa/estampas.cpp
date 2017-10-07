@@ -11,6 +11,7 @@ this* estampas::R(int i)
   Yn[netlist[i].b][netlist[i].b]+=g;
   Yn[netlist[i].a][netlist[i].b]-=g;
   Yn[netlist[i].b][netlist[i].a]-=g;
+  return this;
 };
 this* estampas::G(int i)
 {
@@ -19,12 +20,14 @@ this* estampas::G(int i)
   Yn[netlist[i].b][netlist[i].d]+=g;
   Yn[netlist[i].a][netlist[i].d]-=g;
   Yn[netlist[i].b][netlist[i].c]-=g;
+  return this;
 };
 this* estampas::I(int i)
 {
   g=netlist[i].valor;
   Yn[netlist[i].a][nv+1]-=g;
   Yn[netlist[i].b][nv+1]+=g;
+  return this;
 };
 this* estampas::V(int i)
 {
@@ -33,6 +36,7 @@ this* estampas::V(int i)
   Yn[netlist[i].x][netlist[i].a]-=1;
   Yn[netlist[i].x][netlist[i].b]+=1;
   Yn[netlist[i].x][nv+1]-=netlist[i].valor;
+  return this;
 };
 this* estampas::E(int i)
 {
@@ -43,6 +47,7 @@ this* estampas::E(int i)
   Yn[netlist[i].x][netlist[i].b]+=1;
   Yn[netlist[i].x][netlist[i].c]+=g;
   Yn[netlist[i].x][netlist[i].d]-=g;
+  return this;
 };
 this* estampas::F(int i)
 {
@@ -53,6 +58,7 @@ this* estampas::F(int i)
   Yn[netlist[i].d][netlist[i].x]-=1;
   Yn[netlist[i].x][netlist[i].c]-=1;
   Yn[netlist[i].x][netlist[i].d]+=1;
+  return this;
 };
 this* estampas::H(int i)
 {
@@ -66,6 +72,7 @@ this* estampas::H(int i)
   Yn[netlist[i].x][netlist[i].c]-=1;
   Yn[netlist[i].x][netlist[i].d]+=1;
   Yn[netlist[i].y][netlist[i].x]+=g;
+  return this;
 };
 this* estampas::O(int i)
 {
@@ -73,6 +80,7 @@ this* estampas::O(int i)
   Yn[netlist[i].b][netlist[i].x]-=1;
   Yn[netlist[i].x][netlist[i].c]+=1;
   Yn[netlist[i].x][netlist[i].d]-=1;
+  return this;
 };
 
 this* estampas::MostrarEstampas()
@@ -84,4 +92,6 @@ this* estampas::MostrarEstampas()
       else printf(" ... ");
     printf("\n");
   }
+
+  return this;
 };
