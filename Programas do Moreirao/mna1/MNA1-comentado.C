@@ -66,7 +66,9 @@ char
   nomearquivo[MAX_LINHA+1],
   tipo,
   na[MAX_NOME],nb[MAX_NOME],nc[MAX_NOME],nd[MAX_NOME],
-  /*lista que associa o nome do nó com nome*/
+  /*lista associa o nome que o usuario deu na netlist com o numero
+  que o programa definiu.
+  Ex: usuario > no bonitinho = no 1 < programa (funcao "numero")*/
   lista[MAX_NOS+1][MAX_NOME+2], /*Tem que caber jx antes do nome */
   txt[MAX_LINHA+1],
   *p;

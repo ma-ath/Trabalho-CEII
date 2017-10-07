@@ -32,6 +32,9 @@ char
   nomearquivo[MAX_LINHA+1],
   tipo,
   na[MAX_NOME],nb[MAX_NOME],nc[MAX_NOME],nd[MAX_NOME],
+  /*lista associa o nome que o usuario deu na netlist com o numero
+  que o programa definiu.
+  Ex: usuario > no bonitinho = no 1 < programa (funcao "numero")*/
   lista[MAX_NOS+1][MAX_NOME+2], /*Tem que caber jx antes do nome */
   txt[MAX_LINHA+1],
   *p;
@@ -135,14 +138,23 @@ int main(void)
       printf("O programa so aceita ate %d elementos\n",MAX_ELEM);
       exit(1);
     }
+    /*transforma o primeiro caractere da linha lida em letra maiuscula,
+    para associar com algum tipo.
+    ex: R = Resistor*/
     txt[0]=toupper(txt[0]);
     tipo=txt[0];
     sscanf(txt,"%10s",netlist[ne].nome);
     p=txt+strlen(netlist[ne].nome); /* Inicio dos parametros */
-    /* O que e lido depende do tipo */
+    /* dependendo do tipo que esta sendo lida, a forma de preencher
+    a netlist eh diferente. aqui ele agrupa os tipos que tem os mesmos
+    tratamentos e separa com if */
     if (tipo=='R' || tipo=='I' || tipo=='V') {
       sscanf(p,"%10s%10s%lg",na,nb,&netlist[ne].valor);
       printf("%s %s %s %g\n",netlist[ne].nome,na,nb,netlist[ne].valor);
+      /*a funcao "numero" converte o nó que o usuario nomeou em um numero int
+      e coloca esse numero no netlist do elemento.
+      caracteriza em qual no o componente esta ligado.
+      Ex: Resistor ligado a no1 e no2, a=1, b=2*/
       netlist[ne].a=numero(na);
       netlist[ne].b=numero(nb);
     }
@@ -177,6 +189,9 @@ int main(void)
   nn=nv;
   for (i=1; i<=ne; i++) {
     tipo=netlist[i].nome[0];
+
+    /*se forem os tipos que precisam de UMA corrente pra montar o mna,
+    o numero de variavel vai aumentar em 1, alem dos variaveis de nos*/
     if (tipo=='V' || tipo=='E' || tipo=='F' || tipo=='O') {
       nv++;
       if (nv>MAX_NOS) {
@@ -187,6 +202,8 @@ int main(void)
       strcat(lista[nv],netlist[i].nome);
       netlist[i].x=nv;
     }
+    /*o tipo H, q eh uma tensao ligada a corrente, precisam de 2 variaveis
+    de corrente para construir a estampa*/
     else if (tipo=='H') {
       nv=nv+2;
       if (nv>MAX_NOS) {
@@ -232,6 +249,9 @@ int main(void)
       Yn[i][j]=0;
   }
   /* Monta estampas */
+  /*a b c d sao posicoes relacionadas aos nos
+    x e y sao relacionadas as correntes, que entram na estampa pelos
+    "pontilhadinhos" qnd a gente faz mna na mao*/
   for (i=1; i<=ne; i++) {
     tipo=netlist[i].nome[0];
     if (tipo=='R') {
