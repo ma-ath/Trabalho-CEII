@@ -6,8 +6,29 @@
 #include <math.h>
 
 #include "global.h"
-#include "constantes.h"
+//#include "constantes.h"
 #include "funcoesmna1.h"
+#include "tipos.h"
+
+elemento netlist[MAX_ELEM];
+int ne;
+int nv;
+int nn;
+int i;
+int j;
+int k;
+char nomearquivo[MAX_LINHA+1];
+char tipo;
+char na[MAX_NOME];
+char nb[MAX_NOME];
+char nc[MAX_NOME];
+char nd[MAX_NOME];
+char lista[MAX_NOS+1][MAX_NOME+2];
+char txt[MAX_LINHA+1];
+char *p;
+FILE *arquivo;
+double g;
+double Yn[MAX_NOS+1][MAX_NOS+2];
 
 int resolversistema(void)
 {
