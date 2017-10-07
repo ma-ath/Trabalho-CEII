@@ -70,15 +70,15 @@ void estampas(char tipo)
   }
   else if (tipo=='K') {     /*Transformador Ideal*/
     g=netlist[i].valor;
-    Yn[netlist[i].a][netlist[i].x]+=g;
-    Yn[netlist[i].b][netlist[i].x]-=g;
-    Yn[netlist[i].c][netlist[i].x]-=1;
-    Yn[netlist[i].d][netlist[i].x]+=1;
+    Yn[netlist[i].a][netlist[i].x]-=g;
+    Yn[netlist[i].b][netlist[i].x]+=g;
+    Yn[netlist[i].c][netlist[i].x]+=1;
+    Yn[netlist[i].d][netlist[i].x]-=1;
 
-    Yn[netlist[i].x][netlist[i].a]-=g;
-    Yn[netlist[i].x][netlist[i].b]+=g;
-    Yn[netlist[i].x][netlist[i].c]+=1;
-    Yn[netlist[i].x][netlist[i].d]-=1;
+    Yn[netlist[i].x][netlist[i].a]+=g;
+    Yn[netlist[i].x][netlist[i].b]-=g;
+    Yn[netlist[i].x][netlist[i].c]-=1;
+    Yn[netlist[i].x][netlist[i].d]+=1;
   }
 }
 
