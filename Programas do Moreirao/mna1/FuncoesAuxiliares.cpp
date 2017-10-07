@@ -1,6 +1,6 @@
 /* Monta estampas */
 #include <math.h>
-#include "estampas.h"
+#include "FuncoesAuxiliares.h"
 #include "tipo.h"
 #include "globaldaAlyssa.h"
 int estampas(char tipo)

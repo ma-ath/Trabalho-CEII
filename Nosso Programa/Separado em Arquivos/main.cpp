@@ -1,14 +1,14 @@
-#include <stdio.h>
+/*#include <stdio.h>
 #include <conio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <math.h>
-
+*/
 #include "global.h"
 //#include "constantes.h"
-#include "funcoesmna1.h"
-#include "tipos.h"
+#include "funcoesAuxiliares.h"
+//#include "tipos.h"
 
 elemento netlist[MAX_ELEM];
 int ne;

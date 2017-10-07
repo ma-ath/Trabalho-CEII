@@ -5,7 +5,7 @@
 #include <ctype.h>
 #include <math.h>
 */
-#include "constantes.hpp"
+#include "constantes.h"
 typedef struct elemento { /* Elemento do netlist */
   char nome[MAX_NOME];
   double valor;

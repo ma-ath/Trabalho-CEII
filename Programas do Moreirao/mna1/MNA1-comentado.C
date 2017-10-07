@@ -40,7 +40,7 @@ Os nos podem ser nomes
 #include <math.h>
 #include "tipo.h"
 #include "globaldaAlyssa.h"
-#include "estampas.h"
+#include "FuncoesAuxiliares.h"
 /*typedef struct elemento { /* Elemento do netlist
   char nome[MAX_NOME];
   double valor;

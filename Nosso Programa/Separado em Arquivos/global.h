@@ -5,7 +5,7 @@
 #include <ctype.h>
 #include <math.h>
 
-//#include "constantes.h"
+#include "constantes.h"
 #include "tipos.h"
 
 #ifndef _GLOBAL_H_

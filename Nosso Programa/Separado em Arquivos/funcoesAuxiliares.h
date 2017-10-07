@@ -1,7 +1,12 @@
-#define OK
-
+#include "global.h"
 int estampas(char tipo);
 
+/* Resolucao de sistema de equacoes lineares.
+   Metodo de Gauss-Jordan com condensacao pivotal */
+int resolversistema(void);
+
+/* Rotina que conta os nos e atribui numeros a eles */
+int numero(char *nome);
 
 
 /* Monta estampas
