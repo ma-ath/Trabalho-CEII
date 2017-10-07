@@ -66,6 +66,7 @@ char
   nomearquivo[MAX_LINHA+1],
   tipo,
   na[MAX_NOME],nb[MAX_NOME],nc[MAX_NOME],nd[MAX_NOME],
+  /*lista que associa o nome do nó com nome*/
   lista[MAX_NOS+1][MAX_NOME+2], /*Tem que caber jx antes do nome */
   txt[MAX_LINHA+1],
   *p;
@@ -213,6 +214,8 @@ int main(void)
   nn=nv;
   for (i=1; i<=ne; i++) {
     tipo=netlist[i].nome[0];
+
+    /*se forem os tipos que precisam de uma corrente pra montar o mna*/
     if (tipo=='V' || tipo=='E' || tipo=='F' || tipo=='O') {
       nv++;
       if (nv>MAX_NOS) {
@@ -268,6 +271,9 @@ int main(void)
       Yn[i][j]=0;
   }
   /* Monta estampas */
+  /*a b c d sao posicoes relacionadas aos nos
+    x e y sao relacionadas as correntes que entram na estampa pelos
+    "pontilhadinhos"*/
   for (i=1; i<=ne; i++) {
     tipo=netlist[i].nome[0];
     if (tipo=='R') {
