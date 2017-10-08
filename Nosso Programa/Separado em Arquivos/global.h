@@ -12,6 +12,8 @@
 #ifndef _GLOBAL_H_
 #define _GLOBAL_H_
 
+using namespace std;
+
 extern elemento netlist[MAX_ELEM]; /* Netlist */
 
 extern int ne;     /*Numero de Elementos */
@@ -40,4 +42,5 @@ extern double g;
 extern double Yn[MAX_NOS+1][MAX_NOS+2];   /*Matriz a ser resolvida*/
 
 extern double tempoAtual, tempoFinal, passo, passoPorPt;
+//extern vector <double*> resultados;
 #endif

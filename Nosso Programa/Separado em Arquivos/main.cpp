@@ -29,6 +29,9 @@ int main()
   /* 1 - Leitura do netlist */
   denovo:
 
+  vector <vector <double> > resultadoDeTodosOsPassos;
+  vector <double> resultadoUmTempo;
+
   ne=0; nv=0; strcpy(lista[0],"0");
   printf("Nome do arquivo com o netlist (ex: mna.net): ");
   scanf("%50s",nomearquivo);
@@ -274,7 +277,9 @@ int main()
 
     for (i=1; i<=nv; i++){
     printf("tempo atual = %g, %g\n", tempoAtual, Yn[i][nv+1]);
+    resultadoUmTempo.push_back(Yn[i][nv+1]);
     }
+    resultadoDeTodosOsPassos.push_back(resultadoUmTempo);
 
   tempoAtual+=passo;
   } /*FIM loop de tempo*/
