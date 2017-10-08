@@ -54,9 +54,62 @@ int main()
     /* dependendo do tipo que esta sendo lida, a forma de preencher
     a netlist eh diferente. aqui ele agrupa os tipos que tem os mesmos
     tratamentos e separa com if */
-    if (tipo=='R' || tipo=='I' || tipo=='V') {
+    if (tipo=='R') {
       sscanf(p,"%10s%10s%lg",na,nb,&netlist[ne].valor);
       printf("%s %s %s %g\n",netlist[ne].nome,na,nb,netlist[ne].valor);
+      /*a funcao "numero" converte o nó que o usuario nomeou em um numero int
+      e coloca esse numero no netlist do elemento.
+      caracteriza em qual no o componente esta ligado.
+      Ex: Resistor ligado a no1 e no2, a=1, b=2*/
+      netlist[ne].a=numero(na);
+      netlist[ne].b=numero(nb);
+    }
+
+    else if (tipo=='I' || tipo=='V') {
+      /*pega os nos que as fontes estao ligadas, e o tipo de fonte
+      Ex: fonte DC, fonte senoidal*/
+      sscanf(p,"%10s%10s%10s",na,nb,netlist[ne].fonte);
+      /*esse +3 eh para mover o ponteiro p que aponta
+      para as posicoes da linha "txt" no lugar certo.
+      representa os 3 espacos q o sscanf pulou ate agr*/
+      p=txt+strlen(netlist[ne].nome)+strlen(na)+strlen(nb)
+      +strlen(netlist[ne].fonte)+1+1+1;
+
+      /*se nivel DC*/
+      if (strcmp(netlist[ne].fonte, "DC") == 0){
+        sscanf(p,"%lg", &netlist[ne].valor);
+        printf("%s %s %s %g\n",netlist[ne].nome,na,nb,netlist[ne].valor);
+      }
+      /*se for sin*/
+      else if (strcmp(netlist[ne].fonte, "SIN") == 0){
+        sscanf(p, "%lg%lg%lg%lg%lg%lg%lg", &netlist[ne].valor,
+                                                &netlist[ne].amplitude,
+                                                &netlist[ne].freq,
+                                                &netlist[ne].atraso,
+                                                &netlist[ne].amortecimento,
+                                                &netlist[ne].defasagem,
+                                                &netlist[ne].ciclo);
+        printf("%s %s %s %g ",netlist[ne].nome,na,nb,netlist[ne].valor);
+        printf("%lg %lg\n", netlist[ne].amplitude, netlist[ne].freq );
+      }
+      /*se for pulso*/
+      else if (strcmp(netlist[ne].fonte, "PULSE") == 0){
+        sscanf(p, "%lg %lg %lg %lg %lg %lg %lg %lg", &netlist[ne].valor,
+                                                &netlist[ne].amplitude,
+                                                &netlist[ne].atraso,
+                                                &netlist[ne].tempoSubida,
+                                                &netlist[ne].tempoDescida,
+                                                &netlist[ne].tempoLigada,
+                                                &netlist[ne].periodo,
+                                              &netlist[ne].ciclo);
+        printf("%s %s %s %g ",netlist[ne].nome,na,nb,netlist[ne].valor);
+        printf("%lg %lg\n", netlist[ne].amplitude, netlist[ne].atraso );
+
+      }
+      /*se n for nada*/
+      else{
+        exit(1);
+      }
       /*a funcao "numero" converte o nó que o usuario nomeou em um numero int
       e coloca esse numero no netlist do elemento.
       caracteriza em qual no o componente esta ligado.
