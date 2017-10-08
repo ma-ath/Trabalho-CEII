@@ -272,6 +272,10 @@ int main()
     getch();
     #endif
 
+    for (i=1; i<=nv; i++){
+    printf("tempo atual = %g, %g\n", tempoAtual, Yn[i][nv+1]);
+    }
+
   tempoAtual+=passo;
   } /*FIM loop de tempo*/
 
