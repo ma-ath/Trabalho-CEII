@@ -39,4 +39,5 @@ extern FILE *arquivo;
 extern double g;
 extern double Yn[MAX_NOS+1][MAX_NOS+2];   /*Matriz a ser resolvida*/
 
+extern double tempoFinal, passo, passoPorPt;
 #endif

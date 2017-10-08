@@ -21,6 +21,9 @@ FILE *arquivo;
 double g;
 double Yn[MAX_NOS+1][MAX_NOS+2];
 
+/*variavel para analise no tempo*/
+double tempoFinal, passo, passoPorPt;
+
 int main()
 {
   /* 1 - Leitura do netlist */
@@ -145,6 +148,14 @@ int main()
       printf("Comentario: %s",txt);
       ne--;
     }
+
+    else if (tipo=='.') { /* Comentario comeca com "*" */
+      sscanf(p, "%lg%lg%10s%lg", &tempoFinal, &passo, netlist[ne].nome, &passoPorPt);
+      printf("Configuracao: %g %g %g \n", tempoFinal, passo, passoPorPt);
+      ne--;
+
+    }
+
     else {
       printf("Elemento desconhecido: %s\n",txt);
       getch();
