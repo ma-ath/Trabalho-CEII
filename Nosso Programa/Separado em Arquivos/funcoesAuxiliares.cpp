@@ -25,12 +25,51 @@ void estampas(char tipo)
     Yn[netlist[i].a][nv+1]-=g;
     Yn[netlist[i].b][nv+1]+=g;
   }
-  else if (tipo=='V') {
-    Yn[netlist[i].a][netlist[i].x]+=1;
-    Yn[netlist[i].b][netlist[i].x]-=1;
-    Yn[netlist[i].x][netlist[i].a]-=1;
-    Yn[netlist[i].x][netlist[i].b]+=1;
-    Yn[netlist[i].x][nv+1]-=netlist[i].valor;
+  else if (tipo=='V')   /*A estampa de V deve mudar de acordo com o tempoAtual*/
+  {
+    if (strcmp(netlist[i].fonte, "DC") == 0)
+    /*
+    Fonte DC - Nao muda com o tempoAtual
+    */
+    {
+      Yn[netlist[i].a][netlist[i].x]+=1;
+      Yn[netlist[i].b][netlist[i].x]-=1;
+      Yn[netlist[i].x][netlist[i].a]-=1;
+      Yn[netlist[i].x][netlist[i].b]+=1;
+      Yn[netlist[i].x][nv+1]-=netlist[i].valor;
+    }
+    else
+    if (strcmp(netlist[i].fonte, "SIN") == 0)
+    /*
+    Fonte SIN - Muda de acordo com:
+    off+Vp*exp(-dec*(tempoAtual-atraso))*sin(2*pi*f*(tempoAtual-atraso)+(pi/180)*fase)
+    */
+    {
+      Yn[netlist[i].a][netlist[i].x]+=1;
+      Yn[netlist[i].b][netlist[i].x]-=1;
+      Yn[netlist[i].x][netlist[i].a]-=1;
+      Yn[netlist[i].x][netlist[i].b]+=1;
+      Yn[netlist[i].x][nv+1]-=
+        (
+          netlist[i].valor +
+          (
+            netlist[i].amplitude*exp(-1*netlist[i].amortecimento*(tempoAtual-netlist[i].atraso)) *
+            sin(2*PI*netlist[i].freq*(tempoAtual-netlist[i].atraso) + (PI/180)*netlist[i].defasagem)
+          )   /*ESTA FALTANDO USAR A FUNCAO HEAVISIDE PARA LIMITAR O SENO*/
+        );
+    }
+    if (strcmp(netlist[i].fonte, "PULSE") == 0)
+    /*
+    Fonte PULSE - Muda de acordo com:
+    add expressao aqui
+    */
+    {
+      Yn[netlist[i].a][netlist[i].x]+=1;
+      Yn[netlist[i].b][netlist[i].x]-=1;
+      Yn[netlist[i].x][netlist[i].a]-=1;
+      Yn[netlist[i].x][netlist[i].b]+=1;
+      Yn[netlist[i].x][nv+1]-=netlist[i].valor;
+    }
   }
   else if (tipo=='E') {
     g=netlist[i].valor;
@@ -155,6 +194,15 @@ void zeraSistema (void) {
     for (j=0; j<=nv+1; j++)
       Yn[i][j]=0;
 }
+
+double heaviside(double t)
+{
+  if (t >= 0)
+    return 1;
+  else
+    return 0;
+}
+
 
 /*
 void salvarResultadoEmArquivo(vector < vector<double> > tabela)

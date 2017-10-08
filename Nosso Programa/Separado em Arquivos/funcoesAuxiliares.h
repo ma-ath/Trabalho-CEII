@@ -10,6 +10,8 @@ int numero(char *nome);
 
 void zeraSistema (void);
 
+double heaviside(double);
+
 /*void salvarResultadoEmArquivo(vector < vector<double> > tabela)*/
 
 /* Monta estampas
