@@ -158,10 +158,7 @@ int main()
   printf("O circuito tem %d nos, %d variaveis e %d elementos\n",nn,nv,ne);
   getch();
   /* Zera sistema */
-  for (i=0; i<=nv; i++) {
-    for (j=0; j<=nv+1; j++)
-      Yn[i][j]=0;
-  }
+  zeraSistema();
   /* Monta estampas */
   /*a b c d sao posicoes relacionadas aos nos
     x e y sao relacionadas as correntes, que entram na estampa pelos
