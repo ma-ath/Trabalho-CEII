@@ -12,6 +12,8 @@ void zeraSistema (void);
 
 double heaviside(double);
 
+void salvarResultadoEmArquivo (vector <double>);
+
 /*void salvarResultadoEmArquivo(vector < vector<double> > tabela)*/
 
 /* Monta estampas

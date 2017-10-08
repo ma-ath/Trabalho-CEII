@@ -279,7 +279,18 @@ int main()
     printf("tempo atual = %g, %g\n", tempoAtual, Yn[i][nv+1]);
     resultadoUmTempo.push_back(Yn[i][nv+1]);
     }
-    resultadoDeTodosOsPassos.push_back(resultadoUmTempo);
+
+    salvarResultadoEmArquivo(resultadoUmTempo);
+    resultadoUmTempo.clear();
+/*    resultadoDeTodosOsPassos.push_back(resultadoUmTempo);
+
+    for (i=0; i < resultadoDeTodosOsPassos.size(); i++){
+      for (j=0; j< resultadoUmTempo.size(); j++){
+        printf("%g ", resultadoUmTempo.at(j));
+      }
+      printf("\n");
+    }
+*/
 
   tempoAtual+=passo;
   } /*FIM loop de tempo*/

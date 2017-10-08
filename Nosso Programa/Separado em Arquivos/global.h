@@ -5,7 +5,8 @@
 #include <ctype.h>
 #include <math.h>
 #include <vector>
-
+#include <iostream>
+#include <fstream>
 #include "constantes.h"
 #include "tipos.h"
 
