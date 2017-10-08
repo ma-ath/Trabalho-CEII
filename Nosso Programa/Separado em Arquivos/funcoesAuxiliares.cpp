@@ -55,7 +55,8 @@ void estampas(char tipo)
           (
             netlist[i].amplitude*exp(-1*netlist[i].amortecimento*(tempoAtual-netlist[i].atraso)) *
             sin(2*PI*netlist[i].freq*(tempoAtual-netlist[i].atraso) + (PI/180)*netlist[i].defasagem)
-          )   /*ESTA FALTANDO USAR A FUNCAO HEAVISIDE PARA LIMITAR O SENO*/
+          )*( heaviside(tempoAtual-netlist[i].atraso) -
+              heaviside((tempoAtual-netlist[i].atraso) - (2*PI/netlist[i].freq)*netlist[i].ciclo) )
         );
     }
     if (strcmp(netlist[i].fonte, "PULSE") == 0)
