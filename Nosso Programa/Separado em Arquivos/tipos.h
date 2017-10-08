@@ -16,7 +16,7 @@ typedef struct elemento /* Elemento do netlist */
   double valor; /*usado tbm como DC "valor", SIN "nivel continuo", PULSE "amplitude1"*/
   int a,b,c,d,x,y;
   /*a partir daqui so vai usar se for uma fonte que n eh dc: I ou V que tem <parametro>*/
-  char fonte[10]; //se eh DC, SIN, ou PULSE
+  char fonte[MAX_NOME_FONTE]; //se eh DC, SIN, ou PULSE
   double amplitude /*anplitude2 para pulse*/, freq, atraso, amortecimento,
           defasagem, ciclo, tempoSubida, tempoDescida, tempoLigada, periodo;
 } elemento;

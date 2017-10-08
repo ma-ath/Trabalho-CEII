@@ -22,7 +22,7 @@ double g;
 double Yn[MAX_NOS+1][MAX_NOS+2];
 
 /*variavel para analise no tempo*/
-double tempoFinal, passo, passoPorPt;
+double tempoAtual, tempoFinal, passo, passoPorPt;
 
 int main()
 {
@@ -111,6 +111,8 @@ int main()
       }
       /*se n for nada*/
       else{
+        printf("Fonte desconhecida - Tente DC ou SIN\n");
+        getch();
         exit(1);
       }
       /*a funcao "numero" converte o nó que o usuario nomeou em um numero int
@@ -196,7 +198,7 @@ int main()
   }
   getch();
   /* Lista tudo */
-  printf("Variaveis internas: \n");
+  printf("'Variaveis internas: \n");
   for (i=0; i<=nv; i++)
     printf("%d -> %s\n",i,lista[i]);
   getch();
@@ -221,43 +223,58 @@ int main()
   /* Monta o sistema nodal modificado */
   printf("O circuito tem %d nos, %d variaveis e %d elementos\n",nn,nv,ne);
   getch();
-  /* Zera sistema */
-  zeraSistema();
-  /* Monta estampas */
-  /*a b c d sao posicoes relacionadas aos nos
-    x e y sao relacionadas as correntes, que entram na estampa pelos
-    "pontilhadinhos" qnd a gente faz mna na mao*/
-  for (i=1; i<=ne; i++) {
-    tipo=netlist[i].nome[0];
-    estampas(tipo);
-#ifdef DEBUG
-    /* Opcional: Mostra o sistema apos a montagem da estampa */
-    printf("Sistema apos a estampa de %s\n",netlist[i].nome);
-    for (k=1; k<=nv; k++) {
-      for (j=1; j<=nv+1; j++)
-        if (Yn[k][j]!=0) printf("%+3.1f ",Yn[k][j]);
-        else printf(" ... ");
-      printf("\n");
+
+  /*Loop responsavel pelo TEMPO*/
+  tempoAtual = 0;
+  while(tempoAtual <= tempoFinal)
+  {
+
+    /* Zera sistema */
+    zeraSistema();
+    /* Monta estampas */
+    /*a b c d sao posicoes relacionadas aos nos
+      x e y sao relacionadas as correntes, que entram na estampa pelos
+      "pontilhadinhos" qnd a gente faz mna na mao*/
+      for (i=1; i<=ne; i++)
+      {
+        tipo=netlist[i].nome[0];
+        estampas(tipo);
+        #ifdef DEBUG  /* Opcional: Mostra o sistema apos a montagem da estampa */
+        printf("Sistema apos a estampa de %s\n",netlist[i].nome);
+        for (k=1; k<=nv; k++)
+        {
+          for (j=1; j<=nv+1; j++)
+          if (Yn[k][j]!=0) printf("%+3.1f ",Yn[k][j]);
+          else printf(" ... ");
+          printf("\n");
+        }
+        getch();
+        #endif
+      }
+
+    /* Resolve o sistema */
+    if (resolversistema())
+    {
+      getch();
+      exit(0);
     }
-    getch();
-#endif
-  }
-  /* Resolve o sistema */
-  if (resolversistema()) {
-    getch();
-    exit(0);
-  }
-#ifdef DEBUG
-  /* Opcional: Mostra o sistema resolvido */
-  printf("Sistema resolvido:\n");
-  for (i=1; i<=nv; i++) {
+
+
+    #ifdef DEBUG  /* Opcional: Mostra o sistema resolvido */
+    printf("Sistema resolvido:\n");
+    for (i=1; i<=nv; i++)
+    {
       for (j=1; j<=nv+1; j++)
         if (Yn[i][j]!=0) printf("%+3.1f ",Yn[i][j]);
         else printf(" ... ");
-      printf("\n");
+        printf("\n");
     }
-  getch();
-#endif
+    getch();
+    #endif
+
+  tempoAtual+=passo;
+  } /*FIM loop de tempo*/
+
   /* Mostra solucao */
   printf("Solucao:\n");
   strcpy(txt,"Tensao");
