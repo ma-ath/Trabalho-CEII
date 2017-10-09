@@ -40,7 +40,7 @@ extern char *p;
 extern FILE *arquivoNetlist;
 extern FILE *arquivoSolucao;
 
-extern double g;
+extern double g, pulseRealTime, pulseOffTime;
 extern double Yn[MAX_NOS+1][MAX_NOS+2];   /*Matriz a ser resolvida*/
 
 extern double tempoAtual, tempoFinal, passo, passoPorPt;

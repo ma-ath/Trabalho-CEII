@@ -59,17 +59,45 @@ void estampas(char tipo)
               heaviside((tempoAtual-netlist[i].atraso) - (2*PI/netlist[i].freq)*netlist[i].ciclo) )
         );
     }
-    if (strcmp(netlist[i].fonte, "PULSE") == 0)
+    if (strcmp(netlist[i].fonte, "PULSE") == 0){
     /*
     Fonte PULSE - Muda de acordo com:
     add expressao aqui
     */
-    {
+    //Yn[netlist[i].x][nv+1]-=netlist[i].valor;
       Yn[netlist[i].a][netlist[i].x]+=1;
       Yn[netlist[i].b][netlist[i].x]-=1;
       Yn[netlist[i].x][netlist[i].a]-=1;
       Yn[netlist[i].x][netlist[i].b]+=1;
-      Yn[netlist[i].x][nv+1]-=netlist[i].valor;
+
+      pulseRealTime=tempoAtual-netlist[i].atraso;
+      pulseRealTime= fmod(pulseRealTime,netlist[i].periodo);
+      pulseOffTime=netlist[i].periodo- (netlist[i].tempoSubida+netlist[i].tempoDescida+netlist[i].tempoLigada);
+      if (tempoAtual<netlist[i].atraso){
+          Yn[netlist[i].x][nv+1]-=netlist[i].valor;
+      }
+
+      else if (tempoAtual> (netlist[i].atraso +(netlist[i].ciclo*netlist[i].periodo) ) ) {
+        Yn[netlist[i].x][nv+1]-=netlist[i].valor;
+      }
+
+      else {
+        if (pulseRealTime<netlist[i].tempoSubida ){ /* subindo*/
+          Yn[netlist[i].x][nv+1]-=((((netlist[i].amplitude-netlist[i].valor)/netlist[i].tempoSubida)*pulseRealTime)+ netlist[i].valor);
+        }
+        else if (pulseRealTime< (netlist[i].tempoSubida+netlist[i].tempoLigada)){
+          Yn[netlist[i].x][nv+1]-=netlist[i].amplitude;
+        }
+        else if (pulseRealTime< (netlist[i].tempoSubida+netlist[i].tempoLigada+netlist[i].tempoDescida)){
+          Yn[netlist[i].x][nv+1]-= (netlist[i].amplitude-
+            (((netlist[i].amplitude-netlist[i].valor)/netlist[i].tempoDescida)*
+            (pulseRealTime-(netlist[i].tempoSubida+netlist[i].tempoLigada))));
+        }
+        else {
+          Yn[netlist[i].x][nv+1]-=netlist[i].valor;
+        }
+
+      }
     }
   }
   else if (tipo=='E') {

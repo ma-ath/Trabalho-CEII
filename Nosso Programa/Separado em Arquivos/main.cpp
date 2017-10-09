@@ -19,7 +19,7 @@ char txt[MAX_LINHA+1];
 char *p;
 FILE *arquivoNetlist;
 FILE *arquivoSolucao;
-double g;
+double g, pulseRealTime, pulseOffTime;
 double Yn[MAX_NOS+1][MAX_NOS+2];
 
 /*variavel para analise no tempo*/
