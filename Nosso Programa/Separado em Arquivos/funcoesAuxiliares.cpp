@@ -20,10 +20,89 @@ void estampas(char tipo)
     Yn[netlist[i].a][netlist[i].d]-=g;
     Yn[netlist[i].b][netlist[i].c]-=g;
   }
-  else if (tipo=='I') {
-    g=netlist[i].valor;
-    Yn[netlist[i].a][nv+1]-=g;
-    Yn[netlist[i].b][nv+1]+=g;
+  else if (tipo=='I')
+  {
+    if (strcmp(netlist[i].fonte, "DC") == 0)
+    /*
+    Fonte DC - Nao muda com o tempoAtual
+    */
+    {
+        g=netlist[i].valor;
+        Yn[netlist[i].a][nv+1]-=g;
+        Yn[netlist[i].b][nv+1]+=g;
+    }
+    else
+    if (strcmp(netlist[i].fonte, "SIN") == 0)
+    /*
+    Fonte SIN - Muda de acordo com:
+    off+Vp*exp(-dec*(tempoAtual-atraso))*sin(2*pi*f*(tempoAtual-atraso)+(pi/180)*fase)
+    */
+    {
+      g =
+        (
+          netlist[i].valor +
+          (
+            netlist[i].amplitude*exp(-1*netlist[i].amortecimento*(tempoAtual-netlist[i].atraso)) *
+            sin(2*PI*netlist[i].freq*(tempoAtual-netlist[i].atraso) + (PI/180)*netlist[i].defasagem)
+          )*( heaviside(tempoAtual-netlist[i].atraso) -
+              heaviside((tempoAtual-netlist[i].atraso) - (2*PI/netlist[i].freq)*netlist[i].ciclo) )
+        );
+
+        Yn[netlist[i].a][nv+1]-=g;
+        Yn[netlist[i].b][nv+1]+=g;
+
+    }
+    if (strcmp(netlist[i].fonte, "PULSE") == 0){
+    /*
+    Fonte PULSE - Muda de acordo com:
+    add expressao aqui
+    */
+    //A fonte de tensão é sempre implementado pela estampa:
+    //Yn[netlist[i].a][nv+1]-=g;
+    //Yn[netlist[i].b][nv+1]+=g;
+    // onde g é o valor da fonte no tempo atual
+
+      pulseRealTime=tempoAtual-netlist[i].atraso;
+      pulseRealTime= fmod(pulseRealTime,netlist[i].periodo);
+      pulseOffTime=netlist[i].periodo- (netlist[i].tempoSubida+netlist[i].tempoDescida+netlist[i].tempoLigada);
+      if (tempoAtual<netlist[i].atraso){
+
+          Yn[netlist[i].a][nv+1]-=netlist[i].valor;
+          Yn[netlist[i].b][nv+1]+=netlist[i].valor;
+      }
+
+      else if (tempoAtual> (netlist[i].atraso +(netlist[i].ciclo*netlist[i].periodo) ) ) {
+
+        Yn[netlist[i].a][nv+1]-=netlist[i].valor;
+        Yn[netlist[i].b][nv+1]+=netlist[i].valor;
+
+      }
+
+      else {
+        if (pulseRealTime<netlist[i].tempoSubida ){ /* subindo*/
+          Yn[netlist[i].a][nv+1]-=((((netlist[i].amplitude-netlist[i].valor)/netlist[i].tempoSubida)*pulseRealTime)+ netlist[i].valor);
+          Yn[netlist[i].b][nv+1]+=((((netlist[i].amplitude-netlist[i].valor)/netlist[i].tempoSubida)*pulseRealTime)+ netlist[i].valor);
+        }
+        else if (pulseRealTime< (netlist[i].tempoSubida+netlist[i].tempoLigada)){
+          Yn[netlist[i].a][nv+1]-=netlist[i].amplitude;
+          Yn[netlist[i].b][nv+1]+=netlist[i].amplitude;
+        }
+        else if (pulseRealTime< (netlist[i].tempoSubida+netlist[i].tempoLigada+netlist[i].tempoDescida)){
+          Yn[netlist[i].a][nv+1]-= (netlist[i].amplitude-
+            (((netlist[i].amplitude-netlist[i].valor)/netlist[i].tempoDescida)*
+            (pulseRealTime-(netlist[i].tempoSubida+netlist[i].tempoLigada))));
+
+          Yn[netlist[i].b][nv+1]+= (netlist[i].amplitude-
+              (((netlist[i].amplitude-netlist[i].valor)/netlist[i].tempoDescida)*
+              (pulseRealTime-(netlist[i].tempoSubida+netlist[i].tempoLigada))));
+        }
+        else {
+          Yn[netlist[i].a][nv+1]-=netlist[i].valor;
+          Yn[netlist[i].b][nv+1]+=netlist[i].valor;
+        }
+
+      }
+    }
   }
   else if (tipo=='V')   /*A estampa de V deve mudar de acordo com o tempoAtual*/
   {
@@ -242,76 +321,3 @@ void salvarResultadoEmArquivo (vector <double> resultadoUmTempo)
      fprintf (arquivoSolucao, "\n");
     // arquivo.close();
 }
-/*
-void salvarResultadoEmArquivo(vector < vector<double> > tabela)
-{
-  unsigned aux = 0;
-  unsigned aux2 = 0;
-  ofstream arquivo;
-
-  arquivo.open (srtcat(nomearquivo,".tab"));
-  if (arquivo.isopen())
-  {
-    while(aux <= tabela.size())
-    {
-      aux2 = 0;
-      while(aux2 <= tabela[0].size())
-      {
-        arquivo << static_cast <char*> ( casttabela[aux2].at(aux) );
-        aux2++;
-      }
-      aux++;
-    }
-  }
-  else
-    cout << "Erro ao salvar dados - Nao foi capaz de abrir o arquivo";
-
-}
-
-PROGRAMA DE TESTES QUE EU COMECEI A FAZER MAS NAO FUNCIONA (BOTEI AQUI SO PRA SALVAR)
-#include <vector>
-#include <fstream>
-#include <cstdio>
-char nomearquivo[100] = "teste.net";
-
-using namespace std;
-
-void salvarResultadoEmArquivo(vector < vector<double> > tabela)
-{
-  unsigned aux = 0;
-  unsigned aux2 = 0;
-  ofstream arquivo;
-
-  arquivo.open (strcat(nomearquivo,".tab"));
-  if (arquivo.isopen())
-  {
-    while(aux <= tabela.size())
-    {
-      aux2 = 0;
-      while(aux2 <= tabela[0].size())
-      {
-        arquivo << static_cast <char*> ( tabela[aux2].at(aux) );
-        aux2++;
-      }
-      aux++;
-    }
-  }
-  else
-    cout << "Erro ao salvar dados - Nao foi capaz de abrir o arquivo";
-
-}
-
-int main()
-{
-vector < vector <double> > teste;
-
-teste.push_back(0);
-teste.push_back(1);
-teste.push_back(2);
-
-salvarResultadoEmArquivo(teste);
-
-return 0;
-}
-
-*/
