@@ -206,13 +206,13 @@ double heaviside(double t)
 
 void salvarResultadoEmArquivo (vector <double> resultadoUmTempo)
 {
-    ofstream arquivo;
-     arquivo.open ("analise no tempo.txt", ios::app);
+  //  ofstream arquivo;
+     //arquivo.open ("analise no tempo.txt", ios::app);
      for (i=0; i < static_cast <int> (resultadoUmTempo.size()); i++){
-       arquivo << resultadoUmTempo.at(i) << ' ';
+       fprintf (arquivoSolucao, "%g ",resultadoUmTempo.at(i) );
      }
-     arquivo<<endl;
-     arquivo.close();
+     fprintf (arquivoSolucao, "\n");
+    // arquivo.close();
 }
 /*
 void salvarResultadoEmArquivo(vector < vector<double> > tabela)

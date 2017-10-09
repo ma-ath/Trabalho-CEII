@@ -17,7 +17,8 @@ char nd[MAX_NOME];
 char lista[MAX_NOS+1][MAX_NOME+2];
 char txt[MAX_LINHA+1];
 char *p;
-FILE *arquivo;
+FILE *arquivoNetlist;
+FILE *arquivoSolucao;
 double g;
 double Yn[MAX_NOS+1][MAX_NOS+2];
 
@@ -30,20 +31,22 @@ int main()
   denovo:
 
   vector <double> resultadoUmTempo;
+  //abri o aarquivo para escrever os resultados
+  arquivoSolucao=fopen("Resultado no tempo","w");
 
   ne=0; nv=0; strcpy(lista[0],"0");
   printf("Nome do arquivo com o netlist (ex: mna.net): ");
   scanf("%50s",nomearquivo);
-  arquivo=fopen(nomearquivo,"r");
-  if (arquivo==0) {
+  arquivoNetlist=fopen(nomearquivo,"r");
+  if (arquivoNetlist==0) {
     printf("Arquivo %s inexistente\n",nomearquivo);
     goto denovo;
   }
 
   printf("Lendo netlist:\n");
-  fgets(txt,MAX_LINHA,arquivo);
+  fgets(txt,MAX_LINHA,arquivoNetlist);
   printf("Titulo: %s",txt);
-  while (fgets(txt,MAX_LINHA,arquivo)) {
+  while (fgets(txt,MAX_LINHA,arquivoNetlist)) {
     ne++; /* Nao usa o netlist[0] */
     if (ne>MAX_ELEM) {
       printf("O programa so aceita ate %d elementos\n",MAX_ELEM);
@@ -166,7 +169,7 @@ int main()
       exit(1);
     }
   }
-  fclose(arquivo);
+  fclose(arquivoNetlist);
   /* Acrescenta variaveis de corrente acima dos nos, anotando no netlist */
   nn=nv;
   for (i=1; i<=ne; i++) {
@@ -296,6 +299,8 @@ int main()
   } /*FIM loop de tempo*/
 
   /* Mostra solucao */
+  fclose(arquivoSolucao);
+
   printf("Solucao:\n");
   strcpy(txt,"Tensao");
   for (i=1; i<=nv; i++) {

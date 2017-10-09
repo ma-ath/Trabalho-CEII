@@ -37,7 +37,8 @@ extern char lista[MAX_NOS+1][MAX_NOME+2]; /*Tem que caber jx antes do nome */
 extern char txt[MAX_LINHA+1];
 extern char *p;
 
-extern FILE *arquivo;
+extern FILE *arquivoNetlist;
+extern FILE *arquivoSolucao;
 
 extern double g;
 extern double Yn[MAX_NOS+1][MAX_NOS+2];   /*Matriz a ser resolvida*/
