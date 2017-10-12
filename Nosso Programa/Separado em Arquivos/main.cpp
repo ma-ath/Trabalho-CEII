@@ -32,8 +32,8 @@ int main()
   int erro;
   vector <double> resultadoUmTempo;
   //abri o aarquivo para escrever os resultados
-  arquivoSolucao=fopen("Resultado no tempo","w");
-  
+  arquivoSolucao=fopen(NOME_ARQUIVO_TAB,"w");
+
   do{
     erro = leNetlist();
   }while (erro != 0);
