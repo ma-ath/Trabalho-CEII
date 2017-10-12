@@ -1,6 +1,8 @@
 #include "global.h"
 #include "funcoesAuxiliares.h"
 
+using namespace std;
+
 elemento netlist[MAX_ELEM];
 int ne;
 int nv;
@@ -27,12 +29,16 @@ double tempoAtual, tempoFinal, passo, passoPorPt;
 
 int main()
 {
+
+  cout << "Programa de Analise Nodal Modificada - AlyTSPICE" << endl;
+  cout << "Analise no dominio do tempo com metodo de integracao dos trapezios" << endl;
+
   /* 1 - Leitura do netlist */
   //denovo:
   int erro;
   vector <double> resultadoUmTempo;
   //abri o aarquivo para escrever os resultados
-  arquivoSolucao=fopen(NOME_ARQUIVO_TAB,"w");
+
 
   do{
     erro = leNetlist();
@@ -98,6 +104,9 @@ int main()
   getch();
 
   /*Loop responsavel pelo TEMPO*/
+
+  arquivoSolucao=fopen(NOME_ARQUIVO_TAB,"w");
+
   tempoAtual = 0;
   while(tempoAtual <= tempoFinal)
   {
