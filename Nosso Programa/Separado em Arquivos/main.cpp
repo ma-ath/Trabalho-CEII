@@ -37,6 +37,7 @@ int main()
   //denovo:
   int erro;
   vector <double> resultadoUmTempo;
+  vector <char*> primeiraLinhaTab;
   //abri o aarquivo para escrever os resultados
 
 
@@ -153,6 +154,16 @@ int main()
     }
     getch();
     #endif
+
+    /*aqui vc escreve oo cabecalho para tab*/
+    if (tempoAtual==0){
+      fprintf (arquivoSolucao, "%s ", "t" );
+      for (i=1; i<=nv; i++){
+        fprintf (arquivoSolucao, "%s ", lista[i] );
+      }
+      fprintf (arquivoSolucao, "\n");
+    }
+
 
     resultadoUmTempo.push_back(tempoAtual);
     for (i=1; i<=nv; i++){
