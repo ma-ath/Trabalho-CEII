@@ -592,7 +592,7 @@ void analisePontoOperacao(char tipo)  //POR ENQUANTO SO INICIA TUDO COMO ZERO
     }
   }
 
-  printf("Sistema resolvido para p operacao:\n");
+  cout << "Sistema resolvido para Ponto de Operacao:" << endl;
   for (i=1; i<=nv; i++)
   {
     for (j=1; j<=nv+1; j++)
