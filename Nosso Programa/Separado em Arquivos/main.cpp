@@ -30,7 +30,7 @@ double tempoAtual, tempoFinal, passo, passoPorPt;
 int main()
 {
 
-  cout << "Programa de Analise Nodal Modificada - AlyTSPICE" << endl;
+  cout << endl << "Programa de Analise Nodal Modificada - AlyTSPICE" << endl;
   cout << "Analise no dominio do tempo com metodo de integracao dos trapezios" << endl;
 
   /* 1 - Leitura do netlist */
