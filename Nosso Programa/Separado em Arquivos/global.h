@@ -9,7 +9,6 @@
 #include <fstream>
 #include "constantes.h"
 #include "tipos.h"
-
 #ifndef _GLOBAL_H_
 #define _GLOBAL_H_
 

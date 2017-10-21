@@ -113,6 +113,7 @@ int main()
   //Inicia a analise com um calculo de ponto de operacao. Estava com preguiça e por enquanto sistema inicia com jt0 = 0 e vt0 = 0
   for (i=1; i<=ne; i++)
   {
+    zeraSistema();
     tipo=netlist[i].nome[0];
     analisePontoOperacao(tipo);
   }
@@ -139,7 +140,7 @@ int main()
       {
         tipo=netlist[i].nome[0];
         estampas(tipo);
-        #ifdef DEBUG  /* Opcional: Mostra o sistema apos a montagem da estampa */
+       #ifdef DEBUG  /* Opcional: Mostra o sistema apos a montagem da estampa */
         printf("Sistema apos a estampa de %s\n",netlist[i].nome);
         for (k=1; k<=nv; k++)
         {
@@ -149,7 +150,7 @@ int main()
           printf("\n");
         }
         getch();
-        #endif
+       #endif
       }
 
     /* Resolve o sistema */
@@ -170,17 +171,17 @@ int main()
 
 
 
-    //#ifdef DEBUG  /* Opcional: Mostra o sistema resolvido */
-    //printf("Sistema resolvido:\n");
-    //for (i=1; i<=nv; i++)
-    //{
-    //  for (j=1; j<=nv+1; j++)
-    //    if (Yn[i][j]!=0) printf("%+3.1f ",Yn[i][j]);
-    //    else printf(" ... ");
-    //    printf("\n");
-    //}
-    //getch();
-    //#endif
+    #ifdef DEBUG  /* Opcional: Mostra o sistema resolvido */
+    printf("Sistema resolvido:\n");
+    for (i=1; i<=nv; i++)
+    {
+      for (j=1; j<=nv+1; j++)
+        if (Yn[i][j]!=0) printf("%+3.1f ",Yn[i][j]);
+        else printf(" ... ");
+        printf("\n");
+    }
+    getch();
+    #endif
 
     /*aqui vc escreve oo cabecalho para tab*/
     if (tempoAtual==0){
