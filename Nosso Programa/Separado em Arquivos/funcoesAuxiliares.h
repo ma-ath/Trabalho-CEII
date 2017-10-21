@@ -15,6 +15,10 @@ double heaviside(double);
 void salvarResultadoEmArquivo (vector <double>);
 
 int leNetlist (void);
+
+void atualizarMemoriasCapacitorIndutor(char tipo);
+
+void analisePontoOperacao(char tipo);
 /*void salvarResultadoEmArquivo(vector < vector<double> > tabela)*/
 
 /* Monta estampas

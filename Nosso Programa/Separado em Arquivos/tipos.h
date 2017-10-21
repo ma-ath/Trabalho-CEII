@@ -19,6 +19,10 @@ typedef struct elemento /* Elemento do netlist */
   char fonte[MAX_NOME_FONTE]; //se eh DC, SIN, ou PULSE
   double amplitude /*anplitude2 para pulse*/, freq, atraso, amortecimento,
           defasagem, ciclo, tempoSubida, tempoDescida, tempoLigada, periodo;
+
+  /*Aqui sao os parametros de memoria para o capacitor e indutor no tempo*/
+  double vt0; /*Tensao anterior sobre o capacitor/indutor*/
+  double jt0; /*Corrente anterior sobre o capacitor/indutor*/
 } elemento;
 
 #endif

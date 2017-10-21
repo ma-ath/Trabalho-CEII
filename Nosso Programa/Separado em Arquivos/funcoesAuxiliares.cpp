@@ -227,6 +227,29 @@ void estampas(char tipo)
     Yn[netlist[i].x][netlist[i].c]-=1;
     Yn[netlist[i].x][netlist[i].d]+=1;
   }
+  //
+  //      Estampas variantes no temppo para Capacitor e Indutor - Metodo dos Trapezios
+  //      Pagina 104 do livro
+  else if (tipo=='C') {
+    g=((2*netlist[i].valor)/(passo));     //Valor da condutancia para o MetodoDosTrapezios
+    Yn[netlist[i].a][netlist[i].a]+=g;    //Estampas para o resistor
+    Yn[netlist[i].b][netlist[i].b]+=g;
+    Yn[netlist[i].a][netlist[i].b]-=g;
+    Yn[netlist[i].b][netlist[i].a]-=g;
+
+    Yn[netlist[i].a][nv+1]+=(g*netlist[i].vt0+netlist[i].jt0);           //Estampas para a fonte de corrente
+    Yn[netlist[i].b][nv+1]-=(g*netlist[i].vt0+netlist[i].jt0);
+  }
+  else if (tipo=='L') {
+    g=((passo)/(2*netlist[i].valor));     //Valor da condutancia para o MetodoDosTrapezios
+    Yn[netlist[i].a][netlist[i].a]+=g;    //Estampas para o resistor
+    Yn[netlist[i].b][netlist[i].b]+=g;
+    Yn[netlist[i].a][netlist[i].b]-=g;
+    Yn[netlist[i].b][netlist[i].a]-=g;
+
+    Yn[netlist[i].a][nv+1]-=(g*netlist[i].vt0+netlist[i].jt0);           //Estampas para a fonte de corrente
+    Yn[netlist[i].b][nv+1]+=(g*netlist[i].vt0+netlist[i].jt0);
+  }
 }
 
 int resolversistema(void)
@@ -351,7 +374,7 @@ int leNetlist (void){
     /* dependendo do tipo que esta sendo lida, a forma de preencher
     a netlist eh diferente. aqui ele agrupa os tipos que tem os mesmos
     tratamentos e separa com if */
-    if (tipo=='R') {
+    if (tipo=='R' || tipo=='C' || tipo=='L') {
       sscanf(p,"%10s%10s%lg",na,nb,&netlist[ne].valor);
       printf("%s %s %s %g\n",netlist[ne].nome,na,nb,netlist[ne].valor);
       /*a funcao "numero" converte o nó que o usuario nomeou em um numero int
@@ -460,4 +483,52 @@ int leNetlist (void){
   }
   fclose(arquivoNetlist);
   return 0;
+}
+
+void atualizarMemoriasCapacitorIndutor(char tipo)   //COM ERRORS, NAO ESTOU CONSEGUINDO PEGAR A TENSAO SOBRE O COMPONENTE EA-EB
+{
+  //  Apos resolucao do sistema no dominio do tempo, eh preciso atualizaar as memorias de corrente e tensao nos capacitores e indutores do sistema (feito nessa funcao);
+  // Lembrar que: "Yn[i][nv+1]" é a solucao da tensao no nó i para o tempo atual (é mesmo?)
+  // Olha pagina 104 pra entender as contas
+  if (tipo=='C')
+  {
+
+    g=((2*netlist[i].valor)/(passo));                                                                              //Valor da condutancia para o MetodoDosTrapezios
+    #ifdef DEBUG
+    cout << "ANTES DE ATUALIZAR: CORRENTE " << netlist[i].jt0 << endl;
+    cout << "ANTES DE ATUALIZAR: TENSAO "<< netlist[i].vt0 << endl;
+    #endif
+    netlist[i].jt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]))*g -1*(g*netlist[i].vt0+netlist[i].jt0); //jt0 = (ea-eb)/R - I ; R = 1/g, I = g*vt0+jt0
+    #ifdef DEBUG
+    cout << "DEPOIS DE ATUALIZAR CORRENTE: " << netlist[i].jt0 << endl;
+    cout << "ANTES DE ATUALIZAR: TENSAO "<< netlist[i].vt0 << endl;
+    #endif
+    netlist[i].vt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]));                                        //vt0 = (ea - eb)
+    #ifdef DEBUG
+    cout << "DEPOIS DE ATUALIZAR CORRENTE: " << netlist[i].jt0 << endl;
+    cout << "DEPOIS DE ATUALIZAR TENSAO: "<< netlist[i].vt0 << endl;
+    #endif
+  }
+  else
+  if (tipo=='L')
+  {
+    g=((passo)/(2*netlist[i].valor));                                                                              //Valor da condutancia para o MetodoDosTrapezios
+    netlist[i].jt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]))*g + (g*netlist[i].vt0+netlist[i].jt0);  //jt0 = (ea-eb)/R + I ; R = 1/g, I = g*vt0+jt0
+    netlist[i].vt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]));                                        //vt0 = (ea - eb)
+  }
+}
+
+void analisePontoOperacao(char tipo)  //POR ENQUANTO SO INICIA TUDO COMO ZERO
+{
+  if (tipo=='C')
+  {
+    netlist[i].jt0 = 0;
+    netlist[i].vt0 = 0;
+  }
+  else
+  if (tipo=='L')
+  {
+    netlist[i].jt0 = 0;
+    netlist[i].vt0 = 0;
+  }
 }

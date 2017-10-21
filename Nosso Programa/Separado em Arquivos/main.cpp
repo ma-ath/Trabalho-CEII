@@ -85,7 +85,7 @@ int main()
   printf("Netlist interno final\n");
   for (i=1; i<=ne; i++) {
     tipo=netlist[i].nome[0];
-    if (tipo=='R' || tipo=='I' || tipo=='V') {
+    if (tipo=='R' || tipo=='I' || tipo=='V' || tipo =='C' || tipo == 'L') {
       printf("%s %d %d %g\n",netlist[i].nome,netlist[i].a,netlist[i].b,netlist[i].valor);
     }
     else if (tipo=='G' || tipo=='E' || tipo=='F' || tipo=='H' || tipo=='K') {
@@ -109,8 +109,25 @@ int main()
   arquivoSolucao=fopen(NOME_ARQUIVO_TAB,"w");
 
   tempoAtual = 0;
+
+  //Inicia a analise com um calculo de ponto de operacao. Estava com preguiça e por enquanto sistema inicia com jt0 = 0 e vt0 = 0
+  for (i=1; i<=ne; i++)
+  {
+    tipo=netlist[i].nome[0];
+    analisePontoOperacao(tipo);
+  }
+
   while(tempoAtual <= tempoFinal)
   {
+    //  Metodo de resolucao
+    //  0 - Inicializa valores de tensao e corrente nos capacitores e indutores com uma analise de ponto de operacao
+    //  1 - Zera sistema nodal
+    //  2 - monta todas as estampas
+    //  3 - Resolve sistema nodal modificado
+    //  4 - Atualiza valor das memorias de corrente e tensao nos capacitores e indutores
+    //  5 - Salva resultado em tabela
+    //  6 - Volta a (1) e repete até o fim da analise
+
 
     /* Zera sistema */
     zeraSistema();
@@ -141,19 +158,29 @@ int main()
       getch();
       exit(0);
     }
+    /* Atualiza as memorias nos capacitores e indutores */
+    /*apos a resolucao do sistema nodal, a gente precisa atualizar o valor dos parametros vto e jto de cada capacitor/indutor;*/
+    for (i=1; i<=ne; i++)
+      {
+        tipo=netlist[i].nome[0];
+        atualizarMemoriasCapacitorIndutor(tipo);
+      };
 
 
-    #ifdef DEBUG  /* Opcional: Mostra o sistema resolvido */
-    printf("Sistema resolvido:\n");
-    for (i=1; i<=nv; i++)
-    {
-      for (j=1; j<=nv+1; j++)
-        if (Yn[i][j]!=0) printf("%+3.1f ",Yn[i][j]);
-        else printf(" ... ");
-        printf("\n");
-    }
-    getch();
-    #endif
+
+
+
+    //#ifdef DEBUG  /* Opcional: Mostra o sistema resolvido */
+    //printf("Sistema resolvido:\n");
+    //for (i=1; i<=nv; i++)
+    //{
+    //  for (j=1; j<=nv+1; j++)
+    //    if (Yn[i][j]!=0) printf("%+3.1f ",Yn[i][j]);
+    //    else printf(" ... ");
+    //    printf("\n");
+    //}
+    //getch();
+    //#endif
 
     /*aqui vc escreve oo cabecalho para tab*/
     if (tempoAtual==0){
@@ -189,12 +216,13 @@ int main()
   /* Mostra solucao */
   fclose(arquivoSolucao);
 
-  printf("Solucao:\n");
-  strcpy(txt,"Tensao");
-  for (i=1; i<=nv; i++) {
-    if (i==nn+1) strcpy(txt,"Corrente");
-    printf("%s %s: %g\n",txt,lista[i],Yn[i][nv+1]);
-  }
+  cout << "Circuito simulado com sucesso!" << endl;
+  //printf("Solucao:\n");
+  //strcpy(txt,"Tensao");
+  //for (i=1; i<=nv; i++) {
+  //  if (i==nn+1) strcpy(txt,"Corrente");
+  //  printf("%s %s: %g\n",txt,lista[i],Yn[i][nv+1]);
+  //}
   getch();
   return 0;
 }
