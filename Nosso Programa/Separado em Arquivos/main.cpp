@@ -10,6 +10,9 @@ int nn;
 int i;
 int j;
 int k;
+unsigned long long GIndutorCurto;
+long double GCapacitorAberto;
+int analisandoPontodeOp;
 char nomearquivo[MAX_LINHA+1];
 char tipo;
 char na[MAX_NOME];
@@ -39,7 +42,8 @@ int main()
   vector <double> resultadoUmTempo;
   vector <char*> primeiraLinhaTab;
   //abri o aarquivo para escrever os resultados
-
+  GIndutorCurto = 1844674407370955161;
+  GCapacitorAberto = 1.11e-16;
 
   do{
     erro = leNetlist();
@@ -111,12 +115,14 @@ int main()
   tempoAtual = 0;
 
   //Inicia a analise com um calculo de ponto de operacao. Estava com preguiça e por enquanto sistema inicia com jt0 = 0 e vt0 = 0
-  for (i=1; i<=ne; i++)
-  {
+  //for (i=1; i<=ne; i++)
+  //{
+  //  tipo=netlist[i].nome[0];
+    analisandoPontodeOp = 1;
     zeraSistema();
-    tipo=netlist[i].nome[0];
     analisePontoOperacao(tipo);
-  }
+    analisandoPontodeOp = 0;
+  //}
 
   while(tempoAtual <= tempoFinal)
   {

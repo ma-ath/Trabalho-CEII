@@ -22,7 +22,9 @@ extern int nn;     /*Numero de Nos */
 extern int i;      /*Variaveis auxiliares*/
 extern int j;
 extern int k;
-
+extern int analisandoPontodeOp;
+extern unsigned long long GIndutorCurto;
+extern long double GCapacitorAberto;
 extern char nomearquivo[MAX_LINHA+1];/* Foram colocados limites nos formatos de leitura para alguma protecao contra excesso de caracteres nestas variaveis */
 extern char tipo;
 extern char na[MAX_NOME];

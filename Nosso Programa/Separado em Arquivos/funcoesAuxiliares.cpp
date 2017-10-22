@@ -231,24 +231,42 @@ void estampas(char tipo)
   //      Estampas variantes no temppo para Capacitor e Indutor - Metodo dos Trapezios
   //      Pagina 104 do livro
   else if (tipo=='C') {
-    g=((2*netlist[i].valor)/(passo));     //Valor da condutancia para o MetodoDosTrapezios
-    Yn[netlist[i].a][netlist[i].a]+=g;    //Estampas para o resistor
-    Yn[netlist[i].b][netlist[i].b]+=g;
-    Yn[netlist[i].a][netlist[i].b]-=g;
-    Yn[netlist[i].b][netlist[i].a]-=g;
+    //se esta no modo de analise de ponto de op,
+    //substitui o capacitor por circuito aberto (ou resistor mt grande)
+    if (analisandoPontodeOp ==1){
+      Yn[netlist[i].a][netlist[i].a]+=GCapacitorAberto;
+      Yn[netlist[i].b][netlist[i].b]+=GCapacitorAberto;
+      Yn[netlist[i].a][netlist[i].b]-=GCapacitorAberto;
+      Yn[netlist[i].b][netlist[i].a]-=GCapacitorAberto;
+    }
+    else{
+      g=((2*netlist[i].valor)/(passo));     //Valor da condutancia para o MetodoDosTrapezios
+      Yn[netlist[i].a][netlist[i].a]+=g;    //Estampas para o resistor
+      Yn[netlist[i].b][netlist[i].b]+=g;
+      Yn[netlist[i].a][netlist[i].b]-=g;
+      Yn[netlist[i].b][netlist[i].a]-=g;
 
-    Yn[netlist[i].a][nv+1]+=(g*netlist[i].vt0+netlist[i].jt0);           //Estampas para a fonte de corrente
-    Yn[netlist[i].b][nv+1]-=(g*netlist[i].vt0+netlist[i].jt0);
+      Yn[netlist[i].a][nv+1]+=(g*netlist[i].vt0+netlist[i].jt0);           //Estampas para a fonte de corrente
+      Yn[netlist[i].b][nv+1]-=(g*netlist[i].vt0+netlist[i].jt0);
+    }
   }
   else if (tipo=='L') {
-    g=((passo)/(2*netlist[i].valor));     //Valor da condutancia para o MetodoDosTrapezios
-    Yn[netlist[i].a][netlist[i].a]+=g;    //Estampas para o resistor
-    Yn[netlist[i].b][netlist[i].b]+=g;
-    Yn[netlist[i].a][netlist[i].b]-=g;
-    Yn[netlist[i].b][netlist[i].a]-=g;
+    if (  analisandoPontodeOp ==1){
+      Yn[netlist[i].a][netlist[i].a]+=GIndutorCurto;
+      Yn[netlist[i].b][netlist[i].b]+=GIndutorCurto;
+      Yn[netlist[i].a][netlist[i].b]-=GIndutorCurto;
+      Yn[netlist[i].b][netlist[i].a]-=GIndutorCurto;
+    }
+    else{
+      g=((passo)/(2*netlist[i].valor));     //Valor da condutancia para o MetodoDosTrapezios
+      Yn[netlist[i].a][netlist[i].a]+=g;    //Estampas para o resistor
+      Yn[netlist[i].b][netlist[i].b]+=g;
+      Yn[netlist[i].a][netlist[i].b]-=g;
+      Yn[netlist[i].b][netlist[i].a]-=g;
 
-    Yn[netlist[i].a][nv+1]-=(g*netlist[i].vt0+netlist[i].jt0);           //Estampas para a fonte de corrente
-    Yn[netlist[i].b][nv+1]+=(g*netlist[i].vt0+netlist[i].jt0);
+      Yn[netlist[i].a][nv+1]-=(g*netlist[i].vt0+netlist[i].jt0);           //Estampas para a fonte de corrente
+      Yn[netlist[i].b][nv+1]+=(g*netlist[i].vt0+netlist[i].jt0);
+    }
   }
 }
 
@@ -494,7 +512,6 @@ void atualizarMemoriasCapacitorIndutor(char tipo)
   // Olha pagina 104 pra entender as contas
   if (tipo=='C')
   {
-
     g=((2*netlist[i].valor)/(passo));
     //Valor da condutancia para o MetodoDosTrapezios
     #ifdef DEBUG
@@ -540,15 +557,45 @@ void atualizarMemoriasCapacitorIndutor(char tipo)
 
 void analisePontoOperacao(char tipo)  //POR ENQUANTO SO INICIA TUDO COMO ZERO
 {
-  if (tipo=='C')
+  //resolve o circuito uma vez para achar o ponto de operacao
+  //monsta estampa aqui, e resolve o sistema uma vez
+  for (i=1; i<=ne; i++)
   {
-    netlist[i].jt0 = 0;
-    netlist[i].vt0 = 0;
+    tipo=netlist[i].nome[0];
+    estampas(tipo);
   }
-  else
-  if (tipo=='L')
+  if (resolversistema())
   {
-    netlist[i].jt0 = 0;
-    netlist[i].vt0 = 0;
+    getch();
+    exit(0);
   }
+
+  for (i=1; i<=ne; i++)
+  {
+    tipo=netlist[i].nome[0];
+    if (netlist[i].a == 0){
+      Yn[netlist[i].a][nv+1] = 0;
+    }
+    if (netlist[i].b == 0){
+      Yn[netlist[i].b][nv+1] = 0;
+    }
+    if (tipo=='C'){
+      netlist[i].jt0 = 0;
+      netlist[i].vt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]));
+    }
+    if (tipo=='L'){
+      netlist[i].jt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]))*GIndutorCurto;
+      netlist[i].vt0 = 0;
+    }
+  }
+
+  printf("Sistema resolvido para p operacao:\n");
+  for (i=1; i<=nv; i++)
+  {
+    for (j=1; j<=nv+1; j++)
+      if (Yn[i][j]!=0) printf("%+3.1f ",Yn[i][j]);
+      else printf(" ... ");
+      printf("\n");
+  }
+
 }
