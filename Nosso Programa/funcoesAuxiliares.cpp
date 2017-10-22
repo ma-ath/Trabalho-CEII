@@ -268,6 +268,13 @@ void estampas(char tipo)
       Yn[netlist[i].b][nv+1]+=(g*netlist[i].vt0+netlist[i].jt0);
     }
   }
+  else if (tipo=='$') {     /*Chave*/
+    g = GCAPACITORABERTO;
+    Yn[netlist[i].a][netlist[i].a]+=g;
+    Yn[netlist[i].b][netlist[i].b]+=g;
+    Yn[netlist[i].a][netlist[i].b]-=g;
+    Yn[netlist[i].b][netlist[i].a]-=g;
+  }
 }
 
 int resolversistema(void)
@@ -479,6 +486,16 @@ int leNetlist (void){
     else if (tipo=='K') {         /*Transmador Ideal - 07/10/2017*/
       sscanf(p,"%10s%10s%10s%10s%lg",na,nb,nc,nd,&netlist[ne].valor);
       printf("%s %s %s %s %s %g\n",netlist[ne].nome,na,nb,nc,nd,netlist[ne].valor);
+      netlist[ne].a=numero(na);
+      netlist[ne].b=numero(nb);
+      netlist[ne].c=numero(nc);
+      netlist[ne].d=numero(nd);
+    }
+    else if (tipo=='$') {         /*Chave - 22/10/2017*/
+      /*valor, nesse caso, eh o valor de referencia para decidir se vai
+      operar no gon ou goff*/
+      sscanf(p,"%10s%10s%10s%10s%lg%lg%lg",na,nb,nc,nd,&netlist[ne].gon,&netlist[ne].goff, &netlist[ne].valor);
+      printf("%s %s %s %s %s %g %g %g\n",netlist[ne].nome,na,nb,nc,nd,netlist[ne].gon, netlist[ne].goff,netlist[ne].valor);
       netlist[ne].a=numero(na);
       netlist[ne].b=numero(nb);
       netlist[ne].c=numero(nc);

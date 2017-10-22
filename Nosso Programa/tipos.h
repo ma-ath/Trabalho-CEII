@@ -23,6 +23,8 @@ typedef struct elemento /* Elemento do netlist */
   /*Aqui sao os parametros de memoria para o capacitor e indutor no tempo*/
   double vt0; /*Tensao anterior sobre o capacitor/indutor*/
   double jt0; /*Corrente anterior sobre o capacitor/indutor*/
+  double gon ; //condutancia da chave se vcd>vref
+  double goff;//condutancia da chave se vcd<=vref
 } elemento;
 
 #endif
