@@ -359,7 +359,10 @@ void salvarResultadoEmArquivo (vector <double> resultadoUmTempo)
      for (i=0; i < static_cast <int> (resultadoUmTempo.size()); i++){
        fprintf (arquivoSolucao, "%g ",resultadoUmTempo.at(i) );
      }
-     fprintf (arquivoSolucao, "\n");
+     if (tempoAtual < tempoFinal){
+       fprintf (arquivoSolucao, "\n");
+     }
+
     // arquivo.close();
 }
 
