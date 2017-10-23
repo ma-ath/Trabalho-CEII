@@ -235,6 +235,7 @@ int main()
   //  if (i==nn+1) strcpy(txt,"Corrente");
   //  printf("%s %s: %g\n",txt,lista[i],Yn[i][nv+1]);
   //}
+  plotarGrafico();
   getch();
   return 0;
 }

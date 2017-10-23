@@ -7,6 +7,8 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <sstream>
+
 #include "constantes.h"
 #include "tipos.h"
 #ifndef _GLOBAL_H_

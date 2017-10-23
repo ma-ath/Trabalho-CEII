@@ -20,6 +20,11 @@ void atualizarMemoriasCapacitorIndutor(char tipo);
 
 void analisePontoOperacao(char tipo);
 
+void plotarGrafico();
+
+const char* ConvertDoubleToString(double value);
+
+
 //essa funcao printa uma barrinha de status da simulacao, ela printa a cada
 //int porcento, e com o caracter char passado para a funcao (da pra escolher)
 //exemplo: int = 1, char = *. printa uma barrina ******* a cada 1%
