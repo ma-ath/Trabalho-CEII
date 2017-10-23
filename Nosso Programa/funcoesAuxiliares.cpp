@@ -679,7 +679,7 @@ void plotarGrafico()
 
   if ((varPlot.compare("0"))!= 0) //caso eu queira plotar algo
   {
-    SysString = "python " + constPY + " " + constTab + " " + varPlot + " " + ConvertDoubleToString(tempoFinal/passo); //monta a menssagem para o cmd
+    SysString = "python " + constPY + " " + constTab + " " + varPlot + " " + ConvertDoubleToString(floor(tempoFinal/passo)); //monta a menssagem para o cmd
     system(SysString.c_str());  //funcao feia que funciona
   }
 }
