@@ -8,7 +8,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-
+#include <typeinfo>
 #include "constantes.h"
 #include "tipos.h"
 #ifndef _GLOBAL_H_

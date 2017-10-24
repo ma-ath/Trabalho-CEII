@@ -650,6 +650,7 @@ void plotarGrafico()
   string varPlot = "";        //variavel a ser plotada
   string SysString = "";      //menssagem a ser enviada pro cmd do windows
   string varNomes;            //string com primeira linha do arquivo .tab (todas as variaveis)
+  string varPontos = ConvertDoubleToString(floor(tempoFinal/passo));
   ifstream file;
 
   file.open(NOME_ARQUIVO_TAB);        //SCRIPT Q PEGUEI DA INTERNET PRA LER PRIMEIRA LINHA DE UM ARQUIVO
@@ -679,7 +680,11 @@ void plotarGrafico()
 
   if ((varPlot.compare("0"))!= 0) //caso eu queira plotar algo
   {
-    SysString = "python " + constPY + " " + constTab + " " + varPlot + " " + ConvertDoubleToString(floor(tempoFinal/passo)); //monta a menssagem para o cmd
+    SysString = "python " + constPY + " " + constTab + " " + varPlot + " " + varPontos; //monta a menssagem para o cmd
+    //cout <<typeid(constPY).name() <<endl;
+    //cout << varPontos << endl;
+    cout << "Chamando por: " << SysString << endl;
+
     system(SysString.c_str());  //funcao feia que funciona
   }
 }
