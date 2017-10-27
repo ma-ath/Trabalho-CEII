@@ -286,7 +286,6 @@ void estampas(char tipo)
 
 void montarEstampas()
 {
-  int i;
   for (i=1; i<=ne; i++)
   {
     tipo=netlist[i].nome[0];
@@ -553,60 +552,49 @@ int leNetlist (void){
   return 0;
 }
 
-void atualizarMemoriasCapacitorIndutor(char tipo)
-//COM ERRORS, NAO ESTOU CONSEGUINDO PEGAR A TENSAO SOBRE O COMPONENTE EA-EB
+void atualizarMemoriasCapacitorIndutor()
 {
   //  Apos resolucao do sistema no dominio do tempo, eh preciso atualizaar as memorias
   // de corrente e tensao nos capacitores e indutores do sistema (feito nessa funcao);
   // Lembrar que: "Yn[i][nv+1]" é a solucao da tensao no nó i para o tempo atual (é mesmo?)
   // Olha pagina 104 pra entender as contas
-  if (tipo=='C')
-  {
-    g=((2*netlist[i].valor)/(passo));
-    //Valor da condutancia para o MetodoDosTrapezios
-    #ifdef DEBUG
-    cout << "ANTES DE ATUALIZAR: CORRENTE " << netlist[i].jt0 << endl;
-    cout << "ANTES DE ATUALIZAR: TENSAO "<< netlist[i].vt0 << endl;
-    #endif
+  for (i=1; i<=ne; i++)
+    {
+      tipo=netlist[i].nome[0];
 
-    //aqui defini a tensao da terra. qnd a netlist[i].a/b eh zero, quer dzr
-    // q uma das perninhas esta ligado a terra.
-    if (netlist[i].a == 0){
-      Yn[netlist[i].a][nv+1] = 0;
+      if (tipo=='C')
+      {
+        g=((2*netlist[i].valor)/(passo)); //Valor da condutancia para o MetodoDosTrapezios
+        //aqui defini a tensao da terra. qnd a netlist[i].a/b eh zero, quer dzr
+        // q uma das perninhas esta ligado a terra.
+        if (netlist[i].a == 0){
+        Yn[netlist[i].a][nv+1] = 0;
+        }
+        if (netlist[i].b == 0){
+          Yn[netlist[i].b][nv+1] = 0;
+        }
+        netlist[i].jt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]))*g -1*(g*netlist[i].vt0+netlist[i].jt0); //jt0 = (ea-eb)/R - I ; R = 1/g, I = g*vt0+jt0
+        netlist[i].vt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1])); //vt0 = (ea - eb)
+      }
+      else
+      if (tipo=='L')
+      {
+        if (netlist[i].a == 0){
+          Yn[netlist[i].a][nv+1] = 0;
+        }
+        if (netlist[i].b == 0){
+          Yn[netlist[i].b][nv+1] = 0;
+        }
+        g=((passo)/(2*netlist[i].valor));                                                                              //Valor da condutancia para o MetodoDosTrapezios
+        netlist[i].jt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]))*g + (g*netlist[i].vt0+netlist[i].jt0);  //jt0 = (ea-eb)/R + I ; R = 1/g, I = g*vt0+jt0
+        netlist[i].vt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]));                                        //vt0 = (ea - eb)
+      }
     }
-    if (netlist[i].b == 0){
-      Yn[netlist[i].b][nv+1] = 0;
-    }
-    netlist[i].jt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]))*g -1*(g*netlist[i].vt0+netlist[i].jt0);
-     //jt0 = (ea-eb)/R - I ; R = 1/g, I = g*vt0+jt0
-    #ifdef DEBUG
-    cout << "DEPOIS DE ATUALIZAR CORRENTE: " << netlist[i].jt0 << endl;
-    cout << "ANTES DE ATUALIZAR: TENSAO "<< netlist[i].vt0 << endl;
-    #endif
-    netlist[i].vt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]));
-     //vt0 = (ea - eb)
-    #ifdef DEBUG
-    cout << "DEPOIS DE ATUALIZAR CORRENTE: " << netlist[i].jt0 << endl;
-    cout << "DEPOIS DE ATUALIZAR TENSAO: "<< netlist[i].vt0 << endl;
-    #endif
-  }
-  else
-  if (tipo=='L')
-  {
-    if (netlist[i].a == 0){
-      Yn[netlist[i].a][nv+1] = 0;
-    }
-    if (netlist[i].b == 0){
-      Yn[netlist[i].b][nv+1] = 0;
-    }
-    g=((passo)/(2*netlist[i].valor));                                                                              //Valor da condutancia para o MetodoDosTrapezios
-    netlist[i].jt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]))*g + (g*netlist[i].vt0+netlist[i].jt0);  //jt0 = (ea-eb)/R + I ; R = 1/g, I = g*vt0+jt0
-    netlist[i].vt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]));                                        //vt0 = (ea - eb)
-  }
 }
 
-void analisePontoOperacao(char tipo)  //POR ENQUANTO SO INICIA TUDO COMO ZERO
+void analisePontoOperacao()  //POR ENQUANTO SO INICIA TUDO COMO ZERO
 {
+  analisandoPontodeOp = 1;
   //resolve o circuito uma vez para achar o ponto de operacao
   //monsta estampa aqui, e resolve o sistema uma vez
   for (i=1; i<=ne; i++)
@@ -620,6 +608,7 @@ void analisePontoOperacao(char tipo)  //POR ENQUANTO SO INICIA TUDO COMO ZERO
     exit(0);
   }
 
+  //Inicializa as Tensoes/Correntes em Capacitores/Indutores
   for (i=1; i<=ne; i++)
   {
     tipo=netlist[i].nome[0];
@@ -648,6 +637,7 @@ void analisePontoOperacao(char tipo)  //POR ENQUANTO SO INICIA TUDO COMO ZERO
       printf("\n");
   }
 
+  analisandoPontodeOp = 0;
 }
 
 void printProgresso(int i, char simbolo) //Printa o progresso do calculo, dependendo do passo atual
@@ -748,7 +738,6 @@ int ComparaValorNR (void) {
   }
      if (erroGrande==1) return 0;
      else return 1;
-
 }
 
 void gminstepping()

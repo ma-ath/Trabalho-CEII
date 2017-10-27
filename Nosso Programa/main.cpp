@@ -128,10 +128,10 @@ int main()
   //for (i=1; i<=ne; i++)
   //{
   //  tipo=netlist[i].nome[0];
-    analisandoPontodeOp = 1;
+  //  analisandoPontodeOp = 1;
     zeraSistema();
-    analisePontoOperacao(tipo);
-    analisandoPontodeOp = 0;
+    analisePontoOperacao();
+  //  analisandoPontodeOp = 0;
   //}
 
   while(tempoAtual <= tempoFinal)
@@ -153,44 +153,37 @@ int main()
     zeraSistema();
     NewtonRaphsonTentativas = 0;
     NewtonRaphsonTentarNovamente = 0;
-    /* Monta estampas */
+    /* Monta estampas & Resolve com algorítimo de Newton-Raphson*/
+    /*Ainda possui espaço para melhoras, para análise no tempo sem elementos nao lineares
+      ele acaba tendo que resolver o mesmo sistema duas vezes para poder passar o instante de tempo*/
     /*a b c d sao posicoes relacionadas aos nos
       x e y sao relacionadas as correntes, que entram na estampa pelos
       "pontilhadinhos" qnd a gente faz mna na mao*/
       do{
-        CopiaSolucaoNR();
-        if(NewtonRaphsonTentativas > NEWTONRAPHSON_NUMERO_MAX_TENTATIVAS)
-        {
-          ChutaValorNR();
-          NewtonRaphsonTentativas = 0;
-          NewtonRaphsonTentarNovamente++;
-          if(NewtonRaphsonTentarNovamente == NEWTONRAPHSON_NUMERO_MAX_TENTARNOVAMENTE)
-          {
-            gminstepping();
+          CopiaSolucaoNR();   //copia solucao anterior
+          if(NewtonRaphsonTentativas > NEWTONRAPHSON_NUMERO_MAX_TENTATIVAS)
+          {   //Caso o numero de interacoes do newton-raphson tenha excedido um valor, chuta valores aleatorios
+            ChutaValorNR();
+            NewtonRaphsonTentativas = 0;
+            NewtonRaphsonTentarNovamente++;
+            if(NewtonRaphsonTentarNovamente == NEWTONRAPHSON_NUMERO_MAX_TENTARNOVAMENTE)
+            { //caso ele tenha reiniciado o algoritimo vezes demais, inicia gminstepping
+              gminstepping();
+            }
           }
-        }
-        montarEstampas();
-        if (resolversistema())
-        {
-          getch();
-          exit(0);
-        }
-        NewtonRaphsonTentativas++;
-      }while(ComparaValorNR() == 0);
+          zeraSistema();  //zera, monta e resolve
+          montarEstampas();
+          if (resolversistema())
+          {
+            getch();
+            exit(0);
+          }
+          NewtonRaphsonTentativas++;
+        }while(ComparaValorNR() == 0);  //repete isso ate newton-raphson convergir
 
-    /* Resolve o sistema */
-    //if (resolversistema())
-    //{
-    //  getch();
-    //  exit(0);
-    //}
     /* Atualiza as memorias nos capacitores e indutores */
     /*apos a resolucao do sistema nodal, a gente precisa atualizar o valor dos parametros vto e jto de cada capacitor/indutor;*/
-    for (i=1; i<=ne; i++)
-      {
-        tipo=netlist[i].nome[0];
-        atualizarMemoriasCapacitorIndutor(tipo);
-      };
+    atualizarMemoriasCapacitorIndutor();
 
     #ifdef DEBUG  /* Opcional: Mostra o sistema resolvido */
     printf("Sistema resolvido:\n");
@@ -248,5 +241,6 @@ int main()
   //}
   plotarGrafico();
   getch();
+  cout << "おはよう！" << endl;
   return 0;
 }

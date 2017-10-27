@@ -17,9 +17,9 @@ void salvarResultadoEmArquivo (vector <double>);
 
 int leNetlist (void);
 
-void atualizarMemoriasCapacitorIndutor(char tipo);
+void atualizarMemoriasCapacitorIndutor();
 
-void analisePontoOperacao(char tipo);
+void analisePontoOperacao();
 
 void plotarGrafico();
 
