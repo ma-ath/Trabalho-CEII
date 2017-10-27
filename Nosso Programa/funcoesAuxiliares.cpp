@@ -269,7 +269,7 @@ void estampas(char tipo)
     }
   }
   else if (tipo=='$') {     /*Chave*/
-    if ((NewtonRapsonVetor[netlist[i].c]-NewtonRapsonVetor[netlist[i].d]) < netlist[i].valor){ //param3 = vref =valor
+    if ((NewtonRaphsonVetor[netlist[i].c]-NewtonRaphsonVetor[netlist[i].d]) < netlist[i].valor){ //param3 = vref =valor
       Yn[netlist[i].a][netlist[i].a]+=netlist[i].goff;//param2 = goff
       Yn[netlist[i].b][netlist[i].b]+=netlist[i].goff;
       Yn[netlist[i].a][netlist[i].b]-=netlist[i].goff;

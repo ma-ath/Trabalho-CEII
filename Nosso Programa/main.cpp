@@ -26,7 +26,9 @@ FILE *arquivoNetlist;
 FILE *arquivoSolucao;
 double g, pulseRealTime, pulseOffTime;
 double Yn[MAX_NOS+1][MAX_NOS+2];
-double NewtonRapsonVetor[MAX_NOS+1];
+double NewtonRaphsonVetor[MAX_NOS+1];
+int NewtonRaphsonTentativas;
+int NewtonRaphsonTentarNovamente;
 
 /*variavel para analise no tempo*/
 double tempoAtual, tempoFinal, passo, passoPorPt;
