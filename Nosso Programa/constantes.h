@@ -13,5 +13,7 @@
 #define PROGRESSO_PORCENTAGEM                     2
 #define PROGRESSO_SIMBOLO                         '*'
 #define MAX_ERRO_NR                                1e-2 //erro tolerado para newton raphson
+#define NEWTONRAPHSON_NUMERO_MAX_TENTATIVAS       10
+#define NEWTONRAPHSON_NUMERO_MAX_TENTARNOVAMENTE  5
 
 //#define DEBUG

@@ -137,46 +137,53 @@ int main()
   while(tempoAtual <= tempoFinal)
   {
     //  Metodo de resolucao
-    //  0 - Inicializa valores de tensao e corrente nos capacitores e indutores com uma analise de ponto de operacao
+    //  0 - Inicializa valores de tensao e corrente nos capacitores e indutores com uma analise de ponto de operacao com Newton-Raphson
     //  1 - Zera sistema nodal
-    //  2 - monta todas as estampas
-    //  3 - Resolve sistema nodal modificado
-    //  4 - Atualiza valor das memorias de corrente e tensao nos capacitores e indutores
-    //  5 - Salva resultado em tabela
-    //  6 - Volta a (1) e repete até o fim da analise
+    //  2 - Copia Solucao anterior do Newton-Raphson
+    //  3 - Caso o Newton-Raphson esteja demorando para convergir, reinicia o Newton-Raphson com valores chutados
+    //  4 - Caso o número de reinicializacoes do Newton-Raphson exceda um limite, inicia gminstepping
+    //  5 - Monta & Resolve sistema nodal modificado
+    //  6 - Caso o Newton-Raphson não convirja, voltar a '2'
+    //  7 - Atualiza valor das memorias de corrente e tensao nos capacitores e indutores
+    //  8 - Salva resultado em tabela
+    //  9 - Volta a (1) e repete até o fim da analise
 
 
     /* Zera sistema */
     zeraSistema();
+    NewtonRaphsonTentativas = 0;
+    NewtonRaphsonTentarNovamente = 0;
     /* Monta estampas */
     /*a b c d sao posicoes relacionadas aos nos
       x e y sao relacionadas as correntes, que entram na estampa pelos
       "pontilhadinhos" qnd a gente faz mna na mao*/
-      for (i=1; i<=ne; i++)
-      {
-        tipo=netlist[i].nome[0];
-        estampas(tipo);
-
-       #ifdef DEBUG  /* Opcional: Mostra o sistema apos a montagem da estampa */
-          printf("Sistema apos a estampa de %s\n",netlist[i].nome);
-          for (k=1; k<=nv; k++)
+      do{
+        CopiaSolucaoNR();
+        if(NewtonRaphsonTentativas > NEWTONRAPHSON_NUMERO_MAX_TENTATIVAS)
+        {
+          ChutaValorNR();
+          NewtonRaphsonTentativas = 0;
+          NewtonRaphsonTentarNovamente++;
+          if(NewtonRaphsonTentarNovamente == NEWTONRAPHSON_NUMERO_MAX_TENTARNOVAMENTE)
           {
-            for (j=1; j<=nv+1; j++)
-            if (Yn[k][j]!=0) printf("%+3.1f ",Yn[k][j]);
-            else printf(" ... ");
-            printf("\n");
+            gminstepping();
           }
+        }
+        montarEstampas();
+        if (resolversistema())
+        {
           getch();
-       #endif
-
-      }
+          exit(0);
+        }
+        NewtonRaphsonTentativas++;
+      }while(ComparaValorNR() == 0);
 
     /* Resolve o sistema */
-    if (resolversistema())
-    {
-      getch();
-      exit(0);
-    }
+    //if (resolversistema())
+    //{
+    //  getch();
+    //  exit(0);
+    //}
     /* Atualiza as memorias nos capacitores e indutores */
     /*apos a resolucao do sistema nodal, a gente precisa atualizar o valor dos parametros vto e jto de cada capacitor/indutor;*/
     for (i=1; i<=ne; i++)

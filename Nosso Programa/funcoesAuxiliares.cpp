@@ -284,6 +284,29 @@ void estampas(char tipo)
   }
 }
 
+void montarEstampas()
+{
+  int i;
+  for (i=1; i<=ne; i++)
+  {
+    tipo=netlist[i].nome[0];
+    estampas(tipo);
+
+   #ifdef DEBUG  /* Opcional: Mostra o sistema apos a montagem da estampa */
+      printf("Sistema apos a estampa de %s\n",netlist[i].nome);
+      for (k=1; k<=nv; k++)
+      {
+        for (j=1; j<=nv+1; j++)
+        if (Yn[k][j]!=0) printf("%+3.1f ",Yn[k][j]);
+        else printf(" ... ");
+        printf("\n");
+      }
+      getch();
+   #endif
+
+ }
+};
+
 int resolversistema(void)
 {
   int i,j,l,a;
@@ -726,4 +749,9 @@ int ComparaValorNR (void) {
      if (erroGrande==1) return 0;
      else return 1;
 
+}
+
+void gminstepping()
+{
+  cout << "EITA FERRO" << endl;
 }
