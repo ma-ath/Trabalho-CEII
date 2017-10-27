@@ -455,14 +455,14 @@ void montaEstampas (void){
            // getch();
     }
     else if (tipo=='$') {
-            if ((NRCompare[netlist[i].c]-NRCompare[netlist[i].d])<netlist[i].param3){
-              Yn[netlist[i].a][netlist[i].a]+=netlist[i].param2;
+            if ((NRCompare[netlist[i].c]-NRCompare[netlist[i].d])<netlist[i].param3){ //param3 = vref
+              Yn[netlist[i].a][netlist[i].a]+=netlist[i].param2;//param2 = goff
               Yn[netlist[i].b][netlist[i].b]+=netlist[i].param2;
               Yn[netlist[i].a][netlist[i].b]-=netlist[i].param2;
               Yn[netlist[i].b][netlist[i].a]-=netlist[i].param2;
             }
             else {
-              Yn[netlist[i].a][netlist[i].a]+=netlist[i].param1;
+              Yn[netlist[i].a][netlist[i].a]+=netlist[i].param1;//param1=gon
               Yn[netlist[i].b][netlist[i].b]+=netlist[i].param1;
               Yn[netlist[i].a][netlist[i].b]-=netlist[i].param1;
               Yn[netlist[i].b][netlist[i].a]-=netlist[i].param1;
