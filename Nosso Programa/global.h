@@ -9,6 +9,7 @@
 #include <fstream>
 #include <sstream>
 #include <typeinfo>
+#include <time.h>
 #include "constantes.h"
 #include "tipos.h"
 #ifndef _GLOBAL_H_
@@ -52,5 +53,6 @@ extern double NewtonRaphsonVetor[MAX_NOS+1];
 
 extern int NewtonRaphsonTentativas;
 extern int NewtonRaphsonTentarNovamente;
+extern int erroGrande;
 //extern vector <double*> resultados;
 #endif

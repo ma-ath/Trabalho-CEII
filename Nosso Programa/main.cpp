@@ -29,6 +29,7 @@ double Yn[MAX_NOS+1][MAX_NOS+2];
 double NewtonRaphsonVetor[MAX_NOS+1];
 int NewtonRaphsonTentativas;
 int NewtonRaphsonTentarNovamente;
+int erroGrande;
 
 /*variavel para analise no tempo*/
 double tempoAtual, tempoFinal, passo, passoPorPt;

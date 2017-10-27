@@ -702,3 +702,28 @@ const char* ConvertDoubleToString(double value){//funcao que peguei na internet 
     const char* str = ss.str().c_str();
     return str;
 }
+
+void CopiaSolucaoNR (void) {
+  int i;
+  for (i=0; i<=nv; i++)
+  	NewtonRaphsonVetor[i] = Yn[i][nv+1];
+}
+
+void ChutaValorNR (void) {
+	srand(time(NULL));
+	for (i=1; i<=nv; i++){
+	  NewtonRaphsonVetor[i] = (double)(((rand()%1001)/10)-50);
+	}
+}
+
+int ComparaValorNR (void) {
+  erroGrande=0;
+  for (i=1; i<=nv; i++){
+    if ( (fabs(Yn[i][nv+1] - NewtonRaphsonVetor[i])) > MAX_ERRO_NR ) {
+      erroGrande=1;
+      }
+  }
+     if (erroGrande==1) return 0;
+     else return 1;
+
+}

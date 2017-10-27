@@ -12,5 +12,6 @@
 #define GCAPACITORABERTO                          1e-6          //para os pontos de operacao
 #define PROGRESSO_PORCENTAGEM                     2
 #define PROGRESSO_SIMBOLO                         '*'
+#define MAX_ERRO_NR                                1e-2 //erro tolerado para newton raphson
 
 //#define DEBUG
