@@ -52,7 +52,7 @@ void estampas(char tipo)
                   sin(2*PI*netlist[i].freq*(tempoAtual-netlist[i].atraso) + (PI/180)*netlist[i].defasagem)
                 )*( heaviside(tempoAtual-netlist[i].atraso) -
                     heaviside((tempoAtual-netlist[i].atraso) - (2*PI/netlist[i].freq)*netlist[i].ciclo) )
-                  );
+                ); 
             }
             else
             {
