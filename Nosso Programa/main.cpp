@@ -31,6 +31,8 @@ int NewtonRaphsonTentativas;
 int NewtonRaphsonTentarNovamente;
 int erroGrande;
 double z;
+int fazendoGminStepping;
+double gs;
 /*variavel para analise no tempo*/
 double tempoAtual, tempoFinal, passo, passoPorPt;
 
@@ -50,7 +52,8 @@ int main()
   //GCapacitorAberto = 1.11e-16;       <- Esse numero eh o menor possivel, mas da problema de convergencia
   GIndutorCurto = GINDUTORCURTO;
   GCapacitorAberto = GCAPACITORABERTO;
-
+  fazendoGminStepping=0;
+  gs = CONDUTANCIA_INICIAL_GS ;
   do{
     erro = leNetlist();
   }while (erro != 0);
@@ -170,7 +173,8 @@ int main()
             { //caso ele tenha reiniciado o algoritimo vezes demais, inicia gminstepping
               gminstepping();
               getch();
-              exit(0);
+              CopiaSolucaoNR();
+            //  exit(0);
             }
           }
           zeraSistema();  //zera, monta e resolve

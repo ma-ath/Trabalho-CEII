@@ -297,20 +297,28 @@ void estampas(char tipo)
       NewtonRaphsonVetor[netlist[i].d] = 0;
     }
 
-      if ((NewtonRaphsonVetor[netlist[i].c]-NewtonRaphsonVetor[netlist[i].d]) <= netlist[i].valor){ //param3 = vref =valor
-        Yn[netlist[i].a][netlist[i].a]+=netlist[i].goff;//param2 = goff
-        Yn[netlist[i].b][netlist[i].b]+=netlist[i].goff;
-        Yn[netlist[i].a][netlist[i].b]-=netlist[i].goff;
-        Yn[netlist[i].b][netlist[i].a]-=netlist[i].goff;
-      }
-      else {
-        Yn[netlist[i].a][netlist[i].a]+=netlist[i].gon;//param1=gon
-        Yn[netlist[i].b][netlist[i].b]+=netlist[i].gon;
-        Yn[netlist[i].a][netlist[i].b]-=netlist[i].gon;
-        Yn[netlist[i].b][netlist[i].a]-=netlist[i].gon;
-      }
-
+    if ((NewtonRaphsonVetor[netlist[i].c]-NewtonRaphsonVetor[netlist[i].d]) <= netlist[i].valor){ //param3 = vref =valor
+      Yn[netlist[i].a][netlist[i].a]+=netlist[i].goff;//param2 = goff
+      Yn[netlist[i].b][netlist[i].b]+=netlist[i].goff;
+      Yn[netlist[i].a][netlist[i].b]-=netlist[i].goff;
+      Yn[netlist[i].b][netlist[i].a]-=netlist[i].goff;
+    }
+    else {
+      Yn[netlist[i].a][netlist[i].a]+=netlist[i].gon;//param1=gon
+      Yn[netlist[i].b][netlist[i].b]+=netlist[i].gon;
+      Yn[netlist[i].a][netlist[i].b]-=netlist[i].gon;
+      Yn[netlist[i].b][netlist[i].a]-=netlist[i].gon;
+    }
+    if (fazendoGminStepping ==1){ /*se estiver fazendo gmin step, coloco resistor bem baixo em paralelo
+      chamado de gs, com condutancia inicial definido no constante. o valor da CONDUTANCIA dele eh decrementado no final dessa funcao
+      para q caso tenha mais de 1componente nao linear, so decremente o valor dele uma vez por execucao.*/
+      Yn[netlist[i].a][netlist[i].a]+=gs;//param2 = goff
+      Yn[netlist[i].b][netlist[i].b]+=gs;
+      Yn[netlist[i].a][netlist[i].b]-=gs;
+      Yn[netlist[i].b][netlist[i].a]-=gs;
+    }
   }
+
   else if (tipo=='N') {     /*resistor nao linear*/
     if (netlist[i].a == 0){
     NewtonRaphsonVetor[netlist[i].a] = 0;
@@ -340,7 +348,18 @@ void estampas(char tipo)
     Yn[netlist[i].b][netlist[i].a]-=g;
     Yn[netlist[i].a][nv+1]-=z;
     Yn[netlist[i].b][nv+1]+=z;
+
+    if (fazendoGminStepping ==1){
+      Yn[netlist[i].a][netlist[i].a]+=gs;//param2 = goff
+      Yn[netlist[i].b][netlist[i].b]+=gs;
+      Yn[netlist[i].a][netlist[i].b]-=gs;
+      Yn[netlist[i].b][netlist[i].a]-=gs;
+
+    }
    // getch();
+ }
+ if (fazendoGminStepping ==1){
+   gs-=1000;
  }
 }
 
@@ -692,11 +711,13 @@ void analisePontoOperacao()  //POR ENQUANTO SO INICIA TUDO COMO ZERO
     }
     if (tipo=='C'){
       netlist[i].jt0 = 0;
+    //  netlist[i].vt0 = 0;
       netlist[i].vt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]));
     }
     if (tipo=='L'){
       netlist[i].jt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]))*GIndutorCurto;
       netlist[i].vt0 = 0;
+      //netlist[i].jt0 = 0;
     }
   }
 
@@ -814,5 +835,16 @@ int ComparaValorNR (void) {
 
 void gminstepping()
 {
-  cout << "EITA FERRO" << endl;
+  fazendoGminStepping = 1;
+  cout << "to indo pro gmin steppp!" << endl;
+  do{
+      montarEstampas();
+      if (resolversistema())
+      {
+        getch();
+        exit(0);
+      }
+    }while(gs >1e-6);
+  cout << "ja fiz gmin steppp!" << endl;
+  fazendoGminStepping = 0;
 }

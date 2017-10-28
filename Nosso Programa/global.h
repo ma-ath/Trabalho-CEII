@@ -57,5 +57,7 @@ extern int erroGrande;
 
 extern double z;
 
+extern int fazendoGminStepping;
+extern double gs;
 //extern vector <double*> resultados;
 #endif
