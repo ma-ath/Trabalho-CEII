@@ -330,7 +330,7 @@ void estampas(char tipo)
     else if ( ((NewtonRaphsonVetor[netlist[i].a]-NewtonRaphsonVetor[netlist[i].b]) < netlist[i].pv3) ){
 
         g=(netlist[i].pj3 - netlist[i].pj2) / (netlist[i].pv3 - netlist[i].pv2);
-        z=(netlist[i].pj3 - g*netlist[i].pv4);
+        z=(netlist[i].pj3 - g*netlist[i].pv3);
     }
     //((NRCompare[netlist[i].a]-NRCompare[netlist[i].b]) >= netlist[i].param5)
     else {
