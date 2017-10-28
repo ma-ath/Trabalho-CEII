@@ -873,7 +873,7 @@ int ComparaValorNR (void) {
 void gminstepping()
 {
   fazendoGminStepping = 1;
-  cout << "to indo pro gmin steppp!" << endl;
+  //cout << "to indo pro gmin steppp!" << endl;
   do{
       zeraSistema();
       montarEstampas();
@@ -883,8 +883,8 @@ void gminstepping()
         exit(0);
       }
       CopiaSolucaoNR();
-      cout << " gs="<< gs<< endl;
+      //cout << " gs="<< gs<< endl;
     }while(gs > CONUTANCIA_MINIMA_GS );
-  cout << "ja fiz gmin steppp!" << endl;
+  //cout << "ja fiz gmin steppp!" << endl;
 
 }

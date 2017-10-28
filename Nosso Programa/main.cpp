@@ -183,7 +183,7 @@ int main()
               fazendoGminStepping=0;
               //getch();
             //  exit(0);
-            cout << "sai do gminstep mesmooooo, gs="<< gs<< endl;
+          //  cout << "sai do gminstep mesmooooo, gs="<< gs<< endl;
           //  fazendoGminStepping = 0;
             }
           }
