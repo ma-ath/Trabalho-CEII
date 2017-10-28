@@ -257,7 +257,7 @@ int main()
   //  printf("%s %s: %g\n",txt,lista[i],Yn[i][nv+1]);
   //}
   plotarGrafico();
-  getch();
+//  getch();
   cout << "おはよう！" << endl;
   return 0;
 }
