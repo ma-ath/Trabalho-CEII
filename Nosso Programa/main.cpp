@@ -169,6 +169,8 @@ int main()
             if(NewtonRaphsonTentarNovamente == NEWTONRAPHSON_NUMERO_MAX_TENTARNOVAMENTE)
             { //caso ele tenha reiniciado o algoritimo vezes demais, inicia gminstepping
               gminstepping();
+              getch();
+              exit(0);
             }
           }
           zeraSistema();  //zera, monta e resolve

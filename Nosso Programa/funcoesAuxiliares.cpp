@@ -269,18 +269,76 @@ void estampas(char tipo)
     }
   }
   else if (tipo=='$') {     /*Chave*/
-    if ((NewtonRaphsonVetor[netlist[i].c]-NewtonRaphsonVetor[netlist[i].d]) < netlist[i].valor){ //param3 = vref =valor
-      Yn[netlist[i].a][netlist[i].a]+=netlist[i].goff;//param2 = goff
-      Yn[netlist[i].b][netlist[i].b]+=netlist[i].goff;
-      Yn[netlist[i].a][netlist[i].b]-=netlist[i].goff;
-      Yn[netlist[i].b][netlist[i].a]-=netlist[i].goff;
+
+    //EXPERIMENTAL
+    if (netlist[i].c == 0){
+    NewtonRaphsonVetor[netlist[i].c] = 0;
     }
-    else {
-      Yn[netlist[i].a][netlist[i].a]+=netlist[i].gon;//param1=gon
-      Yn[netlist[i].b][netlist[i].b]+=netlist[i].gon;
-      Yn[netlist[i].a][netlist[i].b]-=netlist[i].gon;
-      Yn[netlist[i].b][netlist[i].a]-=netlist[i].gon;
+    if (netlist[i].d == 0){
+      NewtonRaphsonVetor[netlist[i].d] = 0;
     }
+
+//    if ((netlist[i].c != 0)&&(netlist[i].d != 0))
+//    {
+      if ((NewtonRaphsonVetor[netlist[i].c]-NewtonRaphsonVetor[netlist[i].d]) < netlist[i].valor){ //param3 = vref =valor
+        Yn[netlist[i].a][netlist[i].a]+=netlist[i].goff;//param2 = goff
+        Yn[netlist[i].b][netlist[i].b]+=netlist[i].goff;
+        Yn[netlist[i].a][netlist[i].b]-=netlist[i].goff;
+        Yn[netlist[i].b][netlist[i].a]-=netlist[i].goff;
+      }
+      else {
+        Yn[netlist[i].a][netlist[i].a]+=netlist[i].gon;//param1=gon
+        Yn[netlist[i].b][netlist[i].b]+=netlist[i].gon;
+        Yn[netlist[i].a][netlist[i].b]-=netlist[i].gon;
+        Yn[netlist[i].b][netlist[i].a]-=netlist[i].gon;
+      }
+//    }
+//    if(netlist[i].d == 0)
+//    {
+//      if (NewtonRaphsonVetor[netlist[i].c] < netlist[i].valor){ //param3 = vref =valor
+//        Yn[netlist[i].a][netlist[i].a]+=netlist[i].goff;//param2 = goff
+//        Yn[netlist[i].b][netlist[i].b]+=netlist[i].goff;
+//        Yn[netlist[i].a][netlist[i].b]-=netlist[i].goff;
+//        Yn[netlist[i].b][netlist[i].a]-=netlist[i].goff;
+//      }
+//      else {
+//        Yn[netlist[i].a][netlist[i].a]+=netlist[i].gon;//param1=gon
+//        Yn[netlist[i].b][netlist[i].b]+=netlist[i].gon;
+//        Yn[netlist[i].a][netlist[i].b]-=netlist[i].gon;
+//        Yn[netlist[i].b][netlist[i].a]-=netlist[i].gon;
+//      }
+//    }
+//    if(netlist[i].c == 0)
+//    {
+//      if (NewtonRaphsonVetor[netlist[i].d] > netlist[i].valor){ //param3 = vref =valor
+//        Yn[netlist[i].a][netlist[i].a]+=netlist[i].goff;//param2 = goff
+//        Yn[netlist[i].b][netlist[i].b]+=netlist[i].goff;
+//        Yn[netlist[i].a][netlist[i].b]-=netlist[i].goff;
+//        Yn[netlist[i].b][netlist[i].a]-=netlist[i].goff;
+//      }
+//      else {
+//        Yn[netlist[i].a][netlist[i].a]+=netlist[i].gon;//param1=gon
+//        Yn[netlist[i].b][netlist[i].b]+=netlist[i].gon;
+//        Yn[netlist[i].a][netlist[i].b]-=netlist[i].gon;
+//        Yn[netlist[i].b][netlist[i].a]-=netlist[i].gon;
+//      }
+//    }
+//
+//    if ((netlist[i].c == 0)&&(netlist[i].d == 0))
+//    {
+//      if ( 0 < netlist[i].valor){ //param3 = vref =valor
+//        Yn[netlist[i].a][netlist[i].a]+=netlist[i].goff;//param2 = goff
+//        Yn[netlist[i].b][netlist[i].b]+=netlist[i].goff;
+//        Yn[netlist[i].a][netlist[i].b]-=netlist[i].goff;
+//        Yn[netlist[i].b][netlist[i].a]-=netlist[i].goff;
+//      }
+//      else {
+//        Yn[netlist[i].a][netlist[i].a]+=netlist[i].gon;//param1=gon
+//        Yn[netlist[i].b][netlist[i].b]+=netlist[i].gon;
+//        Yn[netlist[i].a][netlist[i].b]-=netlist[i].gon;
+//        Yn[netlist[i].b][netlist[i].a]-=netlist[i].gon;
+//      }
+//    }
   }
 }
 
@@ -620,10 +678,10 @@ void analisePontoOperacao()  //POR ENQUANTO SO INICIA TUDO COMO ZERO
     }
     if (tipo=='C'){
       netlist[i].jt0 = 0;
-      netlist[i].vt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]));
+      netlist[i].vt0 = 0;//((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]));
     }
     if (tipo=='L'){
-      netlist[i].jt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]))*GIndutorCurto;
+      netlist[i].jt0 = 0;//((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]))*GIndutorCurto;
       netlist[i].vt0 = 0;
     }
   }
