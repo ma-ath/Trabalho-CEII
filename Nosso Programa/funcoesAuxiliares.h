@@ -27,6 +27,7 @@ const char* ConvertDoubleToString(double value);
 
 void CopiaSolucaoNR ();
 void ChutaValorNR ();
+void ZeraValorNR ();
 int ComparaValorNR ();
 void gminstepping();
 

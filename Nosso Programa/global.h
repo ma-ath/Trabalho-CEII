@@ -58,6 +58,7 @@ extern int erroGrande;
 extern double z;
 
 extern int fazendoGminStepping;
+extern int jaFizIsso;
 extern long double gs;
 //extern vector <double*> resultados;
 #endif

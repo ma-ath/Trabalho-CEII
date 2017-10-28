@@ -33,6 +33,7 @@ int erroGrande;
 double z;
 int fazendoGminStepping;
  long double gs;
+ int jaFizIsso;
 /*variavel para analise no tempo*/
 double tempoAtual, tempoFinal, passo, passoPorPt;
 
@@ -53,6 +54,7 @@ int main()
   GIndutorCurto = GINDUTORCURTO;
   GCapacitorAberto = GCAPACITORABERTO;
   fazendoGminStepping=0;
+  jaFizIsso =0;
   gs = CONDUTANCIA_INICIAL_GS ;
   do{
     erro = leNetlist();
@@ -166,6 +168,7 @@ int main()
       do{
           if ((NewtonRaphsonTentativas==0) && (NewtonRaphsonTentarNovamente ==0)){
             ChutaValorNR();
+          //  jaFizIsso+=1;
           }
           else{
             CopiaSolucaoNR();   //copia solucao anterior
@@ -178,6 +181,7 @@ int main()
             NewtonRaphsonTentarNovamente++;
             if(NewtonRaphsonTentarNovamente == NEWTONRAPHSON_NUMERO_MAX_TENTARNOVAMENTE)
             { //caso ele tenha reiniciado o algoritimo vezes demais, inicia gminstepping
+              ZeraValorNR();
               gs = CONDUTANCIA_INICIAL_GS;
               gminstepping();
               fazendoGminStepping=0;

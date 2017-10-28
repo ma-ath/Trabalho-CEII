@@ -360,10 +360,10 @@ void estampas(char tipo)
  }
  if ((fazendoGminStepping ==1) && (gs > CONUTANCIA_MINIMA_GS  )){
    if (gs > 10000){
-     gs-=1000;
+     gs-=100;
    }
    else if (gs > 10){
-    gs -= PASSO_GS;
+    gs -= 0.1;
    }
    else if (gs >0.001){
      gs -= 0.00001;
@@ -858,7 +858,12 @@ void ChutaValorNR (void) {
 	  NewtonRaphsonVetor[i] = (double)(((rand()%1001)/10)-50);
 	}
 }
-
+void ZeraValorNR (void) {
+	srand(time(NULL));
+	for (i=1; i<=nv; i++){
+	  NewtonRaphsonVetor[i] = 0;
+	}
+}
 int ComparaValorNR (void) {
   erroGrande=0;
   for (i=1; i<=nv; i++){
