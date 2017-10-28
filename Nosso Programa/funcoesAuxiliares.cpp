@@ -40,11 +40,7 @@ void estampas(char tipo)
         {
             if (analisandoPontodeOp == 0)
             {
-              Yn[netlist[i].a][netlist[i].x]+=1;
-              Yn[netlist[i].b][netlist[i].x]-=1;
-              Yn[netlist[i].x][netlist[i].a]-=1;
-              Yn[netlist[i].x][netlist[i].b]+=1;
-              Yn[netlist[i].x][nv+1]-=
+              g=
               (
                 netlist[i].valor +
                 (
@@ -53,14 +49,15 @@ void estampas(char tipo)
                 )*( heaviside(tempoAtual-netlist[i].atraso) -
                     heaviside((tempoAtual-netlist[i].atraso) - (2*PI/netlist[i].freq)*netlist[i].ciclo) )
                 );
+
+                Yn[netlist[i].a][nv+1]-=g;
+                Yn[netlist[i].b][nv+1]+=g;
             }
             else
             {
-              Yn[netlist[i].a][netlist[i].x]+=1;
-              Yn[netlist[i].b][netlist[i].x]-=1;
-              Yn[netlist[i].x][netlist[i].a]-=1;
-              Yn[netlist[i].x][netlist[i].b]+=1;
-              Yn[netlist[i].x][nv+1]-=netlist[i].valor;
+              g=netlist[i].valor;
+              Yn[netlist[i].a][nv+1]-=g;
+              Yn[netlist[i].b][nv+1]+=g;
             }
         }
     if (strcmp(netlist[i].fonte, "PULSE") == 0){
