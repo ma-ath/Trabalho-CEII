@@ -173,7 +173,6 @@ int main()
             { //caso ele tenha reiniciado o algoritimo vezes demais, inicia gminstepping
               gminstepping();
               getch();
-              CopiaSolucaoNR();
             //  exit(0);
             }
           }
@@ -185,7 +184,8 @@ int main()
             exit(0);
           }
           NewtonRaphsonTentativas++;
-        }while(ComparaValorNR() == 0);  //repete isso ate newton-raphson convergir
+        }while(ComparaValorNR() == 0 );  //repete isso ate newton-raphson convergir
+
 
     /* Atualiza as memorias nos capacitores e indutores */
     /*apos a resolucao do sistema nodal, a gente precisa atualizar o valor dos parametros vto e jto de cada capacitor/indutor;*/
