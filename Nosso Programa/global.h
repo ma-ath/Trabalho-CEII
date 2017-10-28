@@ -58,6 +58,6 @@ extern int erroGrande;
 extern double z;
 
 extern int fazendoGminStepping;
-extern unsigned long long gs;
+extern long double gs;
 //extern vector <double*> resultados;
 #endif

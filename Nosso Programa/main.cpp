@@ -32,7 +32,7 @@ int NewtonRaphsonTentarNovamente;
 int erroGrande;
 double z;
 int fazendoGminStepping;
-unsigned long long gs;
+ long double gs;
 /*variavel para analise no tempo*/
 double tempoAtual, tempoFinal, passo, passoPorPt;
 
@@ -178,7 +178,9 @@ int main()
             NewtonRaphsonTentarNovamente++;
             if(NewtonRaphsonTentarNovamente == NEWTONRAPHSON_NUMERO_MAX_TENTARNOVAMENTE)
             { //caso ele tenha reiniciado o algoritimo vezes demais, inicia gminstepping
+              gs = CONDUTANCIA_INICIAL_GS;
               gminstepping();
+              fazendoGminStepping=0;
               //getch();
             //  exit(0);
             cout << "sai do gminstep mesmooooo, gs="<< gs<< endl;
@@ -244,6 +246,7 @@ int main()
 */
 
   tempoAtual+=passo;
+
   } /*FIM loop de tempo*/
 
   /* Mostra solucao */

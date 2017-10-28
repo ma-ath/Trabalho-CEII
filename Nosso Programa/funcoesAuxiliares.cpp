@@ -362,9 +362,16 @@ void estampas(char tipo)
    if (gs > 10000){
      gs-=1000;
    }
-   else{
+   else if (gs > 10){
     gs -= PASSO_GS;
    }
+   else if (gs >0.001){
+     gs -= 0.00001;
+   }
+   else if (gs> 0.00000001){
+     gs=-0.00000001;
+   }
+
 
   /* if (gs>1000){
      gs-=1000;
@@ -868,7 +875,7 @@ void gminstepping()
       }
       CopiaSolucaoNR();
       cout << " gs="<< gs<< endl;
-    }while(gs != CONUTANCIA_MINIMA_GS );
+    }while(gs > CONUTANCIA_MINIMA_GS );
   cout << "ja fiz gmin steppp!" << endl;
 
 }
