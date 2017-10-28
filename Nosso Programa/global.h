@@ -54,5 +54,8 @@ extern double NewtonRaphsonVetor[MAX_NOS+1];
 extern int NewtonRaphsonTentativas;
 extern int NewtonRaphsonTentarNovamente;
 extern int erroGrande;
+
+extern double z;
+
 //extern vector <double*> resultados;
 #endif

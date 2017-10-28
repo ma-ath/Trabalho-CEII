@@ -25,6 +25,9 @@ typedef struct elemento /* Elemento do netlist */
   double jt0; /*Corrente anterior sobre o capacitor/indutor*/
   double gon ; //condutancia da chave se vcd>vref
   double goff;//condutancia da chave se vcd<=vref
+
+  double pv1, pj1, pv2, pj2, pv3, pj3, pv4, pj4; //pv1 = ponto tensao 1, pj1= ponto corrente 1
+
 } elemento;
 
 #endif

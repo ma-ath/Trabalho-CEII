@@ -292,6 +292,30 @@ void estampas(char tipo)
       }
 
   }
+  else if (tipo=='N') {     /*resistor nao linear*/
+    if ( (NewtonRaphsonVetor[netlist[i].a] - NewtonRaphsonVetor[netlist[i].b]) < netlist[i].pv2 ){
+       g=((netlist[i].pj2 - netlist[i].pj1) / (netlist[i].pv2-netlist[i].pv1));
+       z=(netlist[i].pj2 - g*netlist[i].pv2);
+    }
+        //((NRCompare[netlist[i].a] - NRCompare[netlist[i].b]) >= netlist[i].param3) &&
+    else if ( ((NewtonRaphsonVetor[netlist[i].a]-NewtonRaphsonVetor[netlist[i].b]) < netlist[i].pv3) ){
+
+        g=(netlist[i].pj3 - netlist[i].pj2) / (netlist[i].pv3 - netlist[i].pv2);
+        z=(netlist[i].pj3 - g*netlist[i].pv4);
+    }
+    //((NRCompare[netlist[i].a]-NRCompare[netlist[i].b]) >= netlist[i].param5)
+    else {
+        g=(netlist[i].pj4 - netlist[i].pj3) / (netlist[i].pv4 - netlist[i].pv3);
+        z=(netlist[i].pj4 - g*netlist[i].pv4);
+    }
+    Yn[netlist[i].a][netlist[i].a]+=g;
+    Yn[netlist[i].b][netlist[i].b]+=g;
+    Yn[netlist[i].a][netlist[i].b]-=g;
+    Yn[netlist[i].b][netlist[i].a]-=g;
+    Yn[netlist[i].a][nv+1]-=z;
+    Yn[netlist[i].b][nv+1]+=z;
+   // getch();
+ }
 }
 
 void montarEstampas()
@@ -539,6 +563,18 @@ int leNetlist (void){
       netlist[ne].b=numero(nb);
       netlist[ne].c=numero(nc);
       netlist[ne].d=numero(nd);
+    }
+    else if (tipo=='N') {         /*Chave - 22/10/2017*/
+      /*valor, nesse caso, eh o valor de referencia para decidir se vai
+      operar no gon ou goff*/
+      sscanf(p,"%10s%10s%lg%lg%lg%lg%lg%lg%lg%lg",na,nb,
+        &netlist[ne].pv1, &netlist[ne].pj1, &netlist[ne].pv2, &netlist[ne].pj2,
+        &netlist[ne].pv3, &netlist[ne].pj3, &netlist[ne].pv4, &netlist[ne].pj4 );
+      printf("%s %s %s %g %g %g %g %g %g %g %g\n",netlist[ne].nome,na,nb,netlist[ne].pv1, netlist[ne].pj1, netlist[ne].pv2, netlist[ne].pj2,
+      netlist[ne].pv3, netlist[ne].pj3, netlist[ne].pv4,
+      netlist[ne].pj4 );
+      netlist[ne].a=numero(na);
+      netlist[ne].b=numero(nb);
     }
     else if (tipo=='*') { /* Comentario comeca com "*" */
       printf("Comentario: %s",txt);
