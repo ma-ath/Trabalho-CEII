@@ -481,7 +481,8 @@ int numero(char *nome)
   }
 }
 
-void zeraSistema (void) {
+void zeraSistema (void)
+{
   for (i=0; i<=nv; i++)
     for (j=0; j<=nv+1; j++)
       Yn[i][j]=0;
@@ -509,7 +510,8 @@ void salvarResultadoEmArquivo (vector <double> resultadoUmTempo)
     // arquivo.close();
 }
 
-int leNetlist (void){
+int leNetlist (void)
+{
   ne=0; nv=0; strcpy(lista[0],"0");
   printf("Nome do arquivo com o netlist (ex: mna.net): ");
   scanf("%50s",nomearquivo);
@@ -788,54 +790,61 @@ void plotarGrafico()
 {
   string constTab(NOME_ARQUIVO_TAB);    //Nome do arquivo
   string constPY(NOME_ARQUIVO_GERAR_PLOT_PYTHON); //Nome do script python que plota arquivo
-  string varPlot = "";        //variavel a ser plotada
+//  string varPlot = "";        //variavel a ser plotada
   string SysString = "";      //menssagem a ser enviada pro cmd do windows
-  string varNomes;            //string com primeira linha do arquivo .tab (todas as variaveis)
-  string varPontos = ConvertDoubleToString(floor(tempoFinal/passo));
-  ifstream file;
+//  string varNomes;            //string com primeira linha do arquivo .tab (todas as variaveis)
+//  string varPontos = ConvertDoubleToString(floor(tempoFinal/passo));
+//  ifstream file;
 
-  file.open(NOME_ARQUIVO_TAB);        //SCRIPT Q PEGUEI DA INTERNET PRA LER PRIMEIRA LINHA DE UM ARQUIVO
+//  file.open(NOME_ARQUIVO_TAB);        //SCRIPT Q PEGUEI DA INTERNET PRA LER PRIMEIRA LINHA DE UM ARQUIVO
+//
+//  if (!file) //checks to see if file opens properly
+//    {
+//      varNomes = "";
+//    }
+//    else
+//    {
+//      if (getline(file, varNomes))// Get line.
+//      file.close(); // Remember to close the file.
+//    }
+//
+//  while(true) //loop pra perguntar a variavel pra plotar, fica aqui enquanto nao digita nada
+//  {
+//    cin.clear();        //precisa disso se nao buga
+//    fflush(stdin);      //precisa disso se nao buga
+//    cout << "Qual variavel deseja plotar?(0 para nenhuma)" << endl;
+//    cout << "[Nome das variaveis: " << varNomes << " ]: ";
+//
+//    getline(cin,varPlot);
+//      if ((varPlot.compare(""))!= 0)
+//        break;
+//    cout << "[" << varPlot << "] eh um caracter invalido, tente outro" << endl;
+//  }
+//
+//  if ((varPlot.compare("0"))!= 0) //caso eu queira plotar algo
+//  {
+//    SysString = "python " + constPY + " " + constTab + " " + varPlot + " " + varPontos; //monta a menssagem para o cmd
+//    //cout <<typeid(constPY).name() <<endl;
+//    //cout << varPontos << endl;
+//    cout << "Chamando por: " << SysString << endl;
+//
+//    system(SysString.c_str());  //funcao feia que funciona
+//  }
 
-  if (!file) //checks to see if file opens properly
-    {
-      varNomes = "";
-    }
-    else
-    {
-      if (getline(file, varNomes))// Get line.
-      file.close(); // Remember to close the file.
-    }
+SysString = "python " + constPY + " " + constTab; //monta a menssagem para o cmd
+//cout <<typeid(constPY).name() <<endl;
+//cout << varPontos << endl;
+cout << "Chamando por: " << SysString << endl;
 
-  while(true) //loop pra perguntar a variavel pra plotar, fica aqui enquanto nao digita nada
-  {
-    cin.clear();        //precisa disso se nao buga
-    fflush(stdin);      //precisa disso se nao buga
-    cout << "Qual variavel deseja plotar?(0 para nenhuma)" << endl;
-    cout << "[Nome das variaveis: " << varNomes << " ]: ";
-
-    getline(cin,varPlot);
-      if ((varPlot.compare(""))!= 0)
-        break;
-    cout << "[" << varPlot << "] eh um caracter invalido, tente outro" << endl;
-  }
-
-  if ((varPlot.compare("0"))!= 0) //caso eu queira plotar algo
-  {
-    SysString = "python " + constPY + " " + constTab + " " + varPlot + " " + varPontos; //monta a menssagem para o cmd
-    //cout <<typeid(constPY).name() <<endl;
-    //cout << varPontos << endl;
-    cout << "Chamando por: " << SysString << endl;
-
-    system(SysString.c_str());  //funcao feia que funciona
-  }
+system(SysString.c_str());  //funcao feia que funciona
 }
 
-const char* ConvertDoubleToString(double value){//funcao que peguei na internet pra converter double e char*
-    stringstream ss ;
-    ss << value;
-    const char* str = ss.str().c_str();
-    return str;
-}
+//const char* ConvertDoubleToString(double value){//funcao que peguei na internet pra converter double e char*
+//    stringstream ss ;
+//    ss << value;
+//    const char* str = ss.str().c_str();
+//    return str;
+//}
 
 void CopiaSolucaoNR (void) {
   int i;
