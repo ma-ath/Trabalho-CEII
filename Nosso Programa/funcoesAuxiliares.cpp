@@ -33,25 +33,36 @@ void estampas(char tipo)
     }
     else
     if (strcmp(netlist[i].fonte, "SIN") == 0)
-    /*
-    Fonte SIN - Muda de acordo com:
-    off+Vp*exp(-dec*(tempoAtual-atraso))*sin(2*pi*f*(tempoAtual-atraso)+(pi/180)*fase)
-    */
-    {
-      g =
-        (
-          netlist[i].valor +
-          (
-            netlist[i].amplitude*exp(-1*netlist[i].amortecimento*(tempoAtual-netlist[i].atraso)) *
-            sin(2*PI*netlist[i].freq*(tempoAtual-netlist[i].atraso) + (PI/180)*netlist[i].defasagem)
-          )*( heaviside(tempoAtual-netlist[i].atraso) -
-              heaviside((tempoAtual-netlist[i].atraso) - (2*PI/netlist[i].freq)*netlist[i].ciclo) )
-        );
-
-        Yn[netlist[i].a][nv+1]-=g;
-        Yn[netlist[i].b][nv+1]+=g;
-
-    }
+        /*
+        Fonte SIN - Muda de acordo com:
+        off+Vp*exp(-dec*(tempoAtual-atraso))*sin(2*pi*f*(tempoAtual-atraso)+(pi/180)*fase)
+        */
+        {
+            if (analisandoPontodeOp == 0)
+            {
+              Yn[netlist[i].a][netlist[i].x]+=1;
+              Yn[netlist[i].b][netlist[i].x]-=1;
+              Yn[netlist[i].x][netlist[i].a]-=1;
+              Yn[netlist[i].x][netlist[i].b]+=1;
+              Yn[netlist[i].x][nv+1]-=
+              (
+                netlist[i].valor +
+                (
+                  netlist[i].amplitude*exp(-1*netlist[i].amortecimento*(tempoAtual-netlist[i].atraso)) *
+                  sin(2*PI*netlist[i].freq*(tempoAtual-netlist[i].atraso) + (PI/180)*netlist[i].defasagem)
+                )*( heaviside(tempoAtual-netlist[i].atraso) -
+                    heaviside((tempoAtual-netlist[i].atraso) - (2*PI/netlist[i].freq)*netlist[i].ciclo) )
+                  );
+            }
+            else
+            {
+              Yn[netlist[i].a][netlist[i].x]+=1;
+              Yn[netlist[i].b][netlist[i].x]-=1;
+              Yn[netlist[i].x][netlist[i].a]-=1;
+              Yn[netlist[i].x][netlist[i].b]+=1;
+              Yn[netlist[i].x][nv+1]-=netlist[i].valor;
+            }
+        }
     if (strcmp(netlist[i].fonte, "PULSE") == 0){
     /*
     Fonte PULSE - Muda de acordo com:
@@ -299,7 +310,7 @@ void estampas(char tipo)
     if (netlist[i].b == 0){
       NewtonRaphsonVetor[netlist[i].b] = 0;
     }
-    
+
     if ( (NewtonRaphsonVetor[netlist[i].a] - NewtonRaphsonVetor[netlist[i].b]) < netlist[i].pv2 ){
        g=((netlist[i].pj2 - netlist[i].pj1) / (netlist[i].pv2-netlist[i].pv1));
        z=(netlist[i].pj2 - g*netlist[i].pv2);
