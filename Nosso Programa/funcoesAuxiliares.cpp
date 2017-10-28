@@ -278,7 +278,7 @@ void estampas(char tipo)
       NewtonRaphsonVetor[netlist[i].d] = 0;
     }
 
-      if ((NewtonRaphsonVetor[netlist[i].c]-NewtonRaphsonVetor[netlist[i].d]) < netlist[i].valor){ //param3 = vref =valor
+      if ((NewtonRaphsonVetor[netlist[i].c]-NewtonRaphsonVetor[netlist[i].d]) <= netlist[i].valor){ //param3 = vref =valor
         Yn[netlist[i].a][netlist[i].a]+=netlist[i].goff;//param2 = goff
         Yn[netlist[i].b][netlist[i].b]+=netlist[i].goff;
         Yn[netlist[i].a][netlist[i].b]-=netlist[i].goff;
@@ -293,6 +293,13 @@ void estampas(char tipo)
 
   }
   else if (tipo=='N') {     /*resistor nao linear*/
+    if (netlist[i].a == 0){
+    NewtonRaphsonVetor[netlist[i].a] = 0;
+    }
+    if (netlist[i].b == 0){
+      NewtonRaphsonVetor[netlist[i].b] = 0;
+    }
+    
     if ( (NewtonRaphsonVetor[netlist[i].a] - NewtonRaphsonVetor[netlist[i].b]) < netlist[i].pv2 ){
        g=((netlist[i].pj2 - netlist[i].pj1) / (netlist[i].pv2-netlist[i].pv1));
        z=(netlist[i].pj2 - g*netlist[i].pv2);
