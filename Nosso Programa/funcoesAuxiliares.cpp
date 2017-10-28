@@ -52,7 +52,7 @@ void estampas(char tipo)
                   sin(2*PI*netlist[i].freq*(tempoAtual-netlist[i].atraso) + (PI/180)*netlist[i].defasagem)
                 )*( heaviside(tempoAtual-netlist[i].atraso) -
                     heaviside((tempoAtual-netlist[i].atraso) - (2*PI/netlist[i].freq)*netlist[i].ciclo) )
-                ); 
+                );
             }
             else
             {
@@ -135,19 +135,30 @@ void estampas(char tipo)
     off+Vp*exp(-dec*(tempoAtual-atraso))*sin(2*pi*f*(tempoAtual-atraso)+(pi/180)*fase)
     */
     {
-      Yn[netlist[i].a][netlist[i].x]+=1;
-      Yn[netlist[i].b][netlist[i].x]-=1;
-      Yn[netlist[i].x][netlist[i].a]-=1;
-      Yn[netlist[i].x][netlist[i].b]+=1;
-      Yn[netlist[i].x][nv+1]-=
-        (
-          netlist[i].valor +
+        if (analisandoPontodeOp == 0)
+        {
+          Yn[netlist[i].a][netlist[i].x]+=1;
+          Yn[netlist[i].b][netlist[i].x]-=1;
+          Yn[netlist[i].x][netlist[i].a]-=1;
+          Yn[netlist[i].x][netlist[i].b]+=1;
+          Yn[netlist[i].x][nv+1]-=
           (
-            netlist[i].amplitude*exp(-1*netlist[i].amortecimento*(tempoAtual-netlist[i].atraso)) *
-            sin(2*PI*netlist[i].freq*(tempoAtual-netlist[i].atraso) + (PI/180)*netlist[i].defasagem)
-          )*( heaviside(tempoAtual-netlist[i].atraso) -
-              heaviside((tempoAtual-netlist[i].atraso) - (2*PI/netlist[i].freq)*netlist[i].ciclo) )
-        );
+            netlist[i].valor +
+            (
+              netlist[i].amplitude*exp(-1*netlist[i].amortecimento*(tempoAtual-netlist[i].atraso)) *
+              sin(2*PI*netlist[i].freq*(tempoAtual-netlist[i].atraso) + (PI/180)*netlist[i].defasagem)
+            )*( heaviside(tempoAtual-netlist[i].atraso) -
+                heaviside((tempoAtual-netlist[i].atraso) - (2*PI/netlist[i].freq)*netlist[i].ciclo) )
+              );
+        }
+        else
+        {
+          Yn[netlist[i].a][netlist[i].x]+=1;
+          Yn[netlist[i].b][netlist[i].x]-=1;
+          Yn[netlist[i].x][netlist[i].a]-=1;
+          Yn[netlist[i].x][netlist[i].b]+=1;
+          Yn[netlist[i].x][nv+1]-=netlist[i].valor;
+        }
     }
     if (strcmp(netlist[i].fonte, "PULSE") == 0){
     /*
