@@ -32,7 +32,7 @@ int NewtonRaphsonTentarNovamente;
 int erroGrande;
 double z;
 int fazendoGminStepping;
-double gs;
+unsigned long long gs;
 /*variavel para analise no tempo*/
 double tempoAtual, tempoFinal, passo, passoPorPt;
 
@@ -162,8 +162,15 @@ int main()
     /*a b c d sao posicoes relacionadas aos nos
       x e y sao relacionadas as correntes, que entram na estampa pelos
       "pontilhadinhos" qnd a gente faz mna na mao*/
+
       do{
-          CopiaSolucaoNR();   //copia solucao anterior
+          if ((NewtonRaphsonTentativas==0) && (NewtonRaphsonTentarNovamente ==0)){
+            ChutaValorNR();
+          }
+          else{
+            CopiaSolucaoNR();   //copia solucao anterior
+          }
+
           if(NewtonRaphsonTentativas > NEWTONRAPHSON_NUMERO_MAX_TENTATIVAS)
           {   //Caso o numero de interacoes do newton-raphson tenha excedido um valor, chuta valores aleatorios
             ChutaValorNR();
@@ -172,8 +179,10 @@ int main()
             if(NewtonRaphsonTentarNovamente == NEWTONRAPHSON_NUMERO_MAX_TENTARNOVAMENTE)
             { //caso ele tenha reiniciado o algoritimo vezes demais, inicia gminstepping
               gminstepping();
-              getch();
+              //getch();
             //  exit(0);
+            cout << "sai do gminstep mesmooooo, gs="<< gs<< endl;
+          //  fazendoGminStepping = 0;
             }
           }
           zeraSistema();  //zera, monta e resolve
@@ -183,7 +192,9 @@ int main()
             getch();
             exit(0);
           }
+
           NewtonRaphsonTentativas++;
+            //cout << NewtonRaphsonTentativas<< endl;
         }while(ComparaValorNR() == 0 );  //repete isso ate newton-raphson convergir
 
 

@@ -358,8 +358,29 @@ void estampas(char tipo)
     }
    // getch();
  }
- if (fazendoGminStepping ==1){
-   gs-=1000;
+ if ((fazendoGminStepping ==1) && (gs > CONUTANCIA_MINIMA_GS  )){
+   if (gs > 10000){
+     gs-=1000;
+   }
+   else{
+    gs -= PASSO_GS;
+   }
+
+  /* if (gs>1000){
+     gs-=1000;
+   }
+   if (gs>100){
+     gs-=10;
+   }
+   else if (gs>1){
+     gs-=1;
+   }
+   else if (gs>1e-3){
+     gs-=PASSO_GS*1e-3;
+   }
+   else if (gs>1e-7){
+     gs-=PASSO_GS*1e-6;
+   }*/
  }
 }
 
@@ -838,6 +859,7 @@ void gminstepping()
   fazendoGminStepping = 1;
   cout << "to indo pro gmin steppp!" << endl;
   do{
+      zeraSistema();
       montarEstampas();
       if (resolversistema())
       {
@@ -845,7 +867,8 @@ void gminstepping()
         exit(0);
       }
       CopiaSolucaoNR();
-    }while(gs >1e-6);
+      cout << " gs="<< gs<< endl;
+    }while(gs != CONUTANCIA_MINIMA_GS );
   cout << "ja fiz gmin steppp!" << endl;
-  fazendoGminStepping = 0;
+
 }
