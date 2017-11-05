@@ -37,7 +37,7 @@ int fazendoGminStepping;
 int circuitolinear;
 /*variavel para analise no tempo*/
 double tempoAtual, tempoFinal, passo, passoPorPt;
-
+double contadorGS;
 int main()
 {
 

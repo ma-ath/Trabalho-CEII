@@ -359,37 +359,6 @@ void estampas(char tipo)
     }
    // getch();
  }
- if ((fazendoGminStepping ==1) && (gs > CONUTANCIA_MINIMA_GS  )){
-   if (gs > 10000){
-     gs-=100;
-   }
-   else if (gs > 10){
-    gs -= 0.1;
-   }
-   else if (gs >0.001){
-     gs -= 0.00001;
-   }
-   else if (gs> 0.00000001){
-     gs=-0.00000001;
-   }
-
-
-  /* if (gs>1000){
-     gs-=1000;
-   }
-   if (gs>100){
-     gs-=10;
-   }
-   else if (gs>1){
-     gs-=1;
-   }
-   else if (gs>1e-3){
-     gs-=PASSO_GS*1e-3;
-   }
-   else if (gs>1e-7){
-     gs-=PASSO_GS*1e-6;
-   }*/
- }
 }
 
 void montarEstampas()
@@ -878,22 +847,42 @@ int ComparaValorNR (void) {
 
 void gminstepping()
 {
+  contadorGS = 15;
+  //gs = CONDUTANCIA_INICIAL_GS;
   fazendoGminStepping = 1;
-  //cout << "to indo pro gmin steppp!" << endl;
-  do{
-      zeraSistema();
-      montarEstampas();
-      if (resolversistema())
-      {
-        getch();
-        exit(0);
-      }
-      CopiaSolucaoNR();
-      //cout << " gs="<< gs<< endl;
-    }while(gs > CONUTANCIA_MINIMA_GS );
-  //cout << "ja fiz gmin steppp!" << endl;
 
+  for (; contadorGS > -15; )
+  {
+    zeraSistema();
+    montarEstampas();
+    if (resolversistema())
+    {
+      getch();
+      exit(0);
+    }
+    CopiaSolucaoNR();
+
+    contadorGS = contadorGS - 0.001;
+    gs = exp(contadorGS);
+  }
+//  cout <<gs<<endl;
 }
+
+/*  for (; gs> CONUTANCIA_MINIMA_GS;)
+  {
+    zeraSistema();
+    montarEstampas();
+    if (resolversistema())
+    {
+      getch();
+      exit(0);
+    }
+    CopiaSolucaoNR();
+
+    gs = gs - sqrt(gs);
+  }
+  cout <<gs<<endl;
+}*/
 
 void analiseNR ()
 {
@@ -929,9 +918,8 @@ void analiseNR ()
 
 
   ZeraValorNR();
-  gs = CONDUTANCIA_INICIAL_GS;
   gminstepping();
-  fazendoGminStepping=0;
+
 
 
 

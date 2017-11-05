@@ -10,6 +10,7 @@
 #include <sstream>
 #include <typeinfo>
 #include <time.h>
+#include <tgmath.h>
 #include "constantes.h"
 #include "tipos.h"
 #ifndef _GLOBAL_H_
@@ -62,5 +63,6 @@ extern int jaFizIsso;
 extern long double gs;
 
 extern int circuitolinear;
+extern double contadorGS;
 //extern vector <double*> resultados;
 #endif
