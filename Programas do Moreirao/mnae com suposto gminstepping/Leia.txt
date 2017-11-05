@@ -1,0 +1,5 @@
+Os arquivos .cir são esquemáticos para o editor EDFIL.
+O programa MNAE lê arquivos .net que o editor gera.
+Exemplos com elementos ideais no arquivo exideal.zip.
+Exemplos para a versão com gmin stepping estão em gminstepping.zip (embora poucos requeiram)
+A versão com gmin stepping é a mna21.
