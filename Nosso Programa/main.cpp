@@ -57,7 +57,7 @@ int main()
   fazendoGminStepping=0;
   jaFizIsso =0;
   circuitolinear=1;
-  gs = CONDUTANCIA_INICIAL_GS ;
+
   do{
     erro = leNetlist();
   }while (erro != 0);

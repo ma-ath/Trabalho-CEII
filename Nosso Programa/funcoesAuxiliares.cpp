@@ -847,11 +847,11 @@ int ComparaValorNR (void) {
 
 void gminstepping()
 {
-  contadorGS = 15;
+  contadorGS = CONDUTANCIA_POTENCIA_INICIAL_GS;
   //gs = CONDUTANCIA_INICIAL_GS;
   fazendoGminStepping = 1;
 
-  for (; contadorGS > -15; )
+  for (; contadorGS > CONUTANCIA_POTENCIA_MINIMA_GS; )
   {
     zeraSistema();
     montarEstampas();
@@ -862,7 +862,7 @@ void gminstepping()
     }
     CopiaSolucaoNR();
 
-    contadorGS = contadorGS - 0.001;
+    contadorGS = contadorGS - PASSO_GS;
     gs = exp(contadorGS);
   }
 //  cout <<gs<<endl;
