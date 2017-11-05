@@ -37,3 +37,5 @@ void gminstepping();
 //exemplo: int = 2, char = \. printa uma barrina \\\\\\ a cada 2%
 //etc...
 void printProgresso(int,char);
+
+void analiseNR();

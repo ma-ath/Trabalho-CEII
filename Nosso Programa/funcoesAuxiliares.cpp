@@ -288,7 +288,7 @@ void estampas(char tipo)
     }
   }
   else if (tipo=='$') {     /*Chave*/
-
+    circuitolinear = 0;
     //EXPERIMENTAL
     if (netlist[i].c == 0){
     NewtonRaphsonVetor[netlist[i].c] = 0;
@@ -320,6 +320,7 @@ void estampas(char tipo)
   }
 
   else if (tipo=='N') {     /*resistor nao linear*/
+    circuitolinear = 0;
     if (netlist[i].a == 0){
     NewtonRaphsonVetor[netlist[i].a] = 0;
     }
@@ -853,7 +854,7 @@ void CopiaSolucaoNR (void) {
 }
 
 void ChutaValorNR (void) {
-	srand(time(NULL));
+	srand(1);
 	for (i=1; i<=nv; i++){
 	  NewtonRaphsonVetor[i] = (double)(((rand()%1001)/10)-50);
 	}
@@ -892,4 +893,84 @@ void gminstepping()
     }while(gs > CONUTANCIA_MINIMA_GS );
   //cout << "ja fiz gmin steppp!" << endl;
 
+}
+
+void analiseNR ()
+{
+  NewtonRaphsonTentativas = 0;
+  NewtonRaphsonTentarNovamente = 0;
+
+  for (NewtonRaphsonTentativas=1;NewtonRaphsonTentativas<=NEWTONRAPHSON_NUMERO_MAX_TENTATIVAS;NewtonRaphsonTentativas++)
+  {
+    if (NewtonRaphsonTentativas != 1)
+    {
+      ChutaValorNR();
+    }
+
+    for (NewtonRaphsonTentarNovamente = 1; NewtonRaphsonTentarNovamente<=NEWTONRAPHSON_NUMERO_MAX_TENTARNOVAMENTE; NewtonRaphsonTentarNovamente++)
+    {
+      zeraSistema();
+      montarEstampas();
+      if (resolversistema())
+      {
+        getch();
+        exit(0);
+      }
+      ComparaValorNR();
+      if (ComparaValorNR()==1)
+      {
+      //  printf ("Sistema convergiu com %i iteracoes e %i inicializacoes randomicas. estamos no tempo %f\n",NewtonRaphsonTentarNovamente, NewtonRaphsonTentativas-1, tempoAtual);
+        return;
+      }
+      //PrintarSistema(Yn);
+      CopiaSolucaoNR();
+    }
+  }
+
+
+  ZeraValorNR();
+  gs = CONDUTANCIA_INICIAL_GS;
+  gminstepping();
+  fazendoGminStepping=0;
+
+
+
+/*  do{
+      if ((NewtonRaphsonTentativas==0) && (NewtonRaphsonTentarNovamente ==0)){
+        ChutaValorNR();
+      //  jaFizIsso+=1;
+      }
+      else{
+        CopiaSolucaoNR();   //copia solucao anterior
+      }
+
+      if(NewtonRaphsonTentativas > NEWTONRAPHSON_NUMERO_MAX_TENTATIVAS)
+      {   //Caso o numero de interacoes do newton-raphson tenha excedido um valor, chuta valores aleatorios
+        ChutaValorNR();
+        NewtonRaphsonTentativas = 0;
+        NewtonRaphsonTentarNovamente++;
+        if(NewtonRaphsonTentarNovamente == NEWTONRAPHSON_NUMERO_MAX_TENTARNOVAMENTE)
+        { //caso ele tenha reiniciado o algoritimo vezes demais, inicia gminstepping
+          ZeraValorNR();
+          gs = CONDUTANCIA_INICIAL_GS;
+          gminstepping();
+          fazendoGminStepping=0;
+          //getch();
+        //  exit(0);
+      //  cout << "sai do gminstep mesmooooo, gs="<< gs<< endl;
+      //  fazendoGminStepping = 0;
+        }
+      }
+      zeraSistema();  //zera, monta e resolve
+      montarEstampas();
+      if (resolversistema())
+      {
+        getch();
+        exit(0);
+      }
+
+      NewtonRaphsonTentativas++;
+        //cout << NewtonRaphsonTentativas<< endl;
+    }while(ComparaValorNR() == 0 );  //repete isso ate newton-raphson convergir
+*/
 }

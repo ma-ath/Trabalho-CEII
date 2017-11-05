@@ -60,5 +60,7 @@ extern double z;
 extern int fazendoGminStepping;
 extern int jaFizIsso;
 extern long double gs;
+
+extern int circuitolinear;
 //extern vector <double*> resultados;
 #endif

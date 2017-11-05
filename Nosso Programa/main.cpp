@@ -34,6 +34,7 @@ double z;
 int fazendoGminStepping;
  long double gs;
  int jaFizIsso;
+int circuitolinear;
 /*variavel para analise no tempo*/
 double tempoAtual, tempoFinal, passo, passoPorPt;
 
@@ -55,6 +56,7 @@ int main()
   GCapacitorAberto = GCAPACITORABERTO;
   fazendoGminStepping=0;
   jaFizIsso =0;
+  circuitolinear=1;
   gs = CONDUTANCIA_INICIAL_GS ;
   do{
     erro = leNetlist();
@@ -156,8 +158,7 @@ int main()
 
     /* Zera sistema */
     zeraSistema();
-    NewtonRaphsonTentativas = 0;
-    NewtonRaphsonTentarNovamente = 0;
+
     /* Monta estampas & Resolve com algorítimo de Newton-Raphson*/
     /*Ainda possui espaço para melhoras, para análise no tempo sem elementos nao lineares
       ele acaba tendo que resolver o mesmo sistema duas vezes para poder passar o instante de tempo*/
@@ -165,6 +166,20 @@ int main()
       x e y sao relacionadas as correntes, que entram na estampa pelos
       "pontilhadinhos" qnd a gente faz mna na mao*/
 
+      if (circuitolinear==1)
+      {
+        zeraSistema();  //zera, monta e resolve
+        montarEstampas();
+        if (resolversistema())
+        {
+          getch();
+          exit(0);
+        }
+      }
+
+      else
+        analiseNR();
+        /*
       do{
           if ((NewtonRaphsonTentativas==0) && (NewtonRaphsonTentarNovamente ==0)){
             ChutaValorNR();
@@ -202,7 +217,7 @@ int main()
           NewtonRaphsonTentativas++;
             //cout << NewtonRaphsonTentativas<< endl;
         }while(ComparaValorNR() == 0 );  //repete isso ate newton-raphson convergir
-
+*/
 
     /* Atualiza as memorias nos capacitores e indutores */
     /*apos a resolucao do sistema nodal, a gente precisa atualizar o valor dos parametros vto e jto de cada capacitor/indutor;*/
