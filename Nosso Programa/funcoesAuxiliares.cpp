@@ -711,13 +711,13 @@ void analisePontoOperacao()  //POR ENQUANTO SO INICIA TUDO COMO ZERO
     }
     if (tipo=='C'){
       netlist[i].jt0 = 0;
-     //netlist[i].vt0 = 0;
-      netlist[i].vt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]));
+     netlist[i].vt0 = 0;
+    //  netlist[i].vt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]));
     }
     if (tipo=='L'){
-      netlist[i].jt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]))*GIndutorCurto;
+    //  netlist[i].jt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]))*GIndutorCurto;
       netlist[i].vt0 = 0;
-    //  netlist[i].jt0 = 0;
+      netlist[i].jt0 = 0;
     }
   }
 
@@ -865,7 +865,8 @@ void gminstepping()
     contadorGS = contadorGS - PASSO_GS;
     gs = exp(contadorGS);
   }
-//  cout <<gs<<endl;
+  fazendoGminStepping = 0;
+  //cout <<gs<<endl;
 }
 
 /*  for (; gs> CONUTANCIA_MINIMA_GS;)

@@ -1,2 +1,0 @@
-Os arquivos .cir são esquemáticos para o editor EDFIL.
-O programa MNAE lê arquivos .net que o editor gera.

@@ -1,0 +1,15 @@
+artefato ok
+astavel1 ok
+chua1 ok com tensao e corrente do cap ind =0
+flyback da zoado em alguns pontos
+fonte ok (um pouco fora no inicio)
+minimo ok
+minimo2 ok
+minimo3 ta zoadinho
+minimos zoa em pontos especificos
+mres1  ok com tensao e corrente do cap ind =0
+neon ta zoado
+oscilador ok
+osciladorsc ok
+teslai ok
+el5 e ch5 o moreirao fez netlist errado. nem roda no prog dele.
