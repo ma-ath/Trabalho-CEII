@@ -417,7 +417,8 @@ int resolversistema(void)
     }
     if (fabs(t)<TOLG)
     {
-      printf("Sistema singular\n");
+      if (fazendoGminStepping == 0)
+        printf("Sistema singular\n");
       return 1;
     }
     for (j=nv+1; j>0; j--)
@@ -892,11 +893,11 @@ void gminstepping()
   {
     zeraSistema();
     montarEstampas();
-    if (resolversistema())
+    if (resolversistema()) //se deu sistema singular aqui, eh pq foi chutado um valor errado. chuto ate dar certo
     {
-      cout<<"nao"<<endl;
-      getch();
-      exit(0);
+      ChutaValorNR();
+      zeraSistema();
+      montarEstampas();
     }
     CopiaSolucaoNR();
 
@@ -934,10 +935,11 @@ void analiseNR ()
     {
       zeraSistema();
       montarEstampas();
-      if (resolversistema())
+      while (resolversistema() == 1)
       {
-        getch();
-        exit(0);
+        ChutaValorNR();
+        zeraSistema();
+        montarEstampas();
       }
       ComparaValorNR();
       if (ComparaValorNR()==1)
