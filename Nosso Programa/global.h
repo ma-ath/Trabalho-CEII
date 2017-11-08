@@ -51,6 +51,7 @@ extern double Yn[MAX_NOS+1][MAX_NOS+2];   /*Matriz a ser resolvida*/
 extern double tempoAtual, tempoFinal, passo, passoPorPt;
 
 extern double NewtonRaphsonVetor[MAX_NOS+1];
+extern double ValoresNaoConvergindo[MAX_NOS+1];
 
 extern int NewtonRaphsonTentativas;
 extern int NewtonRaphsonTentarNovamente;
@@ -59,10 +60,12 @@ extern int erroGrande;
 extern double z;
 
 extern int fazendoGminStepping;
-extern int jaFizIsso;
-extern long double gs;
 
+extern long double gs;
+extern int PrimeiraVezNR;
 extern int circuitolinear;
 extern double contadorGS;
+
+
 //extern vector <double*> resultados;
 #endif

@@ -30,6 +30,8 @@ void ChutaValorNR ();
 void ZeraValorNR ();
 int ComparaValorNR ();
 void gminstepping();
+void monstraValoresNaoConvergindo();
+void mostraResultadoParcial ();
 
 //essa funcao printa uma barrinha de status da simulacao, ela printa a cada
 //int porcento, e com o caracter char passado para a funcao (da pra escolher)
@@ -39,3 +41,4 @@ void gminstepping();
 void printProgresso(int,char);
 
 void analiseNR();
+void zeraValoresNaoConvergindo (void);
