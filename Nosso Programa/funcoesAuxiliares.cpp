@@ -316,6 +316,9 @@ void estampas(char tipo)
       Yn[netlist[i].b][netlist[i].b]+=gs;
       Yn[netlist[i].a][netlist[i].b]-=gs;
       Yn[netlist[i].b][netlist[i].a]-=gs;
+
+      Yn[netlist[i].a][nv+1]-=(netlist[i].pv2 + netlist[i].pv3)*gs/(2);
+      Yn[netlist[i].b][nv+1]+=(netlist[i].pv2 + netlist[i].pv3)*gs/(2);
     }
   }
 
@@ -355,6 +358,9 @@ void estampas(char tipo)
       Yn[netlist[i].b][netlist[i].b]+=gs;
       Yn[netlist[i].a][netlist[i].b]-=gs;
       Yn[netlist[i].b][netlist[i].a]-=gs;
+
+      Yn[netlist[i].a][nv+1]-=(netlist[i].pv2 + netlist[i].pv3)*gs/(2);
+      Yn[netlist[i].b][nv+1]+=(netlist[i].pv2 + netlist[i].pv3)*gs/(2);
 
     }
    // getch();
