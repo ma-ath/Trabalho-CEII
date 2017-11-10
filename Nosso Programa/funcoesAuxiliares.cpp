@@ -941,7 +941,7 @@ void analiseNR ()
         zeraSistema();
         montarEstampas();
       }
-      ComparaValorNR();
+    //  ComparaValorNR();
       if (ComparaValorNR()==1)
       {
       //  printf ("Sistema convergiu com %i iteracoes e %i inicializacoes randomicas. estamos no tempo %f\n",NewtonRaphsonTentarNovamente, NewtonRaphsonTentativas-1, tempoAtual);

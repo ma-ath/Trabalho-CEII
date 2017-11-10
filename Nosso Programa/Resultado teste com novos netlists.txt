@@ -5,11 +5,10 @@ flyback da zoado em alguns pontos
 fonte ok (um pouco fora no inicio)
 minimo ok
 minimo2 ok
-minimo3 ta zoadinho
+minimo3 ok
 minimos zoa em pontos especificos
 mres1  ok com tensao e corrente do cap ind =0
-neon ta zoado
+neon1 ok
 oscilador ok
 osciladorsc ok
 teslai ok
-el5 e ch5 o moreirao fez netlist errado. nem roda no prog dele.
