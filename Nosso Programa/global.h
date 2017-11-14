@@ -19,7 +19,7 @@
 using namespace std;
 
 extern elemento netlist[MAX_ELEM]; /* Netlist */
-
+extern int repete;
 extern int ne;     /*Numero de Elementos */
 extern int nv;     /*Numero de Variaveis */
 extern int nn;     /*Numero de Nos */
@@ -52,6 +52,7 @@ extern double tempoAtual, tempoFinal, passo, passoPorPt;
 
 extern double NewtonRaphsonVetor[MAX_NOS+1];
 extern double ValoresNaoConvergindo[MAX_NOS+1];
+extern double ValoresConvergiu[MAX_NOS+1];
 
 extern int NewtonRaphsonTentativas;
 extern int NewtonRaphsonTentarNovamente;
@@ -62,10 +63,11 @@ extern double z;
 extern int fazendoGminStepping;
 
 extern long double gs;
+extern long double ultimogs;
 extern int PrimeiraVezNR;
 extern int circuitolinear;
 extern double contadorGS;
-
+extern int convergiu;
 
 //extern vector <double*> resultados;
 #endif

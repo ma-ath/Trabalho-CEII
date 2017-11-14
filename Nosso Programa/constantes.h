@@ -14,8 +14,8 @@
 #define PROGRESSO_SIMBOLO                         '*'
 #define MAX_ERRO_NR                               1e-9 //erro tolerado para newton raphson
 #define NEWTONRAPHSON_NUMERO_MAX_TENTATIVAS       10
-#define NEWTONRAPHSON_NUMERO_MAX_TENTARNOVAMENTE  5
-#define CONDUTANCIA_POTENCIA_INICIAL_GS           15 //condutancia inicial para fzr gmin step
-#define PASSO_GS                                  0.001
-#define CONUTANCIA_POTENCIA_MINIMA_GS             -15
+#define NEWTONRAPHSON_NUMERO_MAX_TENTARNOVAMENTE  20
+#define CONDUTANCIA_INICIAL_GS           1e8 //condutancia inicial para fzr gmin step
+#define PASSO_GS                                  10
+#define CONUTANCIA_MINIMA_GS             1e-8
 //#define DEBUG

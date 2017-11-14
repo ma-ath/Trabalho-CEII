@@ -29,7 +29,7 @@ void CopiaSolucaoNR ();
 void ChutaValorNR ();
 void ZeraValorNR ();
 int ComparaValorNR ();
-void gminstepping();
+int gminstepping();
 void monstraValoresNaoConvergindo();
 void mostraResultadoParcial ();
 
@@ -39,6 +39,7 @@ void mostraResultadoParcial ();
 //exemplo: int = 2, char = \. printa uma barrina \\\\\\ a cada 2%
 //etc...
 void printProgresso(int,char);
-
-void analiseNR();
+void CopiaUltimaSolucaoConvergiu (void);
+int analiseNR();
 void zeraValoresNaoConvergindo (void);
+void RecuperaUltimaSolucaoConvergiu (void);

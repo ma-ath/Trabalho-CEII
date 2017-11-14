@@ -4,6 +4,7 @@
 using namespace std;
 
 elemento netlist[MAX_ELEM];
+int repete;
 int ne;
 int nv;
 int nn;
@@ -28,17 +29,20 @@ double g, pulseRealTime, pulseOffTime;
 double Yn[MAX_NOS+1][MAX_NOS+2];
 double NewtonRaphsonVetor[MAX_NOS+1];
 double ValoresNaoConvergindo[MAX_NOS+1];
+double ValoresConvergiu[MAX_NOS+1];
 int NewtonRaphsonTentativas;
 int NewtonRaphsonTentarNovamente;
 int erroGrande;
 double z;
 int fazendoGminStepping;
  long double gs;
+ long double ultimogs;
 int PrimeiraVezNR;
 int circuitolinear;
 /*variavel para analise no tempo*/
 double tempoAtual, tempoFinal, passo, passoPorPt;
 double contadorGS;
+int convergiu;
 int main()
 {
 
@@ -56,7 +60,7 @@ int main()
   GIndutorCurto = GINDUTORCURTO;
   GCapacitorAberto = GCAPACITORABERTO;
   fazendoGminStepping=0;
-
+  convergiu = 0;
   circuitolinear=1;
 
   do{
@@ -139,7 +143,7 @@ int main()
   //  analisandoPontodeOp = 1;
     zeraSistema();
     analisePontoOperacao();
-  
+    CopiaSolucaoNR();
   //  analisandoPontodeOp = 0;
   //}
 
@@ -181,7 +185,12 @@ int main()
 
       else{
         PrimeiraVezNR =1;
-        analiseNR();
+
+        if (!analiseNR()){
+          cout <<"nao convergiuao"<<endl;
+          exit(0);
+        }
+
       }
 
         /*
