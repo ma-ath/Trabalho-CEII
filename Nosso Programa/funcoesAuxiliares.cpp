@@ -705,7 +705,7 @@ void analisePontoOperacao()  //POR ENQUANTO SO INICIA TUDO COMO ZERO
     getch();
     exit(0);
   }
-
+  CopiaSolucaoNR();
   //Inicializa as Tensoes/Correntes em Capacitores/Indutores
   for (i=1; i<=ne; i++)
   {
@@ -831,6 +831,21 @@ void CopiaSolucaoNR (void) {
    }
 }
 
+void CopiaUltimaSolucaoConvergiu (void) {
+  int i;
+  for (i=0; i<=nv; i++)
+    if ((ValoresNaoConvergindo[i] == 1)|| (PrimeiraVezNR==1)){
+  	 ValoresConvergiu[i] = NewtonRaphsonVetor[i];
+   }
+}
+
+void RecuperaUltimaSolucaoConvergiu (void) {
+  int i;
+  for (i=0; i<=nv; i++)
+    if ((ValoresNaoConvergindo[i] == 1)|| (PrimeiraVezNR==1)){
+  	 NewtonRaphsonVetor[i] = ValoresConvergiu[i];
+   }
+}
 void ChutaValorNR (void) {
 	srand(time(NULL));
 	for (i=1; i<=nv; i++){
@@ -883,30 +898,77 @@ void mostraResultadoParcial ()
   getch();
 }
 
-void gminstepping()
-{
-  contadorGS = CONDUTANCIA_POTENCIA_INICIAL_GS;
-  //gs = CONDUTANCIA_INICIAL_GS;
-  fazendoGminStepping = 1;
+int gminstepping(){
 
-  for (; contadorGS > CONUTANCIA_POTENCIA_MINIMA_GS; )
+fazendoGminStepping = 1;
+zeraSistema();
+montarEstampas();
+if (resolversistema())
+{
+  cout<<"sistema singular"<<endl;
+  exit(0);
+}
+CopiaSolucaoNR();
+ultimogs = gs;
+gs = gs/10;
+//ate aqui foi a primeira vez com nr com resistor do gmins
+
+
+for (; gs > CONUTANCIA_MINIMA_GS; )
+{
+  zeraSistema();
+  montarEstampas();
+  if (resolversistema()) //se deu sistema singular aqui, eh pq foi chutado um valor errado. chuto ate dar certo
   {
+    ChutaValorNR();
     zeraSistema();
     montarEstampas();
-    if (resolversistema()) //se deu sistema singular aqui, eh pq foi chutado um valor errado. chuto ate dar certo
-    {
-      ChutaValorNR();
+  }
+
+  if (ComparaValorNR()){ //se convergiu
+    CopiaSolucaoNR();
+    CopiaUltimaSolucaoConvergiu();
+  //  cout <<"Convergiu e GS = "<<gs<<endl;
+    ultimogs = gs;
+    gs = gs/10;
+  }
+
+  else{
+    fatordeDiv10 = sqrtl (10);
+    counter = 1;
+    //RecuperaUltimaSolucaoConvergiu();
+    while (!ComparaValorNR()){
+      if (counter==7){
+        cout<<"bye"<<endl;
+        exit(0);
+      }
+
+      for (i=1;i<counter;i++){
+        fatordeDiv10 = sqrtl(fatordeDiv10);
+      }
+      gs = ultimogs/fatordeDiv10;
+    //  cout <<"Nao e UltimoGS = "<<ultimogs<<endl;
+    //  cout <<"Nao e GS = "<<gs<<endl;
       zeraSistema();
       montarEstampas();
+      if (resolversistema()) //se deu sistema singular aqui, eh pq foi chutado um valor errado. chuto ate dar certo
+      {
+        cout<<"sistema singular"<<endl;
+        exit(0);
+      }
+      counter++;
     }
     CopiaSolucaoNR();
-
-    contadorGS = contadorGS - PASSO_GS;
-    gs = exp(contadorGS);
+    CopiaUltimaSolucaoConvergiu();
+    ultimogs = gs;
+    gs = gs/10;
+  //  cout<<"sai do loop"<<endl;
 
   }
-  fazendoGminStepping = 0;
-  //cout <<gs<<endl;
+
+}
+fazendoGminStepping = 0;
+return 1;
 }
 
 void zeraValoresNaoConvergindo (void)
@@ -916,47 +978,33 @@ void zeraValoresNaoConvergindo (void)
   }
 }
 
-void analiseNR ()
+int analiseNR ()
 {
 
   NewtonRaphsonTentativas = 0;
   NewtonRaphsonTentarNovamente = 0;
   zeraValoresNaoConvergindo();
-
-  for (NewtonRaphsonTentativas=1;NewtonRaphsonTentativas<=NEWTONRAPHSON_NUMERO_MAX_TENTATIVAS;NewtonRaphsonTentativas++)
-  {
-  //  monstraValoresNaoConvergindo();
-    if (NewtonRaphsonTentativas != 1)
-    {
-      ChutaValorNR();
-    }
+  zeraSistema();
+  gs = CONDUTANCIA_INICIAL_GS;
+  ultimogs = CONDUTANCIA_INICIAL_GS;
+  fazendoGminStepping=0;
 
     for (NewtonRaphsonTentarNovamente = 1; NewtonRaphsonTentarNovamente<=NEWTONRAPHSON_NUMERO_MAX_TENTARNOVAMENTE; NewtonRaphsonTentarNovamente++)
     {
       zeraSistema();
       montarEstampas();
-      while (resolversistema() == 1)
-      {
-        ChutaValorNR();
-        zeraSistema();
-        montarEstampas();
-      }
-    //  ComparaValorNR();
-      if (ComparaValorNR()==1)
+      resolversistema();
+
+      if (ComparaValorNR()==1)//se convergiu, sai do programa
       {
       //  printf ("Sistema convergiu com %i iteracoes e %i inicializacoes randomicas. estamos no tempo %f\n",NewtonRaphsonTentarNovamente, NewtonRaphsonTentativas-1, tempoAtual);
-        return;
+        return 1;
       }
-      //PrintarSistema(Yn);
+
       CopiaSolucaoNR();
-    //  mostraResultadoParcial();
-      PrimeiraVezNR=0;
     }
-  }
 
-
-  ZeraValorNR();
-  gminstepping();
-
+  //  cout<<"gmin"<<endl;
+    return gminstepping();
 
 }
