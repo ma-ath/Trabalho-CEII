@@ -309,7 +309,7 @@ void estampas(char tipo)
       Yn[netlist[i].a][netlist[i].b]-=netlist[i].gon;
       Yn[netlist[i].b][netlist[i].a]-=netlist[i].gon;
     }
-    if ((fazendoGminStepping ==1)&& (ValoresNaoConvergindo[i] == 1)){ /*se estiver fazendo gmin step, coloco resistor bem baixo em paralelo
+    if (fazendoGminStepping ==1){ /*se estiver fazendo gmin step, coloco resistor bem baixo em paralelo
       chamado de gs, com condutancia inicial definido no constante. o valor da CONDUTANCIA dele eh decrementado no final dessa funcao
       para q caso tenha mais de 1componente nao linear, so decremente o valor dele uma vez por execucao.*/
       Yn[netlist[i].a][netlist[i].a]+=gs;//param2 = goff
@@ -376,7 +376,7 @@ void estampas(char tipo)
     Yn[netlist[i].a][nv+1]-=z;
     Yn[netlist[i].b][nv+1]+=z;
 
-    if ((fazendoGminStepping ==1)&& (ValoresNaoConvergindo[i] == 1)){
+    if (fazendoGminStepping ==1){
       Yn[netlist[i].a][netlist[i].a]+=gs;//param2 = goff
       Yn[netlist[i].b][netlist[i].b]+=gs;
       Yn[netlist[i].a][netlist[i].b]-=gs;
@@ -865,6 +865,7 @@ int  ComparaValorNR (void) {
      if (erroGrande==1) return 0;
      else return 1;
 }
+
 void mostraValoresNaoConvergindo(){
   for (i=1; i<=nv; i++){
     cout<<ValoresNaoConvergindo[i]<<endl;
@@ -923,7 +924,7 @@ while(gs > CONUTANCIA_MINIMA_GS)
 
     CopiaSolucaoNR();
   }
-
+  cout<<gs<<endl;
   if (convergiu)//se convergiu
     {
       fatordeDiv10 = 10;
