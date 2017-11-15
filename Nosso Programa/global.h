@@ -53,8 +53,9 @@ extern double tempoAtual, tempoFinal, passo, passoPorPt;
 extern double NewtonRaphsonVetor[MAX_NOS+1];
 extern double ValoresNaoConvergindo[MAX_NOS+1];
 extern double ValoresConvergiu[MAX_NOS+1];
+extern double UltimaConvergenciaNoTempo[MAX_NOS+1];   //Guarda todas as variaveis da ultima análise do sistema no tempo que convergiu
 
-extern int NewtonRaphsonTentativas;
+//extern int NewtonRaphsonTentativas;
 extern int NewtonRaphsonTentarNovamente;
 extern int erroGrande;
 

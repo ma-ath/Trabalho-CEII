@@ -332,19 +332,42 @@ void estampas(char tipo)
     }
 
     if ( (NewtonRaphsonVetor[netlist[i].a] - NewtonRaphsonVetor[netlist[i].b]) < netlist[i].pv2 ){
-       g=((netlist[i].pj2 - netlist[i].pj1) / (netlist[i].pv2-netlist[i].pv1));
-       z=(netlist[i].pj2 - g*netlist[i].pv2);
+      if ((netlist[i].pv2-netlist[i].pv1) != 0)     //EVITA SISTEMAS SINGULARES
+      {
+        g=((netlist[i].pj2 - netlist[i].pj1) / (netlist[i].pv2-netlist[i].pv1));
+        z=(netlist[i].pj2 - g*netlist[i].pv2);
+      }
+      else
+      {
+        if (netlist[i].pv2 > netlist[i].pv1) g=INFINITO; else g=-INFINITO;
+        z=(netlist[i].pj2 - g*netlist[i].pv2);
+      }
     }
-        //((NRCompare[netlist[i].a] - NRCompare[netlist[i].b]) >= netlist[i].param3) &&
-    else if ( ((NewtonRaphsonVetor[netlist[i].a]-NewtonRaphsonVetor[netlist[i].b]) < netlist[i].pv3) ){
-
+    //((NRCompare[netlist[i].a] - NRCompare[netlist[i].b]) >= netlist[i].param3) &&
+    else if (((NewtonRaphsonVetor[netlist[i].a]-NewtonRaphsonVetor[netlist[i].b]) < netlist[i].pv3)){
+      if ((netlist[i].pv3-netlist[i].pv2) != 0)     //EVITA SISTEMAS SINGULARES
+      {
         g=(netlist[i].pj3 - netlist[i].pj2) / (netlist[i].pv3 - netlist[i].pv2);
         z=(netlist[i].pj3 - g*netlist[i].pv3);
+      }
+      else
+      {
+        if (netlist[i].pv3 > netlist[i].pv2) g=INFINITO; else g=-INFINITO;
+        z=(netlist[i].pj3 - g*netlist[i].pv3);
+      }
     }
     //((NRCompare[netlist[i].a]-NRCompare[netlist[i].b]) >= netlist[i].param5)
-    else {
+    else{
+      if ((netlist[i].pv4-netlist[i].pv3) != 0)     //EVITA SISTEMAS SINGULARES
+      {
         g=(netlist[i].pj4 - netlist[i].pj3) / (netlist[i].pv4 - netlist[i].pv3);
         z=(netlist[i].pj4 - g*netlist[i].pv4);
+      }
+      else
+      {
+        if (netlist[i].pv4 > netlist[i].pv3) g=INFINITO; else g=-INFINITO;
+        z=(netlist[i].pj4 - g*netlist[i].pv4);
+      }
     }
     Yn[netlist[i].a][netlist[i].a]+=g;
     Yn[netlist[i].b][netlist[i].b]+=g;
@@ -417,7 +440,7 @@ int resolversistema(void)
     }
     if (fabs(t)<TOLG)
     {
-      if (fazendoGminStepping == 0)
+      //if (fazendoGminStepping == 0)
         printf("Sistema singular\n");
       return 1;
     }
@@ -763,66 +786,14 @@ void printProgresso(int i, char simbolo) //Printa o progresso do calculo, depend
   }
 }
 
-void plotarGrafico()
-{
+void plotarGrafico(){
   string constTab(NOME_ARQUIVO_TAB);    //Nome do arquivo
   string constPY(NOME_ARQUIVO_GERAR_PLOT_PYTHON); //Nome do script python que plota arquivo
-//  string varPlot = "";        //variavel a ser plotada
   string SysString = "";      //menssagem a ser enviada pro cmd do windows
-//  string varNomes;            //string com primeira linha do arquivo .tab (todas as variaveis)
-//  string varPontos = ConvertDoubleToString(floor(tempoFinal/passo));
-//  ifstream file;
-
-//  file.open(NOME_ARQUIVO_TAB);        //SCRIPT Q PEGUEI DA INTERNET PRA LER PRIMEIRA LINHA DE UM ARQUIVO
-//
-//  if (!file) //checks to see if file opens properly
-//    {
-//      varNomes = "";
-//    }
-//    else
-//    {
-//      if (getline(file, varNomes))// Get line.
-//      file.close(); // Remember to close the file.
-//    }
-//
-//  while(true) //loop pra perguntar a variavel pra plotar, fica aqui enquanto nao digita nada
-//  {
-//    cin.clear();        //precisa disso se nao buga
-//    fflush(stdin);      //precisa disso se nao buga
-//    cout << "Qual variavel deseja plotar?(0 para nenhuma)" << endl;
-//    cout << "[Nome das variaveis: " << varNomes << " ]: ";
-//
-//    getline(cin,varPlot);
-//      if ((varPlot.compare(""))!= 0)
-//        break;
-//    cout << "[" << varPlot << "] eh um caracter invalido, tente outro" << endl;
-//  }
-//
-//  if ((varPlot.compare("0"))!= 0) //caso eu queira plotar algo
-//  {
-//    SysString = "python " + constPY + " " + constTab + " " + varPlot + " " + varPontos; //monta a menssagem para o cmd
-//    //cout <<typeid(constPY).name() <<endl;
-//    //cout << varPontos << endl;
-//    cout << "Chamando por: " << SysString << endl;
-//
-//    system(SysString.c_str());  //funcao feia que funciona
-//  }
-
-SysString = "python " + constPY + " " + constTab; //monta a menssagem para o cmd
-//cout <<typeid(constPY).name() <<endl;
-//cout << varPontos << endl;
-cout << "Chamando por: " << SysString << endl;
-
-system(SysString.c_str());  //funcao feia que funciona
+  SysString = "python " + constPY + " " + constTab; //monta a menssagem para o cmd
+  cout << "Chamando por: " << SysString << endl;
+  system(SysString.c_str());  //funcao feia que funciona
 }
-
-//const char* ConvertDoubleToString(double value){//funcao que peguei na internet pra converter double e char*
-//    stringstream ss ;
-//    ss << value;
-//    const char* str = ss.str().c_str();
-//    return str;
-//}
-
 void CopiaSolucaoNR (void) {
   int i;
   for (i=0; i<=nv; i++)
@@ -830,7 +801,18 @@ void CopiaSolucaoNR (void) {
   	 NewtonRaphsonVetor[i] = Yn[i][nv+1];
    }
 }
-
+void CopiaUltimaSolucaoNoTempo (void) {
+  int i;
+  for (i=0; i<=nv; i++){
+    UltimaConvergenciaNoTempo[i] = Yn[i][nv+1];
+   }
+}
+void RecuperaUltimaSolucaoNoTempo (void) {
+  int i;
+  for (i=0; i<=nv; i++){
+    NewtonRaphsonVetor[i] = UltimaConvergenciaNoTempo[i];
+   }
+}
 void CopiaUltimaSolucaoConvergiu (void) {
   int i;
   for (i=0; i<=nv; i++)
@@ -838,7 +820,6 @@ void CopiaUltimaSolucaoConvergiu (void) {
   	 ValoresConvergiu[i] = NewtonRaphsonVetor[i];
    }
 }
-
 void RecuperaUltimaSolucaoConvergiu (void) {
   int i;
   for (i=0; i<=nv; i++)
@@ -854,6 +835,14 @@ void ChutaValorNR (void) {
     }
 	}
 }
+void ChutaValorNRComPeso (int peso) {
+	srand(time(NULL));
+	for (i=1; i<=nv; i++){
+    if ((ValoresNaoConvergindo[i] == 1) || (PrimeiraVezNR==1)){
+	    NewtonRaphsonVetor[i] += (double)(rand()%(peso/25));
+    }
+	}
+}
 void ZeraValorNR (void) {
 	srand(time(NULL));
 	for (i=1; i<=nv; i++){
@@ -862,10 +851,10 @@ void ZeraValorNR (void) {
      }
 	}
 }
-int ComparaValorNR (void) {
+int  ComparaValorNR (void) {
   erroGrande=0;
   for (i=1; i<=nv; i++){
-    if ( (fabs(Yn[i][nv+1] - NewtonRaphsonVetor[i])) > MAX_ERRO_NR ) {
+    if ((fabs(Yn[i][nv+1] - NewtonRaphsonVetor[i])) > MAX_ERRO_NR ) {
       erroGrande=1;
       ValoresNaoConvergindo[i]=1; //se nao convergiu, o valor eh substituido por 1
       }
@@ -876,103 +865,106 @@ int ComparaValorNR (void) {
      if (erroGrande==1) return 0;
      else return 1;
 }
-
-void monstraValoresNaoConvergindo()
-{
+void mostraValoresNaoConvergindo(){
   for (i=1; i<=nv; i++){
     cout<<ValoresNaoConvergindo[i]<<endl;
   }
   cout<<endl;
 }
-
-void mostraResultadoParcial ()
-{
+void mostraResultadoParcial (){
   for (k=1; k<=nv; k++)
   {
     for (j=1; j<=nv+1; j++)
-      if (Yn[k][j]!=0)
+//      if (Yn[k][j]!=0)
         printf("%+4.3f ",Yn[k][j]);
-      else printf(" ..... ");
+//      else printf(" ..... ");
     printf("\n");
   }
   getch();
 }
 
 int gminstepping(){
-
+//cout << "gmin no tempo:" << tempoAtual << endl;
+fatordeDiv10 = 100;
 fazendoGminStepping = 1;
-zeraSistema();
-montarEstampas();
-if (resolversistema())
-{
-  cout<<"sistema singular"<<endl;
-  exit(0);
-}
-CopiaSolucaoNR();
-ultimogs = gs;
-gs = gs/10;
+counter = 0;
+int gminCounter=0;
+////////////////////NOTA 2: RETIRAR ESSA PARTE DE CODIGO, E INICiALIZAR O NR COM A ULTIMA SOLUCAO QUE CONVERGIU
+//zeraSistema();
+//montarEstampas();
+//if (resolversistema())
+//{
+//  cout<<"sistema singular"<<endl;
+//  exit(0);
+//}
+//CopiaSolucaoNR();
+//
+//ultimogs = gs;
+//counter = 0;
+//gs = gs/10;
+RecuperaUltimaSolucaoNoTempo();
+//cout<<"Recuperado!"<<endl;
+/////////////////////////FIM NOTA 2
 //ate aqui foi a primeira vez com nr com resistor do gmins
 
+gs = CONDUTANCIA_INICIAL_GS;
+ultimogs = CONDUTANCIA_INICIAL_GS;
 
-for (; gs > CONUTANCIA_MINIMA_GS; )
+while(gs > CONUTANCIA_MINIMA_GS)
 {
   zeraSistema();
   montarEstampas();
   if (resolversistema()) //se deu sistema singular aqui, eh pq foi chutado um valor errado. chuto ate dar certo
   {
-    ChutaValorNR();
-    zeraSistema();
-    montarEstampas();
+    //cout << "ERRO AAH" << counter << " " << NewtonRaphsonVetor[0] << " "<< NewtonRaphsonVetor[1] << endl;
+    mostraResultadoParcial ();
+    getch();
+    exit(0);
+    //ChutaValorNR();   //
+    //zeraSistema();    //  ?
+    //montarEstampas(); //
   }
 
-  if (ComparaValorNR()){ //se convergiu
-    CopiaSolucaoNR();
-    CopiaUltimaSolucaoConvergiu();
-  //  cout <<"Convergiu e GS = "<<gs<<endl;
-    ultimogs = gs;
-    gs = gs/10;
-  }
-
-  else{
-    fatordeDiv10 = sqrtl (10);
-    counter = 1;
-    //RecuperaUltimaSolucaoConvergiu();
-    while (!ComparaValorNR()){
-      if (counter==7){
-        cout<<"bye"<<endl;
-        exit(0);
-      }
-
-      for (i=1;i<counter;i++){
-        fatordeDiv10 = sqrtl(fatordeDiv10);
-      }
-      gs = ultimogs/fatordeDiv10;
-    //  cout <<"Nao e UltimoGS = "<<ultimogs<<endl;
-    //  cout <<"Nao e GS = "<<gs<<endl;
-      zeraSistema();
-      montarEstampas();
-      if (resolversistema()) //se deu sistema singular aqui, eh pq foi chutado um valor errado. chuto ate dar certo
+  if (ComparaValorNR())//se convergiu
+    {
+      CopiaSolucaoNR();
+      CopiaUltimaSolucaoConvergiu();
+      counter = 0;
+      ultimogs = gs;
+      gs = gs/fatordeDiv10;
+    }
+  else
+    {
+      if (counter > 50)   //Se já tiver feito muitas interacoes de newton-raphson
       {
-        cout<<"sistema singular"<<endl;
-        exit(0);
+        gminCounter++;
+        fatordeDiv10 = sqrt(fatordeDiv10);
+        gs = ultimogs;
+        gs = gs/fatordeDiv10;
+        RecuperaUltimaSolucaoConvergiu();
+        counter=-1;
+
+        //cout << "VO CHUTAR O BALDE" << endl;
+        //ChutaValorNRComPeso(gminCounter);   //tentativa de dar uma maozinha pro programa
       }
       counter++;
     }
-    CopiaSolucaoNR();
-    CopiaUltimaSolucaoConvergiu();
-    ultimogs = gs;
-    gs = gs/10;
-  //  cout<<"sai do loop"<<endl;
 
+    if (gminCounter==50) //se ja diminui demais gs
+      {
+        cout<<"\nNao converge com Gmin"<<endl; //nao coverge nem com gmin
+        getch();
+        exit(0);
+      }
+      CopiaSolucaoNR();
   }
 
-}
+//cout << "CONVERGIU " << counter << " " << NewtonRaphsonVetor[0] << " "<< NewtonRaphsonVetor[1] << endl;
 fazendoGminStepping = 0;
 return 1;
 }
 
-void zeraValoresNaoConvergindo (void)
-{
+void zeraValoresNaoConvergindo (void){
   for (i=1; i<=nv; i++){
     ValoresNaoConvergindo[i] =0;
   }
@@ -981,7 +973,7 @@ void zeraValoresNaoConvergindo (void)
 int analiseNR ()
 {
 
-  NewtonRaphsonTentativas = 0;
+  //NewtonRaphsonTentativas = 0;
   NewtonRaphsonTentarNovamente = 0;
   zeraValoresNaoConvergindo();
   zeraSistema();

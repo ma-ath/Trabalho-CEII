@@ -43,3 +43,6 @@ void CopiaUltimaSolucaoConvergiu (void);
 int analiseNR();
 void zeraValoresNaoConvergindo (void);
 void RecuperaUltimaSolucaoConvergiu (void);
+void CopiaUltimaSolucaoNoTempo(void);
+void RecuperaUltimaSolucaoNoTempo(void);
+void ChutaValorNRComPeso(int);

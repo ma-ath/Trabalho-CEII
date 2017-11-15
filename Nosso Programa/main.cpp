@@ -30,7 +30,8 @@ double Yn[MAX_NOS+1][MAX_NOS+2];
 double NewtonRaphsonVetor[MAX_NOS+1];
 double ValoresNaoConvergindo[MAX_NOS+1];
 double ValoresConvergiu[MAX_NOS+1];
-int NewtonRaphsonTentativas;
+double UltimaConvergenciaNoTempo[MAX_NOS+1];
+//int NewtonRaphsonTentativas;
 int NewtonRaphsonTentarNovamente;
 int erroGrande;
 double z;
@@ -50,6 +51,13 @@ int main()
 
   cout << endl << "Programa de Analise Nodal Modificada - AlyTSPICE" << endl;
   cout << "Analise no dominio do tempo com metodo de integracao dos trapezios" << endl;
+  cout << "\t\t\tAlyssa de Oliveira Takazume\n\t\t\tMatheus Silva de Lima" << endl;
+  printf("\t\t __/\\  /\\  /\\  /\\__\n");
+  printf("\t\t     \\/  \\/  \\/    \n");
+
+  cout <<"\t    /_\\ |  \\ /  ---  S I E"<<endl;
+  cout <<"\t___/   \\|__ |    |    P C "<<endl;
+
 
   /* 1 - Leitura do netlist */
   //denovo:
@@ -139,15 +147,10 @@ int main()
   tempoAtual = 0;
 
   //Inicia a analise com um calculo de ponto de operacao. Estava com preguiça e por enquanto sistema inicia com jt0 = 0 e vt0 = 0
-  //for (i=1; i<=ne; i++)
-  //{
-  //  tipo=netlist[i].nome[0];
-  //  analisandoPontodeOp = 1;
+
     zeraSistema();
     analisePontoOperacao();
-
-  //  analisandoPontodeOp = 0;
-  //}
+    CopiaUltimaSolucaoNoTempo();
 
   while(tempoAtual <= tempoFinal)
   {
@@ -189,9 +192,14 @@ int main()
         PrimeiraVezNR =1;
 
         if (!analiseNR()){
-          cout <<"nao convergiuao"<<endl;
+          cout <<"nao convergiu"<<endl;
+          getch();
           exit(0);
         }
+        CopiaUltimaSolucaoNoTempo();
+        //cout<<"copiado!";
+        //mostraResultadoParcial();
+        //NOTA1: ADICIONAR UM VETOR DE "ULTIMA CONVERGENCIA" AQUI
 
       }
 
@@ -295,7 +303,7 @@ int main()
   //  printf("%s %s: %g\n",txt,lista[i],Yn[i][nv+1]);
   //}
   plotarGrafico();
-//  getch();
+  getch();
   cout << "おはよう！" << endl;
   return 0;
 }
