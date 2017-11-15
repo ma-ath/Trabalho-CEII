@@ -976,7 +976,6 @@ int analiseNR ()
       zeraSistema();
       montarEstampas();
       resolversistema();
-
       if (ComparaValorNR()==1)//se convergiu, sai do programa
       {
       //  printf ("Sistema convergiu com %i iteracoes e %i inicializacoes randomicas. estamos no tempo %f\n",NewtonRaphsonTentarNovamente, NewtonRaphsonTentativas-1, tempoAtual);
@@ -988,5 +987,5 @@ int analiseNR ()
 mostraValoresNaoConvergindo();
   //  cout<<"gmin"<<endl;
     gminstepping();
-    return 0;
+    return 1;
 }
