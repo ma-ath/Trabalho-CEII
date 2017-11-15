@@ -64,6 +64,8 @@ extern int fazendoGminStepping;
 
 extern long double gs;
 extern long double ultimogs;
+extern long double fatordeDiv10;
+extern int counter;
 extern int PrimeiraVezNR;
 extern int circuitolinear;
 extern double contadorGS;

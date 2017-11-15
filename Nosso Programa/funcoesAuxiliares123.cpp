@@ -705,7 +705,7 @@ void analisePontoOperacao()  //POR ENQUANTO SO INICIA TUDO COMO ZERO
     getch();
     exit(0);
   }
-
+  CopiaSolucaoNR();
   //Inicializa as Tensoes/Correntes em Capacitores/Indutores
   for (i=1; i<=ne; i++)
   {
@@ -898,50 +898,77 @@ void mostraResultadoParcial ()
   getch();
 }
 
-int gminstepping()
+int gminstepping(){
+
+fazendoGminStepping = 1;
+zeraSistema();
+montarEstampas();
+if (resolversistema())
 {
-  cout<<"gmin"<<endl;
-  for (PrimeiraVezNR = 1; fazendoGminStepping==1 ;PrimeiraVezNR++)
+  cout<<"sistema singular"<<endl;
+  exit(0);
+}
+CopiaSolucaoNR();
+ultimogs = gs;
+gs = gs/10;
+//ate aqui foi a primeira vez com nr com resistor do gmins
+
+
+for (; gs > CONUTANCIA_MINIMA_GS; )
+{
+  zeraSistema();
+  montarEstampas();
+  if (resolversistema()) //se deu sistema singular aqui, eh pq foi chutado um valor errado. chuto ate dar certo
   {
+    ChutaValorNR();
     zeraSistema();
     montarEstampas();
-    resolversistema();
+  }
 
-    if (PrimeiraVezNR !=1) {
-      if (ComparaValorNR()==1){ //se convergiu
-        CopiaSolucaoNR();
-        CopiaUltimaSolucaoConvergiu();
-        ultimogs = gs;
-        gs = gs/10;
-      //  cout << gs<<endl;
-      }
-      else{
-        RecuperaUltimaSolucaoConvergiu();
-        gs = ultimogs/sqrt(10);
-        ultimogs = gs;
-        //cout << gs<<endl;
-        zeraSistema();
-        montarEstampas();
-        resolversistema();
-        CopiaSolucaoNR();
+  if (ComparaValorNR()){ //se convergiu
+    CopiaSolucaoNR();
+    CopiaUltimaSolucaoConvergiu();
+  //  cout <<"Convergiu e GS = "<<gs<<endl;
+    ultimogs = gs;
+    gs = gs/10;
+  }
+
+  else{
+    fatordeDiv10 = sqrtl (10);
+    counter = 1;
+    //RecuperaUltimaSolucaoConvergiu();
+    while (!ComparaValorNR()){
+      if (counter==7){
+        cout<<"bye"<<endl;
+        exit(0);
       }
 
-      cout << gs<<endl;
-      if (gs <= CONUTANCIA_MINIMA_GS){
-        if (ComparaValorNR()){
-          fazendoGminStepping=0;
-          return 1;
-        }
-        fazendoGminStepping=0;
+      for (i=1;i<counter;i++){
+        fatordeDiv10 = sqrtl(fatordeDiv10);
       }
+      gs = ultimogs/fatordeDiv10;
+    //  cout <<"Nao e UltimoGS = "<<ultimogs<<endl;
+    //  cout <<"Nao e GS = "<<gs<<endl;
+      zeraSistema();
+      montarEstampas();
+      if (resolversistema()) //se deu sistema singular aqui, eh pq foi chutado um valor errado. chuto ate dar certo
+      {
+        cout<<"sistema singular"<<endl;
+        exit(0);
+      }
+      counter++;
     }
-
-    else{
-      CopiaSolucaoNR();
-    }
+    CopiaSolucaoNR();
+    CopiaUltimaSolucaoConvergiu();
+    ultimogs = gs;
+    gs = gs/10;
+  //  cout<<"sai do loop"<<endl;
 
   }
-return 0;
+
+}
+fazendoGminStepping = 0;
+return 1;
 }
 
 void zeraValoresNaoConvergindo (void)
@@ -957,8 +984,6 @@ int analiseNR ()
   NewtonRaphsonTentativas = 0;
   NewtonRaphsonTentarNovamente = 0;
   zeraValoresNaoConvergindo();
-  CopiaSolucaoNR();
-  CopiaUltimaSolucaoConvergiu();
   zeraSistema();
   gs = CONDUTANCIA_INICIAL_GS;
   ultimogs = CONDUTANCIA_INICIAL_GS;
@@ -972,7 +997,6 @@ int analiseNR ()
 
       if (ComparaValorNR()==1)//se convergiu, sai do programa
       {
-        fazendoGminStepping=0;
       //  printf ("Sistema convergiu com %i iteracoes e %i inicializacoes randomicas. estamos no tempo %f\n",NewtonRaphsonTentarNovamente, NewtonRaphsonTentativas-1, tempoAtual);
         return 1;
       }
@@ -981,6 +1005,7 @@ int analiseNR ()
     }
 
     fazendoGminStepping=1;
+  //  cout<<"gmin"<<endl;
     return gminstepping();
 
 }

@@ -37,6 +37,8 @@ double z;
 int fazendoGminStepping;
  long double gs;
  long double ultimogs;
+ long double fatordeDiv10;
+ int counter;
 int PrimeiraVezNR;
 int circuitolinear;
 /*variavel para analise no tempo*/
@@ -143,7 +145,7 @@ int main()
   //  analisandoPontodeOp = 1;
     zeraSistema();
     analisePontoOperacao();
-    CopiaSolucaoNR();
+
   //  analisandoPontodeOp = 0;
   //}
 
