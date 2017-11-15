@@ -900,7 +900,9 @@ if (analisandoPontodeOp == 1)
     NewtonRaphsonVetor[i] = 0.1;
 }
 else
-  CopiaSolucaoNR();
+  CopiaUltimaSolucaoNoTempo();
+//  CopiaSolucaoNR();
+
 //cout<<"Recuperado!"<<endl;
 /////////////////////////FIM NOTA 2
 //ate aqui foi a primeira vez com nr com resistor do gmins
@@ -926,15 +928,14 @@ while(gs > CONUTANCIA_MINIMA_GS)
     {
       fatordeDiv10 = 10;
       counter = 0;
-      ultimogs = gs;
+      //ultimogs = gs;
       gs = gs/fatordeDiv10;
 
     }
-  else
-    {
+  else{
 
         fatordeDiv10 = sqrtl(fatordeDiv10);
-        gs =ultimogs/fatordeDiv10;
+        gs =gs*fatordeDiv10;
         counter++;
 
     }
