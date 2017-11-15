@@ -718,16 +718,17 @@ void analisePontoOperacao()  //POR ENQUANTO SO INICIA TUDO COMO ZERO
   analisandoPontodeOp = 1;
   //resolve o circuito uma vez para achar o ponto de operacao
   //monsta estampa aqui, e resolve o sistema uma vez
-  for (i=1; i<=ne; i++)
-  {
-    tipo=netlist[i].nome[0];
-    estampas(tipo);
-  }
-  if (resolversistema())
-  {
-    getch();
-    exit(0);
-  }
+  //for (i=1; i<=ne; i++)
+  //{
+  //  tipo=netlist[i].nome[0];
+  //  estampas(tipo);
+  //}
+  //if (resolversistema())
+  //{
+  //  getch();
+  //  exit(0);
+  //}
+    analiseNR ();
   //CopiaSolucaoNR();
   //Inicializa as Tensoes/Correntes em Capacitores/Indutores
   for (i=1; i<=ne; i++)
@@ -813,7 +814,7 @@ void RecuperaUltimaSolucaoNoTempo (void) {
   if (tempoAtual == 0)
   {
     for (i=0; i<=nv; i++){
-      NewtonRaphsonVetor[i] = 0.1;  //valor aleatorio
+      NewtonRaphsonVetor[i] = 0;  //valor aleatorio
     }
   }
   else
@@ -962,11 +963,10 @@ while(gs > CONUTANCIA_MINIMA_GS)
   cout<<gs<<endl;
   if (convergiu)//se convergiu
     {
-      fatordeDiv10 = 10;
+      fatordeDiv10 = FATORDIV10GSINICIAL;
       counter = 0;
       //ultimogs = gs;
       gs = gs/fatordeDiv10;
-
     }
   else{
 
@@ -976,11 +976,19 @@ while(gs > CONUTANCIA_MINIMA_GS)
 
     }
 
-    if (counter==50) //se ja diminui demais gs
+    if (counter==MAX_ITERACOES_GMIN) //se ja diminui demais gs
       {
         cout<<"\nNao converge com Gmin"<<endl; //nao coverge nem com gmin
-        getch();
-        exit(0);
+        if (tempoAtual ==0)
+        {
+          ChutaValorNR();
+          counter = 0;
+        }
+        else
+        {
+          getch();
+          exit(0);
+        }
       }
   }
 
@@ -1022,7 +1030,7 @@ int analiseNR ()
 
       CopiaSolucaoNR();
     }
-mostraValoresNaoConvergindo();
+  mostraValoresNaoConvergindo();
   //  cout<<"gmin"<<endl;
     gminstepping();
     return 1;
