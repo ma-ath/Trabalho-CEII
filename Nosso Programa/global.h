@@ -19,6 +19,7 @@
 using namespace std;
 
 extern elemento netlist[MAX_ELEM]; /* Netlist */
+extern int BotarGSNesseElemento[MAX_ELEM];
 extern int repete;
 extern int ne;     /*Numero de Elementos */
 extern int nv;     /*Numero de Variaveis */

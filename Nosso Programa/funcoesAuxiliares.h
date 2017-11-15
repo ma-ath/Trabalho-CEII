@@ -46,3 +46,4 @@ void RecuperaUltimaSolucaoConvergiu (void);
 void CopiaUltimaSolucaoNoTempo(void);
 void RecuperaUltimaSolucaoNoTempo(void);
 void ChutaValorNRComPeso(int);
+int ElementoPrecisaGs (void);

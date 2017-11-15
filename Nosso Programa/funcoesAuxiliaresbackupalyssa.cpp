@@ -309,7 +309,7 @@ void estampas(char tipo)
       Yn[netlist[i].a][netlist[i].b]-=netlist[i].gon;
       Yn[netlist[i].b][netlist[i].a]-=netlist[i].gon;
     }
-    if (fazendoGminStepping ==1){ /*se estiver fazendo gmin step, coloco resistor bem baixo em paralelo
+    if ((fazendoGminStepping ==1)&&(BotarGSNesseElemento[i]==1)){ /*se estiver fazendo gmin step, coloco resistor bem baixo em paralelo
       chamado de gs, com condutancia inicial definido no constante. o valor da CONDUTANCIA dele eh decrementado no final dessa funcao
       para q caso tenha mais de 1componente nao linear, so decremente o valor dele uma vez por execucao.*/
       Yn[netlist[i].a][netlist[i].a]+=gs;//param2 = goff
@@ -376,7 +376,7 @@ void estampas(char tipo)
     Yn[netlist[i].a][nv+1]-=z;
     Yn[netlist[i].b][nv+1]+=z;
 
-    if (fazendoGminStepping ==1){
+    if ((fazendoGminStepping ==1)&&(BotarGSNesseElemento[i]==1)){
       Yn[netlist[i].a][netlist[i].a]+=gs;//param2 = goff
       Yn[netlist[i].b][netlist[i].b]+=gs;
       Yn[netlist[i].a][netlist[i].b]-=gs;
@@ -741,13 +741,14 @@ void analisePontoOperacao()  //POR ENQUANTO SO INICIA TUDO COMO ZERO
     }
     if (tipo=='C'){
       netlist[i].jt0 = 0;
-    // netlist[i].vt0 = 0;
       netlist[i].vt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]));
+      if (circuitolinear == 0){netlist[i].vt0 = 0;};
     }
     if (tipo=='L'){
       netlist[i].jt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]))*GIndutorCurto;
       netlist[i].vt0 = 0;
-    //  netlist[i].jt0 = 0;
+      if (circuitolinear == 0){netlist[i].jt0 = 0;};
+
     }
   }
 
@@ -809,10 +810,20 @@ void CopiaUltimaSolucaoNoTempo (void) {
 }
 void RecuperaUltimaSolucaoNoTempo (void) {
   int i;
-  for (i=0; i<=nv; i++){
-    NewtonRaphsonVetor[i] = UltimaConvergenciaNoTempo[i];
-   }
+  if (tempoAtual == 0)
+  {
+    for (i=0; i<=nv; i++){
+      NewtonRaphsonVetor[i] = 0.1;  //valor aleatorio
+    }
+  }
+  else
+  {
+    for (i=0; i<=nv; i++){
+      NewtonRaphsonVetor[i] = UltimaConvergenciaNoTempo[i];
+    }
+  }
 }
+
 void CopiaUltimaSolucaoConvergiu (void) {
   int i;
   for (i=0; i<=nv; i++)
@@ -865,6 +876,28 @@ int  ComparaValorNR (void) {
      if (erroGrande==1) return 0;
      else return 1;
 }
+
+int ElementoPrecisaGs (void)
+{
+
+  for (i=1;i<nv+1; i++){
+    if (ValoresNaoConvergindo[i] == 1){
+      for (j=1; j<ne+1; j++){
+        if ((netlist[j].a == i)||(netlist[j].b == i)){
+          BotarGSNesseElemento[j] = 1;
+          //cout<< netlist[j].a << " e " << ValoresNaoConvergindo[i] <<" e " << netlist[j].b <<endl;
+        }
+        else{
+          BotarGSNesseElemento[j] = 0;
+        }
+      //  cout<<BotarGSNesseElemento[j] <<endl;
+      }
+    //  cout<<"\n"<<endl;
+    }
+  }
+  return 0;
+}
+
 
 void mostraValoresNaoConvergindo(){
   for (i=1; i<=nv; i++){
@@ -919,10 +952,12 @@ while(gs > CONUTANCIA_MINIMA_GS)
     montarEstampas();
     resolversistema();
     convergiu = ComparaValorNR();
+    ElementoPrecisaGs();
     if (convergiu)//se convergiu, sai do programa
       break;//se convergiu, sai do loop
 
     CopiaSolucaoNR();
+
   }
   cout<<gs<<endl;
   if (convergiu)//se convergiu
@@ -969,6 +1004,7 @@ int analiseNR ()
   NewtonRaphsonTentarNovamente = 0;
   zeraValoresNaoConvergindo();
   zeraSistema();
+  RecuperaUltimaSolucaoNoTempo();
   gs = CONDUTANCIA_INICIAL_GS;
   ultimogs = CONDUTANCIA_INICIAL_GS;
   fazendoGminStepping=0;

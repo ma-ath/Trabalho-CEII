@@ -4,6 +4,7 @@
 using namespace std;
 
 elemento netlist[MAX_ELEM];
+int BotarGSNesseElemento[MAX_ELEM];
 int repete;
 int ne;
 int nv;
