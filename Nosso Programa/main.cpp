@@ -153,6 +153,12 @@ int main()
     analisePontoOperacao();
     CopiaUltimaSolucaoNoTempo();
 
+    analisandoPontodeOp=0;
+    /*for (i=0; i<=nv; i++){
+      cout<<Yn[i] <<endl;
+    }cout<<"\n"<<endl;*/
+
+
   while(tempoAtual <= tempoFinal)
   {
     //  Metodo de resolucao
@@ -191,7 +197,6 @@ int main()
 
       else{
         PrimeiraVezNR =1;
-
         if (!analiseNR()){
           cout <<"nao convergiu"<<endl;
           getch();
