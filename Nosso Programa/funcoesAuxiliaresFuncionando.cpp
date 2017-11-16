@@ -929,7 +929,7 @@ void mostraResultadoParcial (){
   getch();
 }
 
-int gminstepping(){/*
+int gminstepping(){
 //cout << "gmin no tempo:" << tempoAtual << endl;
 fatordeDiv10 = 10;
 fazendoGminStepping = 1;
@@ -975,23 +975,23 @@ while(gs > CONUTANCIA_MINIMA_GS)
 
   }
 //  cout<<gs<<endl;
-  if (convergiu)//se convergiu
-    {
+  //if (convergiu)//se convergiu
+  //  {
       fatordeDiv10 = FATORDIV10GSINICIAL;
       counter = 0;
       ultimogs = gs;
       gs = gs/fatordeDiv10;
       CopiaUltimaSolucaoNoTempo();
-    }
-  else{
+    //}
+//  else{
 
         fatordeDiv10 = sqrtl(fatordeDiv10);
         gs =gs*fatordeDiv10;
         counter++;
         RecuperaUltimaSolucaoNoTempo();
 
-    }
-    cout<<"gs = "<<gs<<endl;
+  //  }
+  //  cout<<"gs = "<<gs<<endl;
     //getch();
 
     if (counter==MAX_ITERACOES_GMIN) //se ja diminui demais gs
@@ -1014,8 +1014,8 @@ while(gs > CONUTANCIA_MINIMA_GS)
 
 //cout << "CONVERGIU " << counter << " " << NewtonRaphsonVetor[0] << " "<< NewtonRaphsonVetor[1] << endl;
 fazendoGminStepping = 0;
-return 1;*/
-
+return 1;
+/*
 contadorGS = 15;
 //gs = CONDUTANCIA_INICIAL_GS;
 fazendoGminStepping = 1;
@@ -1037,7 +1037,7 @@ for (; contadorGS > -14; )
 
 }
 fazendoGminStepping = 0;
-return 0;
+return 0;*/
 }
 
 void zeraValoresNaoConvergindo (void){
