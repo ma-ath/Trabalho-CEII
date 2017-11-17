@@ -42,6 +42,7 @@ using namespace std;
  long double fatordiv10;
  bool circuitolinear;
 int contadorPassoPorPt = 0;
+bool convergiu;
 int main()
 {
 

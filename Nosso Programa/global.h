@@ -62,4 +62,5 @@ extern  long double CondutanciaGmin;
 extern long double fatordiv10;
 extern bool circuitolinear;
 extern int contadorPassoPorPt;
+extern bool convergiu;
 #endif

@@ -37,21 +37,21 @@ void estampas(char tipo)
         off+Vp*exp(-dec*(tempoAtual-atraso))*sin(2*pi*f*(tempoAtual-atraso)+(pi/180)*fase)
         */
         {
-            if (analisandoPontodeOp == false)
-            {
-              g=
+          if (analisandoPontodeOp == false)
+          {
+            g=
+            (
+              netlist[i].valor +
               (
-                netlist[i].valor +
-                (
-                  netlist[i].amplitude*exp(-1*netlist[i].amortecimento*(tempoAtual-netlist[i].atraso)) *
-                  sin(2*PI*netlist[i].freq*(tempoAtual-netlist[i].atraso) + (PI/180)*netlist[i].defasagem)
-                )*( heaviside(tempoAtual-netlist[i].atraso) -
-                    heaviside((tempoAtual-netlist[i].atraso) - (2*PI/netlist[i].freq)*netlist[i].ciclo) )
-                );
+                netlist[i].amplitude*exp(-1*netlist[i].amortecimento*(tempoAtual-netlist[i].atraso)) *
+                sin(2*PI*netlist[i].freq*(tempoAtual-netlist[i].atraso) + (PI/180)*netlist[i].defasagem)
+              )*( heaviside(tempoAtual-netlist[i].atraso) -
+                  heaviside((tempoAtual-netlist[i].atraso)-(netlist[i].ciclo/netlist[i].freq)) )
+              );
 
-                Yn[netlist[i].a][nv+1]-=g;
-                Yn[netlist[i].b][nv+1]+=g;
-            }
+              Yn[netlist[i].a][nv+1]-=g;
+              Yn[netlist[i].b][nv+1]+=g;
+          }
             else
             {
               g=netlist[i].valor;
@@ -130,22 +130,22 @@ void estampas(char tipo)
     off+Vp*exp(-dec*(tempoAtual-atraso))*sin(2*pi*f*(tempoAtual-atraso)+(pi/180)*fase)
     */
     {
-        if (analisandoPontodeOp == false)
-        {
-          Yn[netlist[i].a][netlist[i].x]+=1;
-          Yn[netlist[i].b][netlist[i].x]-=1;
-          Yn[netlist[i].x][netlist[i].a]-=1;
-          Yn[netlist[i].x][netlist[i].b]+=1;
-          Yn[netlist[i].x][nv+1]-=
+      if (analisandoPontodeOp == false)
+      {
+        Yn[netlist[i].a][netlist[i].x]+=1;
+        Yn[netlist[i].b][netlist[i].x]-=1;
+        Yn[netlist[i].x][netlist[i].a]-=1;
+        Yn[netlist[i].x][netlist[i].b]+=1;
+        Yn[netlist[i].x][nv+1]-=
+        (
+          netlist[i].valor +
           (
-            netlist[i].valor +
-            (
-              netlist[i].amplitude*exp(-1*netlist[i].amortecimento*(tempoAtual-netlist[i].atraso)) *
-              sin(2*PI*netlist[i].freq*(tempoAtual-netlist[i].atraso) + (PI/180)*netlist[i].defasagem)
-            )*( heaviside(tempoAtual-netlist[i].atraso) -
-                heaviside((tempoAtual-netlist[i].atraso) - (2*PI/netlist[i].freq)*netlist[i].ciclo) )
-              );
-        }
+            netlist[i].amplitude*exp(-1*netlist[i].amortecimento*(tempoAtual-netlist[i].atraso)) *
+            sin(2*PI*netlist[i].freq*(tempoAtual-netlist[i].atraso) + (PI/180)*netlist[i].defasagem)
+          )*( heaviside(tempoAtual-netlist[i].atraso) -
+              heaviside((tempoAtual-netlist[i].atraso)-(netlist[i].ciclo/netlist[i].freq)) )
+            );
+      }
         else
         {
           Yn[netlist[i].a][netlist[i].x]+=1;
@@ -270,7 +270,6 @@ void estampas(char tipo)
   else if (tipo=='L') {
 
     if ( analisandoPontodeOp ==true){
-      cout<<"aqui"<<endl;
       Yn[netlist[i].a][netlist[i].a]+=GINDUTORCURTO;
       Yn[netlist[i].b][netlist[i].b]+=GINDUTORCURTO;
       Yn[netlist[i].a][netlist[i].b]-=GINDUTORCURTO;
@@ -310,7 +309,6 @@ void estampas(char tipo)
       Yn[netlist[i].b][netlist[i].a]-=netlist[i].gon;
     }
     //aqui verifica se esse cara esta ligado a um no q nao esta convergindo.
-    cout<<"DA PERQUISA AQUIIIIIIII LINHA 313"<<endl;
 
     if (fazendoGminStepping==true)
       AdicionaGSSePreciso();
@@ -862,37 +860,46 @@ bool analiseNR(){
     AtualizaNR();
 
   }
-  cout<<"nao convergiu com nr, bora gmin"<<endl;
+
   fazendoGminStepping = true;
   CondutanciaGmin = CONDUTANCIA_INICIAL_GS;
   fatordiv10 = FATORDIV10GSINICIAL;
   iteracaoGS = 0;
 
   while (CondutanciaGmin >= CONUTANCIA_FINAL_GS){
+    if (iteracaoGS!=0)
+      RecuperaUltimaSolucaoYn();
+
     for (iteracaoNR = 0; iteracaoNR<REPETIR_NR_MAX ; iteracaoNR++){
       zeraSistema();
       montarEstampas();
       resolversistema();
-      if (SolucaoConvergiuTeste()==true){
+      convergiu = SolucaoConvergiuTeste();
+      if (convergiu==true){
+        ArmazenaUltimaSolucaoYn();
         break; //se convergir, sai do loop do NR, para dividir o fator e repetir
       }
       AtualizaNR();
     }
 
-    if (SolucaoConvergiuTeste()==true){
+    if (convergiu==true){
+      fatordiv10=FATORDIV10GSINICIAL;
       CondutanciaGmin=CondutanciaGmin/fatordiv10;
     }
     else{
       fatordiv10 = sqrtl(fatordiv10);
       CondutanciaGmin=CondutanciaGmin*fatordiv10;
+      InicializaVetorFaltaConvergir();
     }
 
     if (iteracaoGS > MAX_ITERACOES_GMIN ){
       return false;
+      cout<<"nao foi dessa vez, n converge com gmin"<<endl;
+      exit(0);
     }
   }
-
-  cout<<"convergiuo gmin"<<endl;
+  fazendoGminStepping=false;
+//cout<<"convergiu o gmin em"<<tempoAtual<<"com"<<iteracaoGS<<"iteracoes"<<endl;
   return true;
 
 
