@@ -1,11 +1,8 @@
-/* Monta estampas */
 #include "funcoesAuxiliares.h"
 #include "global.h"
-//#define DEBUG
 using namespace std;
 
-void estampas(char tipo)
-{
+void estampas(char tipo){
   if (tipo=='R') {
     g=1/netlist[i].valor;
     Yn[netlist[i].a][netlist[i].a]+=g;
@@ -376,8 +373,7 @@ void estampas(char tipo)
 
 }
 
-void montarEstampas()
-{
+void montarEstampas(){
   for (i=1; i<=ne; i++)
   {
     tipo=netlist[i].nome[0];
@@ -398,8 +394,7 @@ void montarEstampas()
  }
 };
 
-int resolversistema(void)
-{
+int resolversistema(void){
   int i,j,l,a;
   double t, p;
 
@@ -445,8 +440,7 @@ int resolversistema(void)
   return 0;
 }
 
-int numero(char *nome)
-{
+int numero(char *nome){
   int i,achou;
   i=0; achou=0;
   while (!achou && i<=nv)
@@ -467,23 +461,20 @@ int numero(char *nome)
   }
 }
 
-void zeraSistema (void)
-{
+void zeraSistema (void){
   for (i=0; i<=nv; i++)
     for (j=0; j<=nv+1; j++)
       Yn[i][j]=0;
 }
 
-double heaviside(double t)
-{
+double heaviside(double t){
   if (t >= 0)
     return 1;
   else
     return 0;
 }
 
-void salvarResultadoEmArquivo (vector <double> resultadoUmTempo)
-{
+void salvarResultadoEmArquivo (vector <double> resultadoUmTempo){
   if ((contadorPassoPorPt < 0)||(contadorPassoPorPt > passoPorPt))  //tratamento de erros
    {
      contadorPassoPorPt = 1;
@@ -495,7 +486,7 @@ void salvarResultadoEmArquivo (vector <double> resultadoUmTempo)
      for (i=0; i < static_cast <int> (resultadoUmTempo.size()); i++){
        fprintf (arquivoSolucao, "%g ",resultadoUmTempo.at(i) );
      }
-     if (tempoAtual < tempoFinal){
+     if (tempoAtual <= tempoFinal){ //possivel solucao para salvar ultimo ponto da analise
        fprintf (arquivoSolucao, "\n");
      }
     return;
@@ -503,8 +494,7 @@ void salvarResultadoEmArquivo (vector <double> resultadoUmTempo)
    contadorPassoPorPt++;
 }
 
-int leNetlist (void)
-{
+int leNetlist (void){
   ne=0; nv=0; strcpy(lista[0],"0");
   printf("Nome do arquivo com o netlist (ex: mna.net): ");
   scanf("%50s",nomearquivo);
@@ -668,8 +658,7 @@ int leNetlist (void)
   return 0;
 }
 
-void atualizarMemoriasCapacitorIndutor()
-{
+void atualizarMemoriasCapacitorIndutor(){
   //  Apos resolucao do sistema no dominio do tempo, eh preciso atualizaar as memorias
   // de corrente e tensao nos capacitores e indutores do sistema (feito nessa funcao);
   // Lembrar que: "Yn[i][nv+1]" é a solucao da tensao no nó i para o tempo atual (é mesmo?)
@@ -709,8 +698,7 @@ void atualizarMemoriasCapacitorIndutor()
     }
 }
 
-void analisePontoOperacao()  //POR ENQUANTO SO INICIA TUDO COMO ZERO
-{
+void analisePontoOperacao(){  //POR ENQUANTO SO INICIA TUDO COMO ZERO
   zeraSistema();
   //resolve o circuito uma vez para achar o ponto de operacao
   //monsta estampa aqui, e resolve o sistema uma vez
@@ -739,13 +727,13 @@ void analisePontoOperacao()  //POR ENQUANTO SO INICIA TUDO COMO ZERO
       Yn[netlist[i].b][nv+1] = 0;
     }
     if (tipo=='C'){
-      netlist[i].jt0 = 0;
+      netlist[i].jt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]))*GCAPACITORABERTO;
       netlist[i].vt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]));
-    //  if (circuitolinear == false){netlist[i].vt0 = 0;};
+  //  if (circuitolinear == false){netlist[i].vt0 = 0;};
     }
     if (tipo=='L'){
       netlist[i].jt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]))*GINDUTORCURTO;
-      netlist[i].vt0 = 0;
+      netlist[i].vt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]));
   //    if (circuitolinear == false){netlist[i].jt0 = 0;};
     }
   }
@@ -761,8 +749,7 @@ void analisePontoOperacao()  //POR ENQUANTO SO INICIA TUDO COMO ZERO
   analisandoPontodeOp=false;
 }
 
-void printProgresso(int i, char simbolo) //Printa o progresso do calculo, dependendo do passo atual
-{
+void printProgresso(int i, char simbolo){ //Printa o progresso do calculo, dependendo do passo atual{
   int porcentagem = 100/i;
   int progredi =
   static_cast <int> (floor((tempoAtual/(tempoFinal/porcentagem))) - floor( (tempoAtual-passo) / (tempoFinal/porcentagem) ) );
@@ -784,8 +771,7 @@ void printProgresso(int i, char simbolo) //Printa o progresso do calculo, depend
   }
 }
 
-void plotarGrafico()
-{
+void plotarGrafico(){
   string constTab(NOME_ARQUIVO_TAB);    //Nome do arquivo
   string constPY(NOME_ARQUIVO_GERAR_PLOT_PYTHON); //Nome do script python que plota arquivo
 
@@ -801,7 +787,6 @@ void InicializaVetorFaltaConvergir(){
     FaltaConvergir[i] = true;
   }
 }
-
 
 void AtualizaNR(){
   for (i=1; i<=nv;i++){
@@ -842,7 +827,6 @@ void AdicionaGSSePreciso(){
     }
   }
 }
-
 
 bool analiseNR(){
   if (analisandoPontodeOp == false){
@@ -902,10 +886,7 @@ bool analiseNR(){
     }
   }
   fazendoGminStepping=false;
-//cout<<"convergiu o gmin em"<<tempoAtual<<"com"<<iteracaoGS<<"iteracoes"<<endl;
   return true;
-
-
 }
 
 void ArmazenaUltimaSolucaoYn (){
@@ -920,8 +901,7 @@ void RecuperaUltimaSolucaoYn (){
   }
 }
 
-void mostraResultadoParcial ()
-{
+void mostraResultadoParcial (){
   for (k=1; k<=nv; k++)
   {
     for (j=1; j<=nv+1; j++)
@@ -939,8 +919,7 @@ void AproxInicialNR(){
   }
 }
 
-void mostraResultadoNR ()
-{
+void mostraResultadoNR (){
   for (k=1; k<=nv; k++)
   {
     cout<<NewtonRaphsonVetor[i]<<endl;

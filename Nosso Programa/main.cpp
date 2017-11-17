@@ -50,7 +50,7 @@ int main()
   cout << "Analise no dominio do tempo com metodo de integracao dos trapezios" << endl;
   cout << "\t\t\tAlyssa de Oliveira Takazume\n\t\t\tMatheus Silva de Lima" << endl;
   printf("\t\t __/\\  /\\  /\\  /\\__\n");
-  printf("\t\t     \\/  \\/  \\/    \n");
+  printf("\t\t     \\/  \\/  \\/    \n\n");
 
   cout <<"\t    /_\\ |  \\ /  ---  S I E"<<endl;
   cout <<"\t___/   \\|__ |    |    P C "<<endl;
@@ -61,13 +61,7 @@ int main()
   int erro;
   vector <double> resultadoUmTempo;
   vector <char*> primeiraLinhaTab;
-  //abri o aarquivo para escrever os resultados
-  //GIndutorCurto = 1844674407370955161;    <- Esse numero eh o maior possivel, mas da problema de convergencia
-  //GCapacitorAberto = 1.11e-16;       <- Esse numero eh o menor possivel, mas da problema de convergencia
-  //GIndutorCurto = GINDUTORCURTO;
-  //GCapacitorAberto = GCAPACITORABERTO;
-  //fazendoGminStepping=0;
-  //convergiu = 0;
+
   circuitolinear=true;
 
   do{
@@ -156,8 +150,7 @@ int main()
     }cout<<"\n"<<endl;*/
 
 
-  while(tempoAtual <= tempoFinal)
-  {
+  while(tempoAtual<tempoFinal+passo) {
     //  Metodo de resolucao
     //  0 - Inicializa valores de tensao e corrente nos capacitores e indutores com uma analise de ponto de operacao com Newton-Raphson
     //  1 - Zera sistema nodal
@@ -183,7 +176,7 @@ int main()
 
       if (circuitolinear==1)
       {
-        cout<<"to aqui"<<endl;
+        //out<<"to aqui"<<endl;
         zeraSistema();  //zera, monta e resolve
         montarEstampas();
         if (resolversistema())
@@ -228,6 +221,7 @@ int main()
         fprintf (arquivoSolucao, "%s ", lista[i] );
       }
       fprintf (arquivoSolucao, "\n");
+      salvarResultadoEmArquivo(resultadoUmTempo); //salva o tempo zero aqui logo dps do cabeçalho
     }
 
     printProgresso(PROGRESSO_PORCENTAGEM,PROGRESSO_SIMBOLO); //printa quantos porcento da simulacao ja ocorreu (a cada 1%, com simbolo '*')
