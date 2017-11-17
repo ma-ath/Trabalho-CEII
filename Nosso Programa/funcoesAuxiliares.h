@@ -27,6 +27,8 @@ void InicializaVetorFaltaConvergir();
 void AtualizaNR();
 bool SolucaoConvergiuTeste ();
 void analiseNR();
+void ArmazenaUltimaSolucaoYn ();
+void RecuperaUltimaSolucaoYn ();
 //const char* ConvertDoubleToString(double value);
 
 void ZeraValorNR ();

@@ -290,6 +290,7 @@ void estampas(char tipo)
 
   else if (tipo=='$') {     /*Chave*/
     //EXPERIMENTAL
+
     if (netlist[i].c == 0){
     NewtonRaphsonVetor[netlist[i].c] = 0;
     }
@@ -698,6 +699,7 @@ void atualizarMemoriasCapacitorIndutor()
         }
         netlist[i].jt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]))*g -1*(g*netlist[i].vt0+netlist[i].jt0); //jt0 = (ea-eb)/R - I ; R = 1/g, I = g*vt0+jt0
         netlist[i].vt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1])); //vt0 = (ea - eb)
+
       }
       else
       if (tipo=='L')
@@ -746,10 +748,12 @@ void analisePontoOperacao()  //POR ENQUANTO SO INICIA TUDO COMO ZERO
     if (tipo=='C'){
       netlist[i].jt0 = 0;
       netlist[i].vt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]));
+      if (circuitolinear == false){netlist[i].vt0 = 0;};
     }
     if (tipo=='L'){
       netlist[i].jt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]))*GINDUTORCURTO;
       netlist[i].vt0 = 0;
+      if (circuitolinear == false){netlist[i].jt0 = 0;};
     }
   }
 
@@ -831,24 +835,35 @@ bool SolucaoConvergiuTeste (){
 
 void analiseNR(){
   if (analisandoPontodeOp == false){
-    AtualizaNR(); //se for ponto de op, ja esta preenchido com 0.1
+    RecuperaUltimaSolucaoYn(); //se for ponto de op, ja esta preenchido com 0.1
   }
 
   for (iteracaoNR = 0; iteracaoNR<REPETIR_NR_MAX ; iteracaoNR++){
     zeraSistema();
     montarEstampas();
     resolversistema();
-
     if (SolucaoConvergiuTeste()==true){
     //  mostraResultadoNR();
     //  cout<<"saiiiiii"<<endl;
      //se convergiu, sai do programa
       return;
     }
-
     AtualizaNR();
+
   }
   cout<<"nao convergiu"<<endl;
+}
+
+void ArmazenaUltimaSolucaoYn (){
+  for (i=1; i<=nv; i++){
+    UltimaSolucaoYn[i] = Yn[i][nv+1];
+  }
+}
+
+void RecuperaUltimaSolucaoYn (){
+  for (i=1; i<=nv; i++){
+    NewtonRaphsonVetor[i] = UltimaSolucaoYn[i];
+  }
 }
 /*void ArmazenaSolucaoNR (void) {
   int i;

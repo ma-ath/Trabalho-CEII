@@ -31,6 +31,7 @@ using namespace std;
  double Yn[MAX_NOS+1][MAX_NOS+2];   /*Matriz a ser resolvida*/
  double tempoAtual, tempoFinal, passo, passoPorPt;
  double NewtonRaphsonVetor[MAX_NOS+1];
+ double UltimaSolucaoYn[MAX_NOS+1];
  bool FaltaConvergir[MAX_NOS+1];
  int iteracaoNR;
  int erroGrande;
@@ -244,7 +245,7 @@ int main()
 */
 
   tempoAtual+=passo;
-
+  ArmazenaUltimaSolucaoYn();
   } /*FIM loop de tempo*/
 
   /* Mostra solucao */
