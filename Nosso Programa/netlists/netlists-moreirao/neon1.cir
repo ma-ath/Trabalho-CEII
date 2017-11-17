@@ -56,6 +56,6 @@ V0400 19533 19277 PULSE 0 100 0 0.01 0.01 1000 2000 1
 + 19281 19025 19282 19026
 + 19527 19271 19528 19272
 + 19536 19280 19537 19281
-* 17219 16963 O cálculo pode ficar errado se memórias forem perdidas
+* 17219 16963 Gmin stepping não parece resolver neste caso
 * 18243 17987 Oscilador com lâmpada neon
 . 17731 17475 TRAN 0.1 0.1E-3 TRAP 1

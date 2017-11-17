@@ -1,0 +1,21 @@
+L2 19535 19279 (L2*N^2)
+L1 19533 19532 (L1)
+C2 19536 19280 (C2/N^2)
+C1 19532 19531 (C1)
+K0200 19533 19277 19534 19278 (N)
+V0400 19531 19275 SIN 0 1 (L/(2*3.141592)) 0 0 0 1000
+= 19019 19275
+= 19021 19277
+= 19022 19278
+= 19023 19279
+= 19024 19280
+- 19535 19534
+- 19536 19535
+* 20043 19787 Período da entrada: (T=(2*3.14159/l)) Relação de espiras: (n=10)
+* 20299 20043 (C1=((l-m)*(k+m)^2*(k-l)/(k*m*(k-l+m)^2))) (L1=(l*(k-l+m)/((k-l)*(k+m)^2*(l-m))))
+* 20555 20299 (C2=1) (L2=((k-l+m)/(k*l*m)))
+* 20811 20555 Elementos normalizados:
+* 21067 20811 Modo, inteiros ímpares sucessivos com diferença dobro de ímpar: (k=19) (l=21) (m=23)
+* 21323 21067 Transferência de energia em l/4 ciclos
+* 21579 21323 Bobina de Tesla de estado sólido DRSSTC normalizada, excitação em seno central
+. 19539 19283 TRAN (20*T) (20*T/1000) TRAP 10
