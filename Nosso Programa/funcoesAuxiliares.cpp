@@ -312,6 +312,7 @@ void estampas(char tipo)
 
     if (fazendoGminStepping==true)
       AdicionaGSSePreciso();
+
   }
 
   else if (tipo=='N') {     /*resistor nao linear*/
@@ -369,6 +370,7 @@ void estampas(char tipo)
 
     if (fazendoGminStepping==true)
       AdicionaGSSePreciso();
+
 
  }
 
@@ -867,8 +869,6 @@ bool analiseNR(){
   iteracaoGS = 0;
 
   while (CondutanciaGmin >= CONUTANCIA_FINAL_GS){
-    if (iteracaoGS!=0)
-      RecuperaUltimaSolucaoYn();
 
     for (iteracaoNR = 0; iteracaoNR<REPETIR_NR_MAX ; iteracaoNR++){
       zeraSistema();
@@ -885,11 +885,14 @@ bool analiseNR(){
     if (convergiu==true){
       fatordiv10=FATORDIV10GSINICIAL;
       CondutanciaGmin=CondutanciaGmin/fatordiv10;
+      InicializaVetorFaltaConvergir();
+      RecuperaUltimaSolucaoYn();
     }
     else{
       fatordiv10 = sqrtl(fatordiv10);
       CondutanciaGmin=CondutanciaGmin*fatordiv10;
       InicializaVetorFaltaConvergir();
+      RecuperaUltimaSolucaoYn();
     }
 
     if (iteracaoGS > MAX_ITERACOES_GMIN ){

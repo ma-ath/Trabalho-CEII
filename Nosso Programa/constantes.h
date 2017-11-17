@@ -1,7 +1,7 @@
 #define MAX_LINHA                                 80
 #define MAX_NOME                                  11
-#define MAX_ELEM                                  50
-#define MAX_NOS                                   50
+#define MAX_ELEM                                  70
+#define MAX_NOS                                   70
 #define MAX_NOME_FONTE                            10
 #define NOME_ARQUIVO_TAB                          "resposta.tab"
 #define NOME_ARQUIVO_GERAR_PLOT_PYTHON            "gerarGraficos.py"
