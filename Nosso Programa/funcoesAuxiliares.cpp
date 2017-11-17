@@ -289,7 +289,6 @@ void estampas(char tipo)
   }
 
   else if (tipo=='$') {     /*Chave*/
-    //EXPERIMENTAL
 
     if (netlist[i].c == 0){
     NewtonRaphsonVetor[netlist[i].c] = 0;
@@ -310,17 +309,11 @@ void estampas(char tipo)
       Yn[netlist[i].a][netlist[i].b]-=netlist[i].gon;
       Yn[netlist[i].b][netlist[i].a]-=netlist[i].gon;
     }
-  //  if ((fazendoGminStepping ==1)&&(BotarGSNesseElemento[i]==1)){ /*se estiver fazendo gmin step, coloco resistor bem baixo em paralelo
-  //    chamado de gs, com condutancia inicial definido no constante. o valor da CONDUTANCIA dele eh decrementado no final dessa funcao
-  //    para q caso tenha mais de 1componente nao linear, so decremente o valor dele uma vez por execucao.*/
-  //    Yn[netlist[i].a][netlist[i].a]+=gs;//param2 = goff
-  //    Yn[netlist[i].b][netlist[i].b]+=gs;
-  //    Yn[netlist[i].a][netlist[i].b]-=gs;
-  //    Yn[netlist[i].b][netlist[i].a]-=gs;
+    //aqui verifica se esse cara esta ligado a um no q nao esta convergindo.
+    cout<<"DA PERQUISA AQUIIIIIIII LINHA 313"<<endl;
 
-//      //Yn[netlist[i].a][nv+1]-=(netlist[i].pv2 + netlist[i].pv3)*gs/(2);
-//      //Yn[netlist[i].b][nv+1]+=(netlist[i].pv2 + netlist[i].pv3)*gs/(2);
-//    }
+    if (fazendoGminStepping==true)
+      AdicionaGSSePreciso();
   }
 
   else if (tipo=='N') {     /*resistor nao linear*/
@@ -376,17 +369,9 @@ void estampas(char tipo)
     Yn[netlist[i].a][nv+1]-=z;
     Yn[netlist[i].b][nv+1]+=z;
 
-/*    if ((fazendoGminStepping ==1)&&(BotarGSNesseElemento[i]==1)){
-      Yn[netlist[i].a][netlist[i].a]+=gs;//param2 = goff
-      Yn[netlist[i].b][netlist[i].b]+=gs;
-      Yn[netlist[i].a][netlist[i].b]-=gs;
-      Yn[netlist[i].b][netlist[i].a]-=gs;
+    if (fazendoGminStepping==true)
+      AdicionaGSSePreciso();
 
-      Yn[netlist[i].a][nv+1]-=(netlist[i].pv2 + netlist[i].pv3)*gs/(2);
-      Yn[netlist[i].b][nv+1]+=(netlist[i].pv2 + netlist[i].pv3)*gs/(2);
-
-    }*/
-   // getch();
  }
 
 }
@@ -441,8 +426,8 @@ int resolversistema(void)
     }
     if (fabs(t)<TOLG)
     {
-      if (fazendoGminStepping == 0)
-        printf("Sistema singular\n");
+
+      printf("Sistema singular\n");
       return 1;
     }
     for (j=nv+1; j>0; j--)
@@ -499,16 +484,23 @@ double heaviside(double t)
 
 void salvarResultadoEmArquivo (vector <double> resultadoUmTempo)
 {
-  //  ofstream arquivo;
-     //arquivo.open ("analise no tempo.txt", ios::app);
+  if ((contadorPassoPorPt < 0)||(contadorPassoPorPt > passoPorPt))  //tratamento de erros
+   {
+     contadorPassoPorPt = 1;
+   }
+  if (contadorPassoPorPt == static_cast <int>(passoPorPt))
+  {
+    contadorPassoPorPt = 1;
+
      for (i=0; i < static_cast <int> (resultadoUmTempo.size()); i++){
        fprintf (arquivoSolucao, "%g ",resultadoUmTempo.at(i) );
      }
      if (tempoAtual < tempoFinal){
        fprintf (arquivoSolucao, "\n");
      }
-
-    // arquivo.close();
+    return;
+   }
+   contadorPassoPorPt++;
 }
 
 int leNetlist (void)
@@ -719,6 +711,7 @@ void atualizarMemoriasCapacitorIndutor()
 
 void analisePontoOperacao()  //POR ENQUANTO SO INICIA TUDO COMO ZERO
 {
+  zeraSistema();
   //resolve o circuito uma vez para achar o ponto de operacao
   //monsta estampa aqui, e resolve o sistema uma vez
   analisandoPontodeOp=true;
@@ -748,12 +741,12 @@ void analisePontoOperacao()  //POR ENQUANTO SO INICIA TUDO COMO ZERO
     if (tipo=='C'){
       netlist[i].jt0 = 0;
       netlist[i].vt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]));
-      if (circuitolinear == false){netlist[i].vt0 = 0;};
+    //  if (circuitolinear == false){netlist[i].vt0 = 0;};
     }
     if (tipo=='L'){
       netlist[i].jt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]))*GINDUTORCURTO;
       netlist[i].vt0 = 0;
-      if (circuitolinear == false){netlist[i].jt0 = 0;};
+  //    if (circuitolinear == false){netlist[i].jt0 = 0;};
     }
   }
 
@@ -833,7 +826,25 @@ bool SolucaoConvergiuTeste (){
      else return false;
 }
 
-void analiseNR(){
+void AdicionaGSSePreciso(){
+  for (k=1; k<=nv; k++){
+    if (FaltaConvergir[k] == true){ //se esse no k nao convergiu..
+      if ((netlist[i].a==k)||(netlist[i].b==k)){ //e se o elemento encosta nesse no problematico..
+        Yn[netlist[i].a][netlist[i].a]+=CondutanciaGmin;
+        Yn[netlist[i].b][netlist[i].b]+=CondutanciaGmin;
+        Yn[netlist[i].a][netlist[i].b]-=CondutanciaGmin;
+        Yn[netlist[i].b][netlist[i].a]-=CondutanciaGmin;
+        if (tipo =='N'){//se for um resistor nao linear, coloco uma fonte de corrente
+          Yn[netlist[i].a][nv+1]-=(netlist[i].pv2 + netlist[i].pv3)*CondutanciaGmin/(2);
+          Yn[netlist[i].b][nv+1]+=(netlist[i].pv2 + netlist[i].pv3)*CondutanciaGmin/(2);
+        }
+      }
+    }
+  }
+}
+
+
+bool analiseNR(){
   if (analisandoPontodeOp == false){
     RecuperaUltimaSolucaoYn(); //se for ponto de op, ja esta preenchido com 0.1
   }
@@ -846,12 +857,45 @@ void analiseNR(){
     //  mostraResultadoNR();
     //  cout<<"saiiiiii"<<endl;
      //se convergiu, sai do programa
-      return;
+      return true;
     }
     AtualizaNR();
 
   }
-  cout<<"nao convergiu"<<endl;
+  cout<<"nao convergiu com nr, bora gmin"<<endl;
+  fazendoGminStepping = true;
+  CondutanciaGmin = CONDUTANCIA_INICIAL_GS;
+  fatordiv10 = FATORDIV10GSINICIAL;
+  iteracaoGS = 0;
+
+  while (CondutanciaGmin >= CONUTANCIA_FINAL_GS){
+    for (iteracaoNR = 0; iteracaoNR<REPETIR_NR_MAX ; iteracaoNR++){
+      zeraSistema();
+      montarEstampas();
+      resolversistema();
+      if (SolucaoConvergiuTeste()==true){
+        break; //se convergir, sai do loop do NR, para dividir o fator e repetir
+      }
+      AtualizaNR();
+    }
+
+    if (SolucaoConvergiuTeste()==true){
+      CondutanciaGmin=CondutanciaGmin/fatordiv10;
+    }
+    else{
+      fatordiv10 = sqrtl(fatordiv10);
+      CondutanciaGmin=CondutanciaGmin*fatordiv10;
+    }
+
+    if (iteracaoGS > MAX_ITERACOES_GMIN ){
+      return false;
+    }
+  }
+
+  cout<<"convergiuo gmin"<<endl;
+  return true;
+
+
 }
 
 void ArmazenaUltimaSolucaoYn (){
@@ -865,37 +909,7 @@ void RecuperaUltimaSolucaoYn (){
     NewtonRaphsonVetor[i] = UltimaSolucaoYn[i];
   }
 }
-/*void ArmazenaSolucaoNR (void) {
-  int i;
-  for (i=0; i<=nv; i++)
-    if ((ValoresNaoConvergindo[i] == 1)|| (PrimeiraVezNR==1)){
-  	 NewtonRaphsonVetor[i] = Yn[i][nv+1];
-   }
-}
 
-int ComparaValorNR (void) {
-  erroGrande=0;
-  for (i=1; i<=nv; i++){
-    if ( (fabs(Yn[i][nv+1] - NewtonRaphsonVetor[i])) > MAX_ERRO_NR ) {
-      erroGrande=1;
-      ValoresNaoConvergindo[i]=1; //se nao convergiu, o valor eh substituido por 1
-      }
-    else {
-      ValoresNaoConvergindo[i]=0;
-    }
-  }
-     if (erroGrande==1) return 0;
-     else return 1;
-}
-
-void monstraValoresNaoConvergindo()
-{
-  for (i=1; i<=nv; i++){
-    cout<<ValoresNaoConvergindo[i]<<endl;
-  }
-  cout<<endl;
-}
-*/
 void mostraResultadoParcial ()
 {
   for (k=1; k<=nv; k++)
@@ -923,15 +937,3 @@ void mostraResultadoNR ()
   }cout<<endl;
   getch();
 }
-/*void zeraValoresNaoConvergindo (void)
-{
-  for (i=1; i<=nv; i++){
-    ValoresNaoConvergindo[i] =0;
-  }
-}
-
-//void analiseNR ()
-{
-
-}
-*/

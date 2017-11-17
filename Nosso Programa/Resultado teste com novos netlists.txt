@@ -1,14 +1,15 @@
-artefato ok
-astavel1 ok
-chua1 ok com tensao e corrente do cap ind =0
-flyback da zoado em alguns pontos
-fonte ok (um pouco fora no inicio)
-minimo ok
-minimo2 ok
-minimo3 ok
-minimos zoa em pontos especificos
-mres1  ok com tensao e corrente do cap ind =0
-neon1 ok
+artefato perfeito
+astavel1 n
+ch5 perfect com ponto de operacao certa (FONTE PULSO TA ESTRANHO)
+chua1 perfeito
+el5 perfect com ponto de operacao certa (FONTE PULSO TA ESTRANHO)
+flyback perfeito
+fonte perfeito
+minimo n
+minimo2 n
+minimo3 n
+minimos n
+mres1  perfect com ponto de operacao certa
 oscilador ok
 osciladorsc ok
-teslai ok
+teslai perfect

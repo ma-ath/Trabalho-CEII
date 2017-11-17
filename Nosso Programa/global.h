@@ -52,11 +52,14 @@ extern double tempoAtual, tempoFinal, passo, passoPorPt;
 extern double NewtonRaphsonVetor[MAX_NOS+1];
 extern bool FaltaConvergir[MAX_NOS+1];
 extern int iteracaoNR;
+extern int iteracaoGS;
 extern int erroGrande;
 
 extern double z;
 
 extern bool fazendoGminStepping;
+extern  long double CondutanciaGmin;
+extern long double fatordiv10;
 extern bool circuitolinear;
-
+extern int contadorPassoPorPt;
 #endif

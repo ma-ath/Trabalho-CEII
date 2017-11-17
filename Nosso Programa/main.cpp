@@ -34,10 +34,14 @@ using namespace std;
  double UltimaSolucaoYn[MAX_NOS+1];
  bool FaltaConvergir[MAX_NOS+1];
  int iteracaoNR;
+ int iteracaoGS;
  int erroGrande;
  double z;
  bool fazendoGminStepping;
+ long double CondutanciaGmin;
+ long double fatordiv10;
  bool circuitolinear;
+int contadorPassoPorPt = 0;
 int main()
 {
 
@@ -178,6 +182,7 @@ int main()
 
       if (circuitolinear==1)
       {
+        cout<<"to aqui"<<endl;
         zeraSistema();  //zera, monta e resolve
         montarEstampas();
         if (resolversistema())
