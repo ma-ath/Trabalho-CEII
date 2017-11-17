@@ -31,7 +31,8 @@ using namespace std;
  double Yn[MAX_NOS+1][MAX_NOS+2];   /*Matriz a ser resolvida*/
  double tempoAtual, tempoFinal, passo, passoPorPt;
  double NewtonRaphsonVetor[MAX_NOS+1];
- bool RepetirNewtonRaphson;
+ bool FaltaConvergir[MAX_NOS+1];
+ int iteracaoNR;
  int erroGrande;
  double z;
  bool fazendoGminStepping;
@@ -139,6 +140,8 @@ int main()
   //Inicia a analise com um calculo de ponto de operacao. Estava com preguiça e por enquanto sistema inicia com jt0 = 0 e vt0 = 0
 
     zeraSistema();
+    AproxInicialNR();
+    InicializaVetorFaltaConvergir();
     analisePontoOperacao();
 
 
@@ -164,7 +167,7 @@ int main()
 
     /* Zera sistema */
     zeraSistema();
-
+    InicializaVetorFaltaConvergir();
     /* Monta estampas & Resolve com algorítimo de Newton-Raphson*/
     /*Ainda possui espaço para melhoras, para análise no tempo sem elementos nao lineares
       ele acaba tendo que resolver o mesmo sistema duas vezes para poder passar o instante de tempo*/
@@ -185,8 +188,9 @@ int main()
 
       else{
       //  PrimeiraVezNR =1;
-        cout<<"nao era pra entrar aq"<<endl;
-        exit(0);
+        analiseNR();
+      //  cout<<"nao era pra entrar aq"<<endl;
+      //  exit(0);
         //cout<<"copiado!";
         //mostraResultadoParcial();
         //NOTA1: ADICIONAR UM VETOR DE "ULTIMA CONVERGENCIA" AQUI

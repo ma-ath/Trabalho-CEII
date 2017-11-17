@@ -288,6 +288,106 @@ void estampas(char tipo)
     }
   }
 
+  else if (tipo=='$') {     /*Chave*/
+    //EXPERIMENTAL
+    if (netlist[i].c == 0){
+    NewtonRaphsonVetor[netlist[i].c] = 0;
+    }
+    if (netlist[i].d == 0){
+      NewtonRaphsonVetor[netlist[i].d] = 0;
+    }
+
+    if ((NewtonRaphsonVetor[netlist[i].c]-NewtonRaphsonVetor[netlist[i].d]) <= netlist[i].valor){ //param3 = vref =valor
+      Yn[netlist[i].a][netlist[i].a]+=netlist[i].goff;//param2 = goff
+      Yn[netlist[i].b][netlist[i].b]+=netlist[i].goff;
+      Yn[netlist[i].a][netlist[i].b]-=netlist[i].goff;
+      Yn[netlist[i].b][netlist[i].a]-=netlist[i].goff;
+    }
+    else {
+      Yn[netlist[i].a][netlist[i].a]+=netlist[i].gon;//param1=gon
+      Yn[netlist[i].b][netlist[i].b]+=netlist[i].gon;
+      Yn[netlist[i].a][netlist[i].b]-=netlist[i].gon;
+      Yn[netlist[i].b][netlist[i].a]-=netlist[i].gon;
+    }
+  //  if ((fazendoGminStepping ==1)&&(BotarGSNesseElemento[i]==1)){ /*se estiver fazendo gmin step, coloco resistor bem baixo em paralelo
+  //    chamado de gs, com condutancia inicial definido no constante. o valor da CONDUTANCIA dele eh decrementado no final dessa funcao
+  //    para q caso tenha mais de 1componente nao linear, so decremente o valor dele uma vez por execucao.*/
+  //    Yn[netlist[i].a][netlist[i].a]+=gs;//param2 = goff
+  //    Yn[netlist[i].b][netlist[i].b]+=gs;
+  //    Yn[netlist[i].a][netlist[i].b]-=gs;
+  //    Yn[netlist[i].b][netlist[i].a]-=gs;
+
+//      //Yn[netlist[i].a][nv+1]-=(netlist[i].pv2 + netlist[i].pv3)*gs/(2);
+//      //Yn[netlist[i].b][nv+1]+=(netlist[i].pv2 + netlist[i].pv3)*gs/(2);
+//    }
+  }
+
+  else if (tipo=='N') {     /*resistor nao linear*/
+    if (netlist[i].a == 0){
+    NewtonRaphsonVetor[netlist[i].a] = 0;
+    }
+    if (netlist[i].b == 0){
+      NewtonRaphsonVetor[netlist[i].b] = 0;
+    }
+
+    if ( (NewtonRaphsonVetor[netlist[i].a] - NewtonRaphsonVetor[netlist[i].b]) < netlist[i].pv2 ){
+      if ((netlist[i].pv2-netlist[i].pv1) != 0)     //EVITA SISTEMAS SINGULARES
+      {
+        g=((netlist[i].pj2 - netlist[i].pj1) / (netlist[i].pv2-netlist[i].pv1));
+        z=(netlist[i].pj2 - g*netlist[i].pv2);
+      }
+      else
+      {
+        if (netlist[i].pv2 > netlist[i].pv1) g=INFINITO; else g=-INFINITO;
+        z=(netlist[i].pj2 - g*netlist[i].pv2);
+      }
+    }
+    //((NRCompare[netlist[i].a] - NRCompare[netlist[i].b]) >= netlist[i].param3) &&
+    else if (((NewtonRaphsonVetor[netlist[i].a]-NewtonRaphsonVetor[netlist[i].b]) < netlist[i].pv3)){
+      if ((netlist[i].pv3-netlist[i].pv2) != 0)     //EVITA SISTEMAS SINGULARES
+      {
+        g=(netlist[i].pj3 - netlist[i].pj2) / (netlist[i].pv3 - netlist[i].pv2);
+        z=(netlist[i].pj3 - g*netlist[i].pv3);
+      }
+      else
+      {
+        if (netlist[i].pv3 > netlist[i].pv2) g=INFINITO; else g=-INFINITO;
+        z=(netlist[i].pj3 - g*netlist[i].pv3);
+      }
+    }
+    //((NRCompare[netlist[i].a]-NRCompare[netlist[i].b]) >= netlist[i].param5)
+    else{
+      if ((netlist[i].pv4-netlist[i].pv3) != 0)     //EVITA SISTEMAS SINGULARES
+      {
+        g=(netlist[i].pj4 - netlist[i].pj3) / (netlist[i].pv4 - netlist[i].pv3);
+        z=(netlist[i].pj4 - g*netlist[i].pv4);
+      }
+      else
+      {
+        if (netlist[i].pv4 > netlist[i].pv3) g=INFINITO; else g=-INFINITO;
+        z=(netlist[i].pj4 - g*netlist[i].pv4);
+      }
+    }
+    Yn[netlist[i].a][netlist[i].a]+=g;
+    Yn[netlist[i].b][netlist[i].b]+=g;
+    Yn[netlist[i].a][netlist[i].b]-=g;
+    Yn[netlist[i].b][netlist[i].a]-=g;
+    Yn[netlist[i].a][nv+1]-=z;
+    Yn[netlist[i].b][nv+1]+=z;
+
+/*    if ((fazendoGminStepping ==1)&&(BotarGSNesseElemento[i]==1)){
+      Yn[netlist[i].a][netlist[i].a]+=gs;//param2 = goff
+      Yn[netlist[i].b][netlist[i].b]+=gs;
+      Yn[netlist[i].a][netlist[i].b]-=gs;
+      Yn[netlist[i].b][netlist[i].a]-=gs;
+
+      Yn[netlist[i].a][nv+1]-=(netlist[i].pv2 + netlist[i].pv3)*gs/(2);
+      Yn[netlist[i].b][nv+1]+=(netlist[i].pv2 + netlist[i].pv3)*gs/(2);
+
+    }*/
+   // getch();
+ }
+
 }
 
 void montarEstampas()
@@ -538,6 +638,7 @@ int leNetlist (void)
       netlist[ne].b=numero(nb);
       netlist[ne].c=numero(nc);
       netlist[ne].d=numero(nd);
+      circuitolinear = false;
     }
     else if (tipo=='N') {         /*Chave - 22/10/2017*/
       /*valor, nesse caso, eh o valor de referencia para decidir se vai
@@ -550,6 +651,7 @@ int leNetlist (void)
       netlist[ne].pj4 );
       netlist[ne].a=numero(na);
       netlist[ne].b=numero(nb);
+      circuitolinear = false;
     }
     else if (tipo=='*') { /* Comentario comeca com "*" */
       printf("Comentario: %s",txt);
@@ -618,12 +720,19 @@ void analisePontoOperacao()  //POR ENQUANTO SO INICIA TUDO COMO ZERO
   //resolve o circuito uma vez para achar o ponto de operacao
   //monsta estampa aqui, e resolve o sistema uma vez
   analisandoPontodeOp=true;
-  montarEstampas();
-  if (resolversistema())
-  {
-    getch();
-    exit(0);
+
+  if (circuitolinear ==  true){
+    montarEstampas();
+    if (resolversistema())
+    {
+      getch();
+      exit(0);
+    }
   }
+  else{
+    analiseNR();
+  }
+
 
   for (i=1; i<=ne; i++)
   {
@@ -690,21 +799,63 @@ void plotarGrafico()
   system(SysString.c_str());  //funcao feia que funciona
 }
 
+void InicializaVetorFaltaConvergir(){
+  for (i=1; i<=nv;i++){
+    FaltaConvergir[i] = true;
+  }
+}
+
+
+void AtualizaNR(){
+  for (i=1; i<=nv;i++){
+    if (FaltaConvergir[i] == true){
+      NewtonRaphsonVetor[i] = Yn[i][nv+1];
+    }
+  }
+}
+
+bool SolucaoConvergiuTeste (){
+  for (i=1; i<=nv; i++){
+    erroGrande = 0;
+    if ( (fabs(Yn[i][nv+1] - NewtonRaphsonVetor[i])) > MAX_ERRO_NR ) {
+      FaltaConvergir[i]=true;
+      erroGrande = 1;
+      }
+    else {
+      FaltaConvergir[i]=false;
+    }
+  }
+     if (erroGrande==0) return true;
+     else return false;
+}
+
+void analiseNR(){
+  if (analisandoPontodeOp == false){
+    AtualizaNR(); //se for ponto de op, ja esta preenchido com 0.1
+  }
+
+  for (iteracaoNR = 0; iteracaoNR<REPETIR_NR_MAX ; iteracaoNR++){
+    zeraSistema();
+    montarEstampas();
+    resolversistema();
+
+    if (SolucaoConvergiuTeste()==true){
+    //  mostraResultadoNR();
+    //  cout<<"saiiiiii"<<endl;
+     //se convergiu, sai do programa
+      return;
+    }
+
+    AtualizaNR();
+  }
+  cout<<"nao convergiu"<<endl;
+}
 /*void ArmazenaSolucaoNR (void) {
   int i;
   for (i=0; i<=nv; i++)
     if ((ValoresNaoConvergindo[i] == 1)|| (PrimeiraVezNR==1)){
   	 NewtonRaphsonVetor[i] = Yn[i][nv+1];
    }
-}
-
-void ZeraValorNR (void) {
-	srand(time(NULL));
-	for (i=1; i<=nv; i++){
-    if ((ValoresNaoConvergindo[i] == 1)|| (PrimeiraVezNR==1)){
-	     NewtonRaphsonVetor[i] = 0;
-     }
-	}
 }
 
 int ComparaValorNR (void) {
@@ -743,7 +894,20 @@ void mostraResultadoParcial ()
   getch();
 }
 
+void AproxInicialNR(){
+  for (i=1; i<=nv;i++){
+    NewtonRaphsonVetor[i] = 0.1;
+  }
+}
 
+void mostraResultadoNR ()
+{
+  for (k=1; k<=nv; k++)
+  {
+    cout<<NewtonRaphsonVetor[i]<<endl;
+  }cout<<endl;
+  getch();
+}
 /*void zeraValoresNaoConvergindo (void)
 {
   for (i=1; i<=nv; i++){

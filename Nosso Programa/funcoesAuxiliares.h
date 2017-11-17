@@ -12,6 +12,7 @@ int numero(char *nome);
 void zeraSistema (void);
 double heaviside(double);
 void salvarResultadoEmArquivo (vector <double>);
+//le netlist e ja te diz se circuito eh linear ou nao
 int leNetlist (void);
 void atualizarMemoriasCapacitorIndutor();
 void analisePontoOperacao();
@@ -22,13 +23,18 @@ void analisePontoOperacao();
 //etc...
 void printProgresso(int,char);
 void plotarGrafico();
+void InicializaVetorFaltaConvergir();
+void AtualizaNR();
+bool SolucaoConvergiuTeste ();
+void analiseNR();
 //const char* ConvertDoubleToString(double value);
-void ArmazenaSolucaoNR ();
+
 void ZeraValorNR ();
 int ComparaValorNR ();
 void monstraValoresNaoConvergindo();
 void mostraResultadoParcial ();
+void AproxInicialNR();
 void gminstepping();
 void zeraValoresNaoConvergindo (void);
-void analiseNR();
+void mostraResultadoNR ();
 //int ElementoPrecisaGs (void);

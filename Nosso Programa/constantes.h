@@ -14,7 +14,7 @@
 #define PROGRESSO_SIMBOLO                         '*'
 #define MAX_ERRO_NR                               1e-6 //erro tolerado para newton raphson
 #define NEWTONRAPHSON_NUMERO_MAX_TENTATIVAS       10
-#define NEWTONRAPHSON_NUMERO_MAX_TENTARNOVAMENTE  100
+#define REPETIR_NR_MAX  50
 #define CONDUTANCIA_INICIAL_GS                    2  //condutancia inicial para fzr gmin step, o valor anterior estava alto demais! nem o mnae fazia as contas
 #define PASSO_GS                                  1e-2
 #define CONUTANCIA_MINIMA_GS                      1e-12

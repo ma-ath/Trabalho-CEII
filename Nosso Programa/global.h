@@ -50,8 +50,8 @@ extern double Yn[MAX_NOS+1][MAX_NOS+2];   /*Matriz a ser resolvida*/
 extern double tempoAtual, tempoFinal, passo, passoPorPt;
 
 extern double NewtonRaphsonVetor[MAX_NOS+1];
-
-extern bool RepetirNewtonRaphson;
+extern bool FaltaConvergir[MAX_NOS+1];
+extern int iteracaoNR;
 extern int erroGrande;
 
 extern double z;
