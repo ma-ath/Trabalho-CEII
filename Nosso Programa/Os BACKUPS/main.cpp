@@ -3,39 +3,50 @@
 
 using namespace std;
 
- elemento netlist[MAX_ELEM]; /* Netlist */
- int repete;
- int ne;     /*Numero de Elementos */
- int nv;     /*Numero de Variaveis */
- int nn;     /*Numero de Nos */
- int i;      /*Variaveis auxiliares*/
- int j;
- int k;
- bool analisandoPontodeOp;
- long double GCapacitorAberto;
- char nomearquivo[MAX_LINHA+1];/* Foram colocados limites nos formatos de leitura para alguma protecao contra excesso de caracteres nestas variaveis */
- char tipo;
- char na[MAX_NOME];
- char nb[MAX_NOME];
- char nc[MAX_NOME];
- char nd[MAX_NOME];
-  /*lista associa o nome que o usuario deu na netlist com o numero
-  que o programa definiu.
-  Ex: usuario > no bonitinho = no 1 < programa (funcao "numero")*/
- char lista[MAX_NOS+1][MAX_NOME+2]; /*Tem que caber jx antes do nome */
- char txt[MAX_LINHA+1];
- char *p;
- FILE *arquivoNetlist;
- FILE *arquivoSolucao;
- double g, pulseRealTime, pulseOffTime;
- double Yn[MAX_NOS+1][MAX_NOS+2];   /*Matriz a ser resolvida*/
- double tempoAtual, tempoFinal, passo, passoPorPt;
- double NewtonRaphsonVetor[MAX_NOS+1];
- bool RepetirNewtonRaphson;
- int erroGrande;
- double z;
- bool fazendoGminStepping;
- bool circuitolinear;
+elemento netlist[MAX_ELEM];
+int BotarGSNesseElemento[MAX_ELEM];
+int repete;
+int ne;
+int nv;
+int nn;
+int i;
+int j;
+int k;
+unsigned long long GIndutorCurto;
+long double GCapacitorAberto;
+int analisandoPontodeOp;
+char nomearquivo[MAX_LINHA+1];
+char tipo;
+char na[MAX_NOME];
+char nb[MAX_NOME];
+char nc[MAX_NOME];
+char nd[MAX_NOME];
+char lista[MAX_NOS+1][MAX_NOME+2];
+char txt[MAX_LINHA+1];
+char *p;
+FILE *arquivoNetlist;
+FILE *arquivoSolucao;
+double g, pulseRealTime, pulseOffTime;
+double Yn[MAX_NOS+1][MAX_NOS+2];
+double NewtonRaphsonVetor[MAX_NOS+1];
+double ValoresNaoConvergindo[MAX_NOS+1];
+double ValoresConvergiu[MAX_NOS+1];
+double UltimaConvergenciaNoTempo[MAX_NOS+1];
+//int NewtonRaphsonTentativas;
+int NewtonRaphsonTentarNovamente;
+int erroGrande;
+double z;
+int fazendoGminStepping;
+ long double gs;
+ long double ultimogs;
+ long double fatordeDiv10;
+ int counter;
+int PrimeiraVezNR;
+int circuitolinear;
+/*variavel para analise no tempo*/
+double tempoAtual, tempoFinal, passo, passoPorPt;
+double contadorGS;
+int convergiu;
 int main()
 {
 
@@ -57,11 +68,11 @@ int main()
   //abri o aarquivo para escrever os resultados
   //GIndutorCurto = 1844674407370955161;    <- Esse numero eh o maior possivel, mas da problema de convergencia
   //GCapacitorAberto = 1.11e-16;       <- Esse numero eh o menor possivel, mas da problema de convergencia
-  //GIndutorCurto = GINDUTORCURTO;
-  //GCapacitorAberto = GCAPACITORABERTO;
-  //fazendoGminStepping=0;
-  //convergiu = 0;
-  circuitolinear=true;
+  GIndutorCurto = GINDUTORCURTO;
+  GCapacitorAberto = GCAPACITORABERTO;
+  fazendoGminStepping=0;
+  convergiu = 0;
+  circuitolinear=1;
 
   do{
     erro = leNetlist();
@@ -140,8 +151,9 @@ int main()
 
     zeraSistema();
     analisePontoOperacao();
+    CopiaUltimaSolucaoNoTempo();
 
-
+    analisandoPontodeOp=0;
     /*for (i=0; i<=nv; i++){
       cout<<Yn[i] <<endl;
     }cout<<"\n"<<endl;*/
@@ -184,15 +196,58 @@ int main()
       }
 
       else{
-      //  PrimeiraVezNR =1;
-        cout<<"nao era pra entrar aq"<<endl;
-        exit(0);
+        PrimeiraVezNR =1;
+        if (!analiseNR()){
+          cout <<"nao convergiu"<<endl;
+          getch();
+          exit(0);
+        }
+        CopiaUltimaSolucaoNoTempo();
         //cout<<"copiado!";
         //mostraResultadoParcial();
         //NOTA1: ADICIONAR UM VETOR DE "ULTIMA CONVERGENCIA" AQUI
 
       }
 
+        /*
+      do{
+          if ((NewtonRaphsonTentativas==0) && (NewtonRaphsonTentarNovamente ==0)){
+            ChutaValorNR();
+          //  jaFizIsso+=1;
+          }
+          else{
+            CopiaSolucaoNR();   //copia solucao anterior
+          }
+
+          if(NewtonRaphsonTentativas > NEWTONRAPHSON_NUMERO_MAX_TENTATIVAS)
+          {   //Caso o numero de interacoes do newton-raphson tenha excedido um valor, chuta valores aleatorios
+            ChutaValorNR();
+            NewtonRaphsonTentativas = 0;
+            NewtonRaphsonTentarNovamente++;
+            if(NewtonRaphsonTentarNovamente == NEWTONRAPHSON_NUMERO_MAX_TENTARNOVAMENTE)
+            { //caso ele tenha reiniciado o algoritimo vezes demais, inicia gminstepping
+              ZeraValorNR();
+              gs = CONDUTANCIA_INICIAL_GS;
+              gminstepping();
+              fazendoGminStepping=0;
+              //getch();
+            //  exit(0);
+          //  cout << "sai do gminstep mesmooooo, gs="<< gs<< endl;
+          //  fazendoGminStepping = 0;
+            }
+          }
+          zeraSistema();  //zera, monta e resolve
+          montarEstampas();
+          if (resolversistema())
+          {
+            getch();
+            exit(0);
+          }
+
+          NewtonRaphsonTentativas++;
+            //cout << NewtonRaphsonTentativas<< endl;
+        }while(ComparaValorNR() == 0 );  //repete isso ate newton-raphson convergir
+*/
 
     /* Atualiza as memorias nos capacitores e indutores */
     /*apos a resolucao do sistema nodal, a gente precisa atualizar o valor dos parametros vto e jto de cada capacitor/indutor;*/

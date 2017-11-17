@@ -12,4 +12,4 @@
 #define PROGRESSO_PORCENTAGEM 2
 #define PROGRESSO_SIMBOLO     '*'
 
-//#define DEBUG
+#define DEBUG

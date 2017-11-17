@@ -19,6 +19,7 @@
 using namespace std;
 
 extern elemento netlist[MAX_ELEM]; /* Netlist */
+extern int BotarGSNesseElemento[MAX_ELEM];
 extern int repete;
 extern int ne;     /*Numero de Elementos */
 extern int nv;     /*Numero de Variaveis */
@@ -26,7 +27,8 @@ extern int nn;     /*Numero de Nos */
 extern int i;      /*Variaveis auxiliares*/
 extern int j;
 extern int k;
-extern bool analisandoPontodeOp;
+extern int analisandoPontodeOp;
+extern unsigned long long GIndutorCurto;
 extern long double GCapacitorAberto;
 extern char nomearquivo[MAX_LINHA+1];/* Foram colocados limites nos formatos de leitura para alguma protecao contra excesso de caracteres nestas variaveis */
 extern char tipo;
@@ -50,13 +52,26 @@ extern double Yn[MAX_NOS+1][MAX_NOS+2];   /*Matriz a ser resolvida*/
 extern double tempoAtual, tempoFinal, passo, passoPorPt;
 
 extern double NewtonRaphsonVetor[MAX_NOS+1];
+extern double ValoresNaoConvergindo[MAX_NOS+1];
+extern double ValoresConvergiu[MAX_NOS+1];
+extern double UltimaConvergenciaNoTempo[MAX_NOS+1];   //Guarda todas as variaveis da ultima análise do sistema no tempo que convergiu
 
-extern bool RepetirNewtonRaphson;
+//extern int NewtonRaphsonTentativas;
+extern int NewtonRaphsonTentarNovamente;
 extern int erroGrande;
 
 extern double z;
 
-extern bool fazendoGminStepping;
-extern bool circuitolinear;
+extern int fazendoGminStepping;
 
+extern long double gs;
+extern long double ultimogs;
+extern long double fatordeDiv10;
+extern int counter;
+extern int PrimeiraVezNR;
+extern int circuitolinear;
+extern double contadorGS;
+extern int convergiu;
+
+//extern vector <double*> resultados;
 #endif

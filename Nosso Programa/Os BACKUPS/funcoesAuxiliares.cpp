@@ -20,7 +20,8 @@ void estampas(char tipo)
     Yn[netlist[i].a][netlist[i].d]-=g;
     Yn[netlist[i].b][netlist[i].c]-=g;
   }
-  else if (tipo=='I'){
+  else if (tipo=='I')
+  {
     if (strcmp(netlist[i].fonte, "DC") == 0)
     /*
     Fonte DC - Nao muda com o tempoAtual
@@ -37,7 +38,7 @@ void estampas(char tipo)
         off+Vp*exp(-dec*(tempoAtual-atraso))*sin(2*pi*f*(tempoAtual-atraso)+(pi/180)*fase)
         */
         {
-            if (analisandoPontodeOp == false)
+            if (analisandoPontodeOp == 0)
             {
               g=
               (
@@ -111,7 +112,8 @@ void estampas(char tipo)
       }
     }
   }
-  else if (tipo=='V')   /*A estampa de V deve mudar de acordo com o tempoAtual*/{
+  else if (tipo=='V')   /*A estampa de V deve mudar de acordo com o tempoAtual*/
+  {
     if (strcmp(netlist[i].fonte, "DC") == 0)
     /*
     Fonte DC - Nao muda com o tempoAtual
@@ -130,7 +132,7 @@ void estampas(char tipo)
     off+Vp*exp(-dec*(tempoAtual-atraso))*sin(2*pi*f*(tempoAtual-atraso)+(pi/180)*fase)
     */
     {
-        if (analisandoPontodeOp == false)
+        if (analisandoPontodeOp == 0)
         {
           Yn[netlist[i].a][netlist[i].x]+=1;
           Yn[netlist[i].b][netlist[i].x]-=1;
@@ -250,7 +252,7 @@ void estampas(char tipo)
   else if (tipo=='C') {
     //se esta no modo de analise de ponto de op,
     //substitui o capacitor por circuito aberto (ou resistor mt grande)
-    if (analisandoPontodeOp ==true){
+    if (analisandoPontodeOp ==1){
       Yn[netlist[i].a][netlist[i].a]+=GCAPACITORABERTO;
       Yn[netlist[i].b][netlist[i].b]+=GCAPACITORABERTO;
       Yn[netlist[i].a][netlist[i].b]-=GCAPACITORABERTO;
@@ -268,9 +270,7 @@ void estampas(char tipo)
     }
   }
   else if (tipo=='L') {
-
-    if ( analisandoPontodeOp ==true){
-      cout<<"aqui"<<endl;
+    if (  analisandoPontodeOp ==1){
       Yn[netlist[i].a][netlist[i].a]+=GINDUTORCURTO;
       Yn[netlist[i].b][netlist[i].b]+=GINDUTORCURTO;
       Yn[netlist[i].a][netlist[i].b]-=GINDUTORCURTO;
@@ -287,7 +287,107 @@ void estampas(char tipo)
       Yn[netlist[i].b][nv+1]+=(g*netlist[i].vt0+netlist[i].jt0);
     }
   }
+  else if (tipo=='$') {     /*Chave*/
+    circuitolinear = 0;
+    //EXPERIMENTAL
+    if (netlist[i].c == 0){
+    NewtonRaphsonVetor[netlist[i].c] = 0;
+    }
+    if (netlist[i].d == 0){
+      NewtonRaphsonVetor[netlist[i].d] = 0;
+    }
 
+    if ((NewtonRaphsonVetor[netlist[i].c]-NewtonRaphsonVetor[netlist[i].d]) <= netlist[i].valor){ //param3 = vref =valor
+      Yn[netlist[i].a][netlist[i].a]+=netlist[i].goff;//param2 = goff
+      Yn[netlist[i].b][netlist[i].b]+=netlist[i].goff;
+      Yn[netlist[i].a][netlist[i].b]-=netlist[i].goff;
+      Yn[netlist[i].b][netlist[i].a]-=netlist[i].goff;
+    }
+    else {
+      Yn[netlist[i].a][netlist[i].a]+=netlist[i].gon;//param1=gon
+      Yn[netlist[i].b][netlist[i].b]+=netlist[i].gon;
+      Yn[netlist[i].a][netlist[i].b]-=netlist[i].gon;
+      Yn[netlist[i].b][netlist[i].a]-=netlist[i].gon;
+    }
+    if (fazendoGminStepping ==1){ /*se estiver fazendo gmin step, coloco resistor bem baixo em paralelo
+      chamado de gs, com condutancia inicial definido no constante. o valor da CONDUTANCIA dele eh decrementado no final dessa funcao
+      para q caso tenha mais de 1componente nao linear, so decremente o valor dele uma vez por execucao.*/
+      Yn[netlist[i].a][netlist[i].a]+=gs;//param2 = goff
+      Yn[netlist[i].b][netlist[i].b]+=gs;
+      Yn[netlist[i].a][netlist[i].b]-=gs;
+      Yn[netlist[i].b][netlist[i].a]-=gs;
+
+      Yn[netlist[i].a][nv+1]-=(netlist[i].pv2 + netlist[i].pv3)*gs/(2);
+      Yn[netlist[i].b][nv+1]+=(netlist[i].pv2 + netlist[i].pv3)*gs/(2);
+    }
+  }
+
+  else if (tipo=='N') {     /*resistor nao linear*/
+    circuitolinear = 0;
+    if (netlist[i].a == 0){
+    NewtonRaphsonVetor[netlist[i].a] = 0;
+    }
+    if (netlist[i].b == 0){
+      NewtonRaphsonVetor[netlist[i].b] = 0;
+    }
+
+    if ( (NewtonRaphsonVetor[netlist[i].a] - NewtonRaphsonVetor[netlist[i].b]) < netlist[i].pv2 ){
+      if ((netlist[i].pv2-netlist[i].pv1) != 0)     //EVITA SISTEMAS SINGULARES
+      {
+        g=((netlist[i].pj2 - netlist[i].pj1) / (netlist[i].pv2-netlist[i].pv1));
+        z=(netlist[i].pj2 - g*netlist[i].pv2);
+      }
+      else
+      {
+        if (netlist[i].pv2 > netlist[i].pv1) g=INFINITO; else g=-INFINITO;
+        z=(netlist[i].pj2 - g*netlist[i].pv2);
+      }
+    }
+    //((NRCompare[netlist[i].a] - NRCompare[netlist[i].b]) >= netlist[i].param3) &&
+    else if (((NewtonRaphsonVetor[netlist[i].a]-NewtonRaphsonVetor[netlist[i].b]) < netlist[i].pv3)){
+      if ((netlist[i].pv3-netlist[i].pv2) != 0)     //EVITA SISTEMAS SINGULARES
+      {
+        g=(netlist[i].pj3 - netlist[i].pj2) / (netlist[i].pv3 - netlist[i].pv2);
+        z=(netlist[i].pj3 - g*netlist[i].pv3);
+      }
+      else
+      {
+        if (netlist[i].pv3 > netlist[i].pv2) g=INFINITO; else g=-INFINITO;
+        z=(netlist[i].pj3 - g*netlist[i].pv3);
+      }
+    }
+    //((NRCompare[netlist[i].a]-NRCompare[netlist[i].b]) >= netlist[i].param5)
+    else{
+      if ((netlist[i].pv4-netlist[i].pv3) != 0)     //EVITA SISTEMAS SINGULARES
+      {
+        g=(netlist[i].pj4 - netlist[i].pj3) / (netlist[i].pv4 - netlist[i].pv3);
+        z=(netlist[i].pj4 - g*netlist[i].pv4);
+      }
+      else
+      {
+        if (netlist[i].pv4 > netlist[i].pv3) g=INFINITO; else g=-INFINITO;
+        z=(netlist[i].pj4 - g*netlist[i].pv4);
+      }
+    }
+    Yn[netlist[i].a][netlist[i].a]+=g;
+    Yn[netlist[i].b][netlist[i].b]+=g;
+    Yn[netlist[i].a][netlist[i].b]-=g;
+    Yn[netlist[i].b][netlist[i].a]-=g;
+    Yn[netlist[i].a][nv+1]-=z;
+    Yn[netlist[i].b][nv+1]+=z;
+
+    if (fazendoGminStepping ==1){
+      Yn[netlist[i].a][netlist[i].a]+=gs;//param2 = goff
+      Yn[netlist[i].b][netlist[i].b]+=gs;
+      Yn[netlist[i].a][netlist[i].b]-=gs;
+      Yn[netlist[i].b][netlist[i].a]-=gs;
+
+      Yn[netlist[i].a][nv+1]-=(netlist[i].pv2 + netlist[i].pv3)*gs/(2);
+      Yn[netlist[i].b][nv+1]+=(netlist[i].pv2 + netlist[i].pv3)*gs/(2);
+
+    }
+   // getch();
+ }
 }
 
 void montarEstampas()
@@ -340,7 +440,7 @@ int resolversistema(void)
     }
     if (fabs(t)<TOLG)
     {
-      if (fazendoGminStepping == 0)
+      //if (fazendoGminStepping == 0)
         printf("Sistema singular\n");
       return 1;
     }
@@ -488,7 +588,7 @@ int leNetlist (void)
                                                 &netlist[ne].tempoLigada,
                                                 &netlist[ne].periodo,
                                               &netlist[ne].ciclo);
-        printf("%s %s %s %lg ",netlist[ne].nome,na,nb,netlist[ne].valor);
+        printf("%s %s %s %g ",netlist[ne].nome,na,nb,netlist[ne].valor);
         printf("%lg %lg\n", netlist[ne].amplitude, netlist[ne].atraso );
 
       }
@@ -615,16 +715,21 @@ void atualizarMemoriasCapacitorIndutor()
 
 void analisePontoOperacao()  //POR ENQUANTO SO INICIA TUDO COMO ZERO
 {
+  analisandoPontodeOp = 1;
   //resolve o circuito uma vez para achar o ponto de operacao
   //monsta estampa aqui, e resolve o sistema uma vez
-  analisandoPontodeOp=true;
-  montarEstampas();
+  for (i=1; i<=ne; i++)
+  {
+    tipo=netlist[i].nome[0];
+    estampas(tipo);
+  }
   if (resolversistema())
   {
     getch();
     exit(0);
   }
-
+  CopiaSolucaoNR();
+  //Inicializa as Tensoes/Correntes em Capacitores/Indutores
   for (i=1; i<=ne; i++)
   {
     tipo=netlist[i].nome[0];
@@ -636,11 +741,13 @@ void analisePontoOperacao()  //POR ENQUANTO SO INICIA TUDO COMO ZERO
     }
     if (tipo=='C'){
       netlist[i].jt0 = 0;
+    // netlist[i].vt0 = 0;
       netlist[i].vt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]));
     }
     if (tipo=='L'){
       netlist[i].jt0 = ((Yn[netlist[i].a][nv+1]) - (Yn[netlist[i].b][nv+1]))*GINDUTORCURTO;
       netlist[i].vt0 = 0;
+    //  netlist[i].jt0 = 0;
     }
   }
 
@@ -652,7 +759,8 @@ void analisePontoOperacao()  //POR ENQUANTO SO INICIA TUDO COMO ZERO
       else printf(" ... ");
       printf("\n");
   }
-  analisandoPontodeOp=false;
+
+  analisandoPontodeOp = 0;
 }
 
 void printProgresso(int i, char simbolo) //Printa o progresso do calculo, dependendo do passo atual
@@ -678,26 +786,63 @@ void printProgresso(int i, char simbolo) //Printa o progresso do calculo, depend
   }
 }
 
-void plotarGrafico()
-{
+void plotarGrafico(){
   string constTab(NOME_ARQUIVO_TAB);    //Nome do arquivo
   string constPY(NOME_ARQUIVO_GERAR_PLOT_PYTHON); //Nome do script python que plota arquivo
-
   string SysString = "";      //menssagem a ser enviada pro cmd do windows
-
   SysString = "python " + constPY + " " + constTab; //monta a menssagem para o cmd
-
+  cout << "Chamando por: " << SysString << endl;
   system(SysString.c_str());  //funcao feia que funciona
 }
-
-/*void ArmazenaSolucaoNR (void) {
+void CopiaSolucaoNR (void) {
   int i;
   for (i=0; i<=nv; i++)
     if ((ValoresNaoConvergindo[i] == 1)|| (PrimeiraVezNR==1)){
   	 NewtonRaphsonVetor[i] = Yn[i][nv+1];
    }
 }
-
+void CopiaUltimaSolucaoNoTempo (void) {
+  int i;
+  for (i=0; i<=nv; i++){
+    UltimaConvergenciaNoTempo[i] = Yn[i][nv+1];
+   }
+}
+void RecuperaUltimaSolucaoNoTempo (void) {
+  int i;
+  for (i=0; i<=nv; i++){
+    NewtonRaphsonVetor[i] = UltimaConvergenciaNoTempo[i];
+   }
+}
+void CopiaUltimaSolucaoConvergiu (void) {
+  int i;
+  for (i=0; i<=nv; i++)
+    if ((ValoresNaoConvergindo[i] == 1)|| (PrimeiraVezNR==1)){
+  	 ValoresConvergiu[i] = NewtonRaphsonVetor[i];
+   }
+}
+void RecuperaUltimaSolucaoConvergiu (void) {
+  int i;
+  for (i=0; i<=nv; i++)
+    if ((ValoresNaoConvergindo[i] == 1)|| (PrimeiraVezNR==1)){
+  	 NewtonRaphsonVetor[i] = ValoresConvergiu[i];
+   }
+}
+void ChutaValorNR (void) {
+	srand(time(NULL));
+	for (i=1; i<=nv; i++){
+    if ((ValoresNaoConvergindo[i] == 1) || (PrimeiraVezNR==1)){
+	    NewtonRaphsonVetor[i] = (double)(((rand()%1001)/10)-50);
+    }
+	}
+}
+void ChutaValorNRComPeso (int peso) {
+	srand(time(NULL));
+	for (i=1; i<=nv; i++){
+    if ((ValoresNaoConvergindo[i] == 1) || (PrimeiraVezNR==1)){
+	    NewtonRaphsonVetor[i] += (double)(rand()%(peso/25));
+    }
+	}
+}
 void ZeraValorNR (void) {
 	srand(time(NULL));
 	for (i=1; i<=nv; i++){
@@ -706,11 +851,10 @@ void ZeraValorNR (void) {
      }
 	}
 }
-
-int ComparaValorNR (void) {
+int  ComparaValorNR (void) {
   erroGrande=0;
   for (i=1; i<=nv; i++){
-    if ( (fabs(Yn[i][nv+1] - NewtonRaphsonVetor[i])) > MAX_ERRO_NR ) {
+    if ((fabs(Yn[i][nv+1] - NewtonRaphsonVetor[i])) > MAX_ERRO_NR ) {
       erroGrande=1;
       ValoresNaoConvergindo[i]=1; //se nao convergiu, o valor eh substituido por 1
       }
@@ -721,38 +865,138 @@ int ComparaValorNR (void) {
      if (erroGrande==1) return 0;
      else return 1;
 }
-
-void monstraValoresNaoConvergindo()
-{
+void mostraValoresNaoConvergindo(){
   for (i=1; i<=nv; i++){
     cout<<ValoresNaoConvergindo[i]<<endl;
   }
   cout<<endl;
 }
-*/
-void mostraResultadoParcial ()
-{
+void mostraResultadoParcial (){
   for (k=1; k<=nv; k++)
   {
     for (j=1; j<=nv+1; j++)
-      if (Yn[k][j]!=0)
+//      if (Yn[k][j]!=0)
         printf("%+4.3f ",Yn[k][j]);
-      else printf(" ..... ");
+//      else printf(" ..... ");
     printf("\n");
   }
   getch();
 }
 
+int gminstepping(){
+//cout << "gmin no tempo:" << tempoAtual << endl;
+fatordeDiv10 = 100;
+fazendoGminStepping = 1;
+counter = 0;
+int gminCounter=0;
+////////////////////NOTA 2: RETIRAR ESSA PARTE DE CODIGO, E INICiALIZAR O NR COM A ULTIMA SOLUCAO QUE CONVERGIU
+//zeraSistema();
+//montarEstampas();
+//if (resolversistema())
+//{
+//  cout<<"sistema singular"<<endl;
+//  exit(0);
+//}
+//CopiaSolucaoNR();
+//
+//ultimogs = gs;
+//counter = 0;
+//gs = gs/10;
+RecuperaUltimaSolucaoNoTempo();
+//cout<<"Recuperado!"<<endl;
+/////////////////////////FIM NOTA 2
+//ate aqui foi a primeira vez com nr com resistor do gmins
 
-/*void zeraValoresNaoConvergindo (void)
+gs = CONDUTANCIA_INICIAL_GS;
+ultimogs = CONDUTANCIA_INICIAL_GS;
+
+while(gs > CONUTANCIA_MINIMA_GS)
 {
+  zeraSistema();
+  montarEstampas();
+  if (resolversistema()) //se deu sistema singular aqui, eh pq foi chutado um valor errado. chuto ate dar certo
+  {
+    //cout << "ERRO AAH" << counter << " " << NewtonRaphsonVetor[0] << " "<< NewtonRaphsonVetor[1] << endl;
+    mostraResultadoParcial ();
+    getch();
+    exit(0);
+    //ChutaValorNR();   //
+    //zeraSistema();    //  ?
+    //montarEstampas(); //
+  }
+
+  if (ComparaValorNR())//se convergiu
+    {
+      CopiaSolucaoNR();
+      CopiaUltimaSolucaoConvergiu();
+      counter = 0;
+      ultimogs = gs;
+      gs = gs/fatordeDiv10;
+    }
+  else
+    {
+      if (counter > 50)   //Se já tiver feito muitas interacoes de newton-raphson
+      {
+        gminCounter++;
+        fatordeDiv10 = sqrt(fatordeDiv10);
+        gs = ultimogs;
+        gs = gs/fatordeDiv10;
+        RecuperaUltimaSolucaoConvergiu();
+        counter=-1;
+
+        //cout << "VO CHUTAR O BALDE" << endl;
+        //ChutaValorNRComPeso(gminCounter);   //tentativa de dar uma maozinha pro programa
+      }
+      counter++;
+    }
+
+    if (gminCounter==50) //se ja diminui demais gs
+      {
+        cout<<"\nNao converge com Gmin"<<endl; //nao coverge nem com gmin
+        getch();
+        exit(0);
+      }
+      CopiaSolucaoNR();
+  }
+
+//cout << "CONVERGIU " << counter << " " << NewtonRaphsonVetor[0] << " "<< NewtonRaphsonVetor[1] << endl;
+fazendoGminStepping = 0;
+return 1;
+}
+
+void zeraValoresNaoConvergindo (void){
   for (i=1; i<=nv; i++){
     ValoresNaoConvergindo[i] =0;
   }
 }
 
-//void analiseNR ()
+int analiseNR ()
 {
 
+  //NewtonRaphsonTentativas = 0;
+  NewtonRaphsonTentarNovamente = 0;
+  zeraValoresNaoConvergindo();
+  zeraSistema();
+  gs = CONDUTANCIA_INICIAL_GS;
+  ultimogs = CONDUTANCIA_INICIAL_GS;
+  fazendoGminStepping=0;
+
+    for (NewtonRaphsonTentarNovamente = 1; NewtonRaphsonTentarNovamente<=NEWTONRAPHSON_NUMERO_MAX_TENTARNOVAMENTE; NewtonRaphsonTentarNovamente++)
+    {
+      zeraSistema();
+      montarEstampas();
+      resolversistema();
+
+      if (ComparaValorNR()==1)//se convergiu, sai do programa
+      {
+      //  printf ("Sistema convergiu com %i iteracoes e %i inicializacoes randomicas. estamos no tempo %f\n",NewtonRaphsonTentarNovamente, NewtonRaphsonTentativas-1, tempoAtual);
+        return 1;
+      }
+
+      CopiaSolucaoNR();
+    }
+
+  //  cout<<"gmin"<<endl;
+    return gminstepping();
+
 }
-*/

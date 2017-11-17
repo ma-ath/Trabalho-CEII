@@ -8,8 +8,8 @@
 #define PI                                        (3.141592653589793)
 #define TOLG                                      1e-9
 #define versao                                    "2.0 21/10/2017"
-#define GINDUTORCURTO                             1e9    //para os pontos de operacao
-#define GCAPACITORABERTO                          1e-9         //para os pontos de operacao
+#define GINDUTORCURTO                             1e9     //para os pontos de operacao
+#define GCAPACITORABERTO                          1e-9          //para os pontos de operacao
 #define PROGRESSO_PORCENTAGEM                     2
 #define PROGRESSO_SIMBOLO                         '*'
 #define MAX_ERRO_NR                               1e-6 //erro tolerado para newton raphson
@@ -21,4 +21,4 @@
 #define INFINITO                                  1e12
 #define MAX_ITERACOES_GMIN                        50
 #define FATORDIV10GSINICIAL                       10
-//#define DEBUG
+#define DEBUG
