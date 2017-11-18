@@ -246,7 +246,7 @@ int main()
 */
 
   tempoAtual+=passo;
-//  ArmazenaUltimaSolucaoYn();
+  ArmazenaUltimaSolucaoYn();
   } /*FIM loop de tempo*/
 
   /* Mostra solucao */
@@ -261,6 +261,6 @@ int main()
   //}
   plotarGrafico();
   getch();
-  cout << "おはよう！" << endl;
+  //cout << "おはよう！" << endl;
   return 0;
 }
