@@ -65,7 +65,12 @@ void estampas(char tipo){
     //Yn[netlist[i].a][nv+1]-=g;
     //Yn[netlist[i].b][nv+1]+=g;
     // onde g é o valor da fonte no tempo atual
-
+    if (netlist[i].tempoSubida == 0){
+      netlist[i].tempoSubida = passo;
+    }
+    if (netlist[i].tempoDescida == 0){
+      netlist[i].tempoDescida = passo;
+    }
       pulseRealTime=tempoAtual-netlist[i].atraso;
       pulseRealTime= fmod(pulseRealTime,netlist[i].periodo);
       pulseOffTime=netlist[i].periodo- (netlist[i].tempoSubida+netlist[i].tempoDescida+netlist[i].tempoLigada);
@@ -163,6 +168,12 @@ void estampas(char tipo){
       Yn[netlist[i].x][netlist[i].a]-=1;
       Yn[netlist[i].x][netlist[i].b]+=1;
 
+      if (netlist[i].tempoSubida == 0){
+        netlist[i].tempoSubida = passo;
+      }
+      if (netlist[i].tempoDescida == 0){
+        netlist[i].tempoDescida = passo;
+      }
       pulseRealTime=tempoAtual-netlist[i].atraso;
       pulseRealTime= fmod(pulseRealTime,netlist[i].periodo);
       pulseOffTime=netlist[i].periodo- (netlist[i].tempoSubida+netlist[i].tempoDescida+netlist[i].tempoLigada);

@@ -151,6 +151,7 @@ int main()
 
 
   while(tempoAtual<tempoFinal+passo) {
+
     //  Metodo de resolucao
     //  0 - Inicializa valores de tensao e corrente nos capacitores e indutores com uma analise de ponto de operacao com Newton-Raphson
     //  1 - Zera sistema nodal
