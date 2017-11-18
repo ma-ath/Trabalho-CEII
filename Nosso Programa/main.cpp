@@ -150,7 +150,7 @@ int main()
     }cout<<"\n"<<endl;*/
 
 
-  while(tempoAtual<tempoFinal+passo) {
+  while(tempoAtual<=tempoFinal+passo/2) {
 
     //  Metodo de resolucao
     //  0 - Inicializa valores de tensao e corrente nos capacitores e indutores com uma analise de ponto de operacao com Newton-Raphson
