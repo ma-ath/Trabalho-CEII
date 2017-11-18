@@ -841,7 +841,7 @@ void AdicionaGSSePreciso(){
 
 bool analiseNR(){
   if (analisandoPontodeOp == false){
-    RecuperaUltimaSolucaoYn(); //se for ponto de op, ja esta preenchido com 0.1
+    AproxInicialNR(); //se for ponto de op, ja esta preenchido com 0.1
   }
 
   for (iteracaoNR = 0; iteracaoNR<REPETIR_NR_MAX ; iteracaoNR++){
