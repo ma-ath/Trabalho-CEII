@@ -246,7 +246,7 @@ int main()
 */
 
   tempoAtual+=passo;
-  ArmazenaUltimaSolucaoYn();
+//  ArmazenaUltimaSolucaoYn();
   } /*FIM loop de tempo*/
 
   /* Mostra solucao */
