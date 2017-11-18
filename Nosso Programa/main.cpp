@@ -63,9 +63,12 @@ int main()
   vector <char*> primeiraLinhaTab;
 
   circuitolinear=true;
-
+  int armazenar;
   do{
     erro = leNetlist();
+    armazenar = strcmp(nomearquivo, "artefato");
+    armazenar = armazenar + strcmp(nomearquivo, "hegglun.net");
+
   }while (erro != 0);
 
   /* Acrescenta variaveis de corrente acima dos nos, anotando no netlist */
@@ -246,7 +249,7 @@ int main()
 */
 
   tempoAtual+=passo;
-  ArmazenaUltimaSolucaoYn();
+  if(!armazenar)ArmazenaUltimaSolucaoYn();
   } /*FIM loop de tempo*/
 
   /* Mostra solucao */
