@@ -52,8 +52,8 @@ int main()
   printf("\t\t __/\\  /\\  /\\  /\\__\n");
   printf("\t\t     \\/  \\/  \\/    \n\n");
 
-  cout <<"\t    /_\\ |  \\ /  ---  S I E"<<endl;
-  cout <<"\t___/   \\|__ |    |    P C "<<endl;
+  cout <<"\t    /_\\ |  \\ /  -----  S I E"<<endl;
+  cout <<"\t___/   \\|__ |      |    P C "<<endl;
 
 
   /* 1 - Leitura do netlist */
@@ -64,12 +64,7 @@ int main()
 
   circuitolinear=true;
   int armazenar;
-  do{
-    erro = leNetlist();
-    armazenar = strcmp(nomearquivo, "artefato");
-    armazenar = armazenar + strcmp(nomearquivo, "hegglun.net");
-
-  }while (erro != 0);
+  inicializaNetlist(&erro,&armazenar);
 
   /* Acrescenta variaveis de corrente acima dos nos, anotando no netlist */
   nn=nv;
@@ -264,6 +259,6 @@ int main()
   //}
   plotarGrafico();
   getch();
-  //cout << "おはよう！" << endl;
+  //cout << "ありがとうございました！" << endl;
   return 0;
 }

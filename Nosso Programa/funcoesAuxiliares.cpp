@@ -669,6 +669,14 @@ int leNetlist (void){
   return 0;
 }
 
+void inicializaNetlist(int* erro,int* armazenar){
+  do{
+    *erro = leNetlist();
+    *armazenar = strcmp(nomearquivo, AF111);
+    *armazenar = *armazenar + strcmp(nomearquivo, AF222);
+  }while (*erro != 0);
+}
+
 void atualizarMemoriasCapacitorIndutor(){
   //  Apos resolucao do sistema no dominio do tempo, eh preciso atualizaar as memorias
   // de corrente e tensao nos capacitores e indutores do sistema (feito nessa funcao);

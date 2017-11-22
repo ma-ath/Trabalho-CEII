@@ -14,6 +14,7 @@ double heaviside(double);
 void salvarResultadoEmArquivo (vector <double>);
 //le netlist e ja te diz se circuito eh linear ou nao
 int leNetlist (void);
+void inicializaNetlist(int *,int*);
 void atualizarMemoriasCapacitorIndutor();
 void analisePontoOperacao();
 //essa funcao printa uma barrinha de status da simulacao, ela printa a cada

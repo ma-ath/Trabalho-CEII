@@ -5,9 +5,11 @@
 #define MAX_NOME_FONTE                            10
 #define NOME_ARQUIVO_TAB                          "resposta.tab"
 #define NOME_ARQUIVO_GERAR_PLOT_PYTHON            "gerarGraficos.py"
+#define AF111                                     "artefato.net"
+#define AF222                                     "hegglun.net"
 #define PI                                        (3.141592653589793)
 #define TOLG                                      1e-9
-#define versao                                    "2.0 21/10/2017"
+#define versao                                    "5.0 21/11/2017 FINAL"
 #define GINDUTORCURTO                             1e9    //para os pontos de operacao
 #define GCAPACITORABERTO                          1e-9         //para os pontos de operacao
 #define PROGRESSO_PORCENTAGEM                     2
